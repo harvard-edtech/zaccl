@@ -21,6 +21,8 @@ const resetThrottle = () => {
 
 /**
  * Send an API request to Zoom
+ * @author Gabe Abrams
+ * @async
  * @param {string} path - the url path to hit
  * @param {string} key - the Zoom API key to use to generate credentials
  * @param {string} secret - the Zoom API secret to use to generate credentials
