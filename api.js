@@ -58,7 +58,6 @@ module.exports = async (opts) => {
     path: path.join('/v2', opts.path),
   })
     .then((response) => {
-      console.log(response.status);
       return response.body;
     });
 };
