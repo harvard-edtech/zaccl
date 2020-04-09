@@ -56,8 +56,5 @@ module.exports = async (opts) => {
     },
     host: 'api.zoom.us',
     path: path.join('/v2', opts.path),
-  })
-    .then((response) => {
-      return response.body;
-    });
+  });
 };
