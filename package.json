@@ -21,6 +21,7 @@
 	},
 	"homepage": "https://github.com/harvard-edtech/zaccl#readme",
 	"dependencies": {
+		"async-mutex": "^0.2.2",
 		"axios": "^0.19.2",
 		"jsonwebtoken": "^8.5.1",
 		"qs": "^6.9.3"
