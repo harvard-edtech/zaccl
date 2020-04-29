@@ -1,7 +1,9 @@
 const path = require('path');
 const jwt = require('jsonwebtoken');
 
-const sendRequest = require('./helpers/sendRequest');
+const sendRequest = require('../helpers/sendRequest');
+
+// TODO: auto-detect "429 Too Many Requests" and retry after "retry-after"
 
 /* -------------------------- Constants ------------------------- */
 

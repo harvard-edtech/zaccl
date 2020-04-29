@@ -1,37 +1,37 @@
 {
-  "name": "zaccl",
-  "version": "1.0.2",
-  "description": "The Zoom App Complete Connection Library, a project that handles everything required to build a zoom-integrated app.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/harvard-edtech/zaccl.git"
-  },
-  "keywords": [
-    "Zoom",
-    "API"
-  ],
-  "author": "Gabe Abrams <gabeabrams@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/harvard-edtech/zaccl/issues"
-  },
-  "homepage": "https://github.com/harvard-edtech/zaccl#readme",
-  "dependencies": {
-    "axios": "^0.19.2",
-    "caccl-lti": "^1.1.0",
-    "jsonwebtoken": "^8.5.1",
-    "qs": "^6.9.3"
-  },
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^18.1.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-jest": "^23.8.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.19.0"
-  }
+	"name": "zaccl",
+	"version": "1.0.2",
+	"description": "The Zoom App Complete Connection Library, a project that handles everything required to build a zoom-integrated app.",
+	"main": "index.js",
+	"scripts": {
+		"test": "mocha --exit --recursive --reporter spec"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/harvard-edtech/zaccl.git"
+	},
+	"keywords": [
+		"Zoom",
+		"API"
+	],
+	"author": "Gabe Abrams <gabeabrams@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/harvard-edtech/zaccl/issues"
+	},
+	"homepage": "https://github.com/harvard-edtech/zaccl#readme",
+	"dependencies": {
+		"axios": "^0.19.2",
+		"jsonwebtoken": "^8.5.1",
+		"qs": "^6.9.3"
+	},
+	"devDependencies": {
+		"eslint": "^6.8.0",
+		"eslint-config-airbnb": "^18.1.0",
+		"eslint-plugin-import": "^2.20.2",
+		"eslint-plugin-jest": "^23.8.2",
+		"eslint-plugin-jsx-a11y": "^6.2.3",
+		"eslint-plugin-react": "^7.19.0",
+		"mocha": "^7.1.2"
+	}
 }
