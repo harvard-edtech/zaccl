@@ -6,6 +6,7 @@
  */
 
 const defaultSendZoomRequest = require('./sendZoomRequest');
+const RuleMap = require('./ruleMap');
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -25,13 +26,14 @@ class API {
       sendZoomRequest,
     } = opts;
 
-    // Store a copy of the api
+    // Store a copy of the api, key, and secret
     this.sendZoomRequest = sendZoomRequest || defaultSendZoomRequest;
-
-    // TODO: store the key and secret in the class
+    this.key = key;
+    this.secret = secret;
 
     // TODO: initialize anything you might need
-    // NOTE: This class should use minimal memory and should clean up after itself
+    // NOTE: This class should use minimal memory, should clean up after itself
+    this.ruleMap = new RuleMap();
   }
 
   /**

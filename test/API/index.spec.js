@@ -4,10 +4,13 @@ import assert from 'assert';
 const stubZoomRequest = require('./helpers/stubZoomRequest');
 
 // import class to test
-const api = require('../../api');
+const API = require('../../api');
 
+// TODO: Fill in tests
 describe('API', function () {
   describe('API > addRule', function () {
+    const testAPI = new API('fakeKey', 'fakeSecret');
+
     it('Converts a path template to the correct regexp', function () {
 
     });
