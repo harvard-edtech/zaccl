@@ -5,31 +5,31 @@
 
 class RuleMap {
   constructor() {
-    // Stores a map from method -> (map from path regex -> throttler)
+    // Stores a map from method -> (map from path regex -> throttled queue)
     this.map = new Map();
   }
 
   /**
    * Add a new rule to the map
+   * @author Grace Whitney
+   * @param {object} regexp - regexp object of endpoint path template
+   * @param {string} method - method of endpoint
+   * @param {object} queue - throttled queue for endpoint
+   * @returns ???
    */
-  addRule(opts) {
+  store(opts) {
 
   }
 
   /**
-   * Look up an endpoint and return any matching throttle rule
+   * Look up an endpoint and return any matching throttle queue
+   * @author Grace Whitney
    * @param {string} method - method of endpoint
    * @param {string} path - path of template
+   * @returns {object} throttled queue for given endpoint
    */
   lookup(method, path) {
 
-  }
-
-  /**
-   * Return rule map (for testing purposes)
-   */
-  getMap() {
-    return this.map;
   }
 }
 
