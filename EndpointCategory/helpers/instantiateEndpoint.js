@@ -28,18 +28,19 @@ module.exports = (config) => {
   } = config;
 
   return async (opts) => {
-    // TODO: write pre-function code
-    // - Check requirements
-    // - Build context { api, visitEndpoint }
+    // TODO: make sure all required parameters are included
 
-    // TODO: call the core function
+    // TODO: build the context: { api, visitEndpoint }
+    // note: visitEndpoint is actually just api.visitEndpoint
 
-    // TODO: write post-function code
-    // - Detect errors using errorMap
-    // - Post-process using postProcessor
-    // - Make sure errors are thrown appropriately
-    // - If no error, just respond with the body of the request
+    // TODO: call the core function, catching errors
+    // note: if an error occurs, it's a network error. Create a ZACCLError
 
-    // TODO: fetch following pages
+    // TODO: detect errors using the errorMap. Throw any error
+
+    // TODO: Run the post-processor, throwing any errors it produces
+    // and converting non-ZACCLError errors into ZACCLErrors with better text
+
+    // TODO: extract the body of the response and return that
   };
 };
