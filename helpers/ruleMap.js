@@ -1,7 +1,7 @@
 const { default: PQueue } = require('p-queue');
 
 /**
- * Class for storing throttle rules
+ * Class for storing throttle and daily limit rules
  * @author Grace Whitney
  */
 
@@ -55,22 +55,22 @@ class RuleMap {
     };
 
     // add rule to nested map of the method, with the path regexp as its key
-    let methodMap;
+    let innerMap;
     if (this.map.has(method)) {
-      methodMap = this.map.get(method);
+      innerMap = this.map.get(method);
     } else {
-      methodMap = new Map();
-      this.map.set(method, methodMap);
+      innerMap = new Map();
+      this.map.set(method, innerMap);
     }
 
     // throw an error on duplicate rule
-    if (methodMap.has(regexp)) {
+    if (innerMap.has(regexp)) {
       throw new Error(
         'A rule for this path already exists. You may not define duplicate rules.'
       );
     }
-    // add rule to map
-    methodMap.set(regexp, rule);
+    // otherwise, add rule to map
+    innerMap.set(regexp, rule);
   }
 
   /**
@@ -91,26 +91,33 @@ class RuleMap {
       timeLastAccessed: Date.now(),
     };
 
+    // if the method is not in the map, return default directly
     if (!this.map.has(method)) {
       return defaultRule;
     }
 
-    this.map.get(method).forEach((rule, regexp) => {
+    // iterate through method map keys, looking for regexp match
+    const innerMap = this.map.get(method);
+    innerMap.keys().forEach((regexp) => {
+      // on match, update and return rule object
       if (regexp.test(path)) {
+        const rule = innerMap.get(regexp);
+        // perform daily counter arithmetic if necessary
         if (rule.maxRequestsPerDay) {
-          const updatedRule = rule;
           // check if we need to reset daily counter
-          const midnight = new Date();
-          midnight.setHours(0, 0, 0, 0);
+          const midnight = (new Date()).setHours(0, 0, 0, 0);
           if (rule.timeLastAccessed < midnight) {
-            updatedRule.dailyTokensRemaining = rule.maxRequestsPerDay;
+            rule.dailyTokensRemaining = rule.maxRequestsPerDay;
           }
-          // update timestamp
-          updatedRule.timeLastAccessed = Date.now();
-          this.map.set(regexp, updatedRule);
-          return updatedRule;
+          rule.timeLastAccessed = Date.now();
         }
-        return rule;
+        // shallow copy rule to return
+        const returnedRule = { ...rule };
+        // decrement daily tokens if necessary
+        if (rule.maxRequestsPerDay && rule.dailyTokensRemaining > 0) {
+          rule.dailyTokensRemaining -= 1;
+        }
+        return returnedRule;
       }
     });
   }
