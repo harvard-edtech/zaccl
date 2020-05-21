@@ -57,7 +57,7 @@ class API {
    * @param {string} [method=GET] - the https method to use
    * @param {object} [params] - the request params to include
    */
-  async visitEndpoint(opts) {
+  async _visitEndpoint(opts) {
     // TODO: Visit the endpoint once the throttle has been satisfied
     // TODO: Throw daily rate limit errors if we are over the limit
 

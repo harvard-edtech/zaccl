@@ -36,3 +36,13 @@ Meeting.get.errorMap = {
     3001: 'that meeting could not be found or has expired',
   },
 };
+
+
+
+
+
+
+Meeting.create20 = function (options) {
+
+};
+
