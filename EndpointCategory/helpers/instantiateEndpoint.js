@@ -3,6 +3,7 @@
  */
 
 const ZACCLError = require('../../ZACCLError');
+
 /**
  * Initialize an endpoint instance function
  * @author Aryan Pandey
@@ -33,12 +34,12 @@ module.exports = (config) => {
     if (requiredParams) {
       // Check that all required parameters are not undefined
       requiredParams.forEach((requiredParam) => {
-        if(opts[requiredParam] === undefined) {
+        if (opts[requiredParam] === undefined) {
           // Found an excluded required parameter
           return Promise.reject(new ZACCLError({
             message: `We could not ${action} because the ${requiredParam} parameter is required but was excluded.`,
             // Commented out because Error Codes are not defined yet
-            //code: errorCodes.endpointCallExcludedRequiredParam,
+            // code: errorCodes.endpointCallExcludedRequiredParam,
           }));
         }
       });
@@ -60,13 +61,33 @@ module.exports = (config) => {
      *   modified response OR a normal Error (will be translated to an
      *   "unknown error has occurred" error)
      */
-    const visitEndpoint = (opts) => {
-      // TODO: call api._visitEndpoint
+    const visitEndpoint = (options) => {
+      // call api._visitEndpoint
+      return api._visitEndpoint(options)
+        .catch((err) => {
+          // Detect errors using the errorMap. Throw any error
+          // Assuming standard error response from Zoom API
+          return Promise.reject(new ZACCLError({
+            message: errorMap[err.code],
+            code: err.code,
+          }));
+        })
 
-      // TODO: detect errors using the errorMap. Throw any error
+        .then((response) => {
+          // Run the post-processor, throwing any errors it produces
+          // and convert non-ZACCLError errors into ZACCLErrors with better text
+          options.postProcessor(response)
+            .catch((err) => {
+              return Promise.reject(new ZACCLError({
+                message: err.message,
+                code: err.code,
+              }));
+            })
 
-      // TODO: Run the post-processor, throwing any errors it produces
-      // and converting non-ZACCLError errors into ZACCLErrors with better text
+            .then((modifiedResponse) => {
+              return modifiedResponse;
+            });
+        });
     };
 
     // TODO: build the context: { api, visitEndpoint }
