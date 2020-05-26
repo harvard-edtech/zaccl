@@ -3,6 +3,7 @@
  */
 
 const ZACCLError = require('../../ZACCLError');
+const errorCodes = require('../../ERROR_CODES');
 
 /**
  * Initialize an endpoint instance function
@@ -78,10 +79,17 @@ module.exports = (config) => {
           // and convert non-ZACCLError errors into ZACCLErrors with better text
           options.postProcessor(response)
             .catch((err) => {
-              return Promise.reject(new ZACCLError({
-                message: err.message,
-                code: err.code,
-              }));
+              // Turn into CACCLError if not already
+              let newError = err;
+              if (!err.isZACCLError) {
+                newError = new ZACCLError(err);
+                // newError.code = errorCodes.unnamedEndpointError;
+              }
+
+              // TODO: add better message text to the error
+              // newError.message =
+
+              throw newError;
             })
 
             .then((modifiedResponse) => {
@@ -90,11 +98,42 @@ module.exports = (config) => {
         });
     };
 
-    // TODO: build the context: { api, visitEndpoint }
+    // Make sure endpointCoreFunction can be bound
+    if (!endpointCoreFunction.prototype) {
+      // Cannot be bound!
+      return Promise.reject(
+        new ZACCLError({
+          message: 'We ran into an internal error while attempting to bind the context of an endpoint function.',
+          // Commented out because Error Codes are not defined yet
+          // code: errorCodes.couldNotBindEndpoint,
+        })
+      );
+    }
 
-    // TODO: call the core function, catching errors
-    // note: if an error occurs, it's a network error. Create a ZACCLError
+    // build the context: { api, visitEndpoint }
+    const ctx = {
+      visitEndpoint,
+      api,
+    };
 
-    // TODO: extract the body of the response and return that
+    // Binding the context to the core function
+    const runCoreFunction = endpointCoreFunction.bind(ctx)(opts);
+
+    // call the core function, catching errors
+    return runCoreFunction
+      .catch((err) => {
+        // note: if an error occurs, it's a network error. Create a ZACCLError
+        return Promise.reject(
+          new ZACCLError({
+            message: 'We ran into a Network Error.',
+            code: errorCodes.NETWORK_ERROR,
+          })
+        );
+      })
+
+      .then((response) => {
+      // extract the body of the response and return that
+        return response.body;
+      });
   };
 };
