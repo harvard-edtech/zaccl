@@ -1,5 +1,5 @@
 const { default: PQueue } = require('p-queue');
-
+const assert = require('assert');
 /**
  * Class for storing throttle and daily limit rules
  * @author Grace Whitney
@@ -43,11 +43,15 @@ class RuleMap {
     // case insensitive by method
     const method = opts.method.toUpperCase();
 
+    const queueOpts = maxRequestsPerInterval
+      ? {
+        intervalCap: maxRequestsPerInterval,
+        interval: millisecondsPerInterval || 1000,
+      }
+      : {};
+
     // instantiate new throttler with specified limits
-    const queue = new PQueue({
-      intervalCap: maxRequestsPerInterval,
-      interval: millisecondsPerInterval || 1000,
-    });
+    const queue = new PQueue(queueOpts);
 
     // rule object
     const rule = {
@@ -91,15 +95,21 @@ class RuleMap {
    *    or default unthrottled rule, in the form:
    *    {queue, maxRequestsPerDay?, dailyTokensRemaining?, resetAfter?}
    */
-  lookup(method, path) {
+  lookup(opts) {
+    const {
+      method,
+      path,
+    } = opts;
+
     // if the method is not in the map, return default directly
-    if (!this.map.has(method)) {
+    if (!this.map[method]) {
       return this.default;
     }
 
     // iterate through method map keys, looking for regexp match
+    let returnedRule;
     const innerMap = this.map[method];
-    innerMap.keys().forEach((regexp) => {
+    Object.keys(innerMap).forEach((regexp) => {
       // convert regexp string to RegExp object
       const re = new RegExp(regexp);
       // on match, update and return rule object
@@ -115,17 +125,16 @@ class RuleMap {
           rule.timeLastAccessed = Date.now();
         }
         // shallow copy rule to return
-        const returnedRule = { ...rule };
+        returnedRule = { ...rule };
         // decrement daily tokens if necessary
         if (rule.maxRequestsPerDay && rule.dailyTokensRemaining > 0) {
           rule.dailyTokensRemaining -= 1;
         }
-        return returnedRule;
       }
     });
 
     // if no match, return default
-    return this.default;
+    return returnedRule || this.default;
   }
 
   /**
@@ -144,8 +153,8 @@ class RuleMap {
       resetAfter,
     } = opts;
 
-    if (this.map.has(method) && this.map.get(method).has(regexp)) {
-      this.map.get(method).get(regexp).resetAfter = resetAfter;
+    if (this.map[method] && this.map[method][regexp]) {
+      this.map[method][regexp].resetAfter = resetAfter;
     } else {
       // TODO: decide whether to add daily limit to default queue
       throw new Error(

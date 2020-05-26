@@ -76,7 +76,7 @@ const genStubZoomRequest = (opts) => {
         key,
         secret,
         path,
-        method: opts.method || 'GET',
+        method: stubOpts.method || 'GET',
       };
     }
 

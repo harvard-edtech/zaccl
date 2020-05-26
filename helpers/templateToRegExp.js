@@ -3,12 +3,11 @@
  * @author Grace Whitney
  * @param {string} template - endpoint URL template where placeholders are
  *   surrounded by curly braces. Example: /users/{userId}/meetings
- * @returns {object} Regexp object of path template
+ * @returns {string} regex string of path template
  */
 const templateToRegExp = (template) => {
   const placeholder = /\{\w*\}/g;
-  const re = template.replace(placeholder, '\\w+');
-  return new RegExp(re);
+  return template.replace(placeholder, '\\w+');
 };
 
 module.exports = templateToRegExp;

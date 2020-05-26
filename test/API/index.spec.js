@@ -1,4 +1,6 @@
-import assert from 'assert';
+const assert = require('assert');
+// library for testing date-related functionality
+const timekeeper = require('timekeeper');
 
 // import helpers
 const genStubZoomRequest = require('./helpers/stubZoomRequest');
@@ -18,7 +20,7 @@ describe('API', async function () {
 
   // Functionality tests
   it('Visits the correct endpoint', async function () {
-    const ret = await testAPI.visitEndpoint({ path: '/unthrottled/u1' });
+    const ret = await testAPI._visitEndpoint({ path: '/unthrottled/u1' });
     // Successful call to stubZoomRequest returns its parameters
     assert.equal(ret.status, 201, 'Unthrottled endpoint unsuccessful');
     assert.deepEqual(
@@ -34,7 +36,7 @@ describe('API', async function () {
   });
 
   it('Is case-insensitive', async function () {
-    const ret = await testAPI.visitEndpoint({
+    const ret = await testAPI._visitEndpoint({
       path: '/unthrottled/u1',
       method: 'Post',
     });
@@ -73,7 +75,7 @@ describe('API', async function () {
     }
 
     try {
-      await testAPI.visitEndpoint({ path: './endpoint/g1/u1' });
+      await testAPI._visitEndpoint({ path: './endpoint/g1/u1' });
     } catch (err) {
       assert.equal(
         err,
@@ -92,26 +94,22 @@ describe('API', async function () {
     });
   });
 
-  it('Resets daily count at midnight', function () {
-    // TODO: Figure out how to manipulate time
+  const throttledTestAPI = new API({
+    key: 'fakeKey',
+    secret: 'fakeSecret',
+    sendZoomRequest: genStubZoomRequest({
+      failures: [],
+      totalLimit: 5,
+    }),
+  });
+
+  throttledTestAPI.addRule({
+    template: './endpoint/{groupID}/{userID}',
+    method: 'GET',
+    maxRequestsPerDay: 10,
   });
 
   it('Cancels a queue on daily limit error', async function () {
-    const throttledTestAPI = new API({
-      key: 'fakeKey',
-      secret: 'fakeSecret',
-      sendZoomRequest: genStubZoomRequest({
-        failures: [],
-        totalLimit: 5,
-      }),
-    });
-
-    throttledTestAPI.addRule({
-      template: './endpoint/{groupID}/{userID}',
-      method: 'GET',
-      maxRequestsPerDay: 10,
-    });
-
     // TODO: What is the intended behavior on unexpected daily limit error?
     try {
       await testDailyLimit({
@@ -126,6 +124,10 @@ describe('API', async function () {
         'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
       );
     }
+  });
+
+  it('Resets daily count at midnight', function () {
+    // TODO: Use timekeeper library to manipulate time
   });
 
   // Rate limit tests

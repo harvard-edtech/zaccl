@@ -6,7 +6,8 @@
  */
 
 const defaultSendZoomRequest = require('./sendZoomRequest');
-const RuleMap = require('./ruleMap');
+const RuleMap = require('../helpers/ruleMap');
+const templateToRegExp = require('../helpers/templateToRegExp');
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -39,16 +40,35 @@ class API {
   /**
    * Add a throttle rule
    * @author Grace Whitney
-   * @param {string} template - endpoint URL template where placeholders are
-   *   surrounded by curly braces. Example: /users/{userId}/meetings
-   * @param {string} method - method of the endpoint
-   * @param {number} [maxRequestsPerSecond=unlimited] - the maximum number of
-   *   requests allowed each second
-   * @param {number} [maxRequestsPerDay=unlimited] - the maximum number of
+   * @param {object} opts - object containing all options
+   * @param {string} opts.template - endpoint URL template where placeholders
+   *   are surrounded by curly braces. Example: /users/{userId}/meetings
+   * @param {string} opts.method - method of the endpoint
+   * @param {number} [opts.maxRequestsPerInterval=unlimited] - the maximum
+   *   number of requests allowed per time interval
+   * @param {number} [opts.millisecondsPerInterval=1000] - the milliseconds per
+   *   time interval
+   * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
+   * @returns
    */
   addRule(opts) {
-    // TODO: implement
+    const {
+      template,
+      method,
+      maxRequestsPerInterval,
+      millisecondsPerInterval,
+      maxRequestsPerDay,
+    } = opts;
+
+    const regexp = templateToRegExp(template);
+    this.ruleMap.store({
+      regexp,
+      method,
+      maxRequestsPerInterval,
+      millisecondsPerInterval,
+      maxRequestsPerDay,
+    });
   }
 
   /**
@@ -59,18 +79,18 @@ class API {
    * @param {string} [method=GET] - the https method to use
    * @param {object} [params] - the request params to include
    */
-  async visitEndpoint(opts) {
+  async _visitEndpoint(opts) {
     // TODO: Visit the endpoint once the throttle has been satisfied
     // TODO: Throw daily rate limit errors if we are over the limit
 
     // TODO: add key and secret when sending zoom requests
-    // sendZoomRequest({
-    //   path: opts.path,
-    //   method: opts.method,
-    //   params: opts.params,
-    //   key: this.key,
-    //   secret: this.secret,
-    // });
+    return this.sendZoomRequest({
+      path: opts.path,
+      method: opts.method || 'GET',
+      params: opts.params,
+      key: this.key,
+      secret: this.secret,
+    });
   }
 }
 
