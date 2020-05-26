@@ -1,3 +1,8 @@
+/** Initializes an enpoint instance function
+ * @author Aryan Pandey
+ */
+
+const ZACCLError = require('../../ZACCLError');
 /**
  * Initialize an endpoint instance function
  * @author Aryan Pandey
@@ -14,6 +19,7 @@
  * @return {function} usable instance endpoint
  */
 module.exports = (config) => {
+  // Destructure config
   const {
     action,
     endpointCoreFunction,
@@ -23,7 +29,20 @@ module.exports = (config) => {
   } = config;
 
   return async (opts) => {
-    // TODO: make sure all required parameters are included
+    // Make sure all required parameters are included
+    if (requiredParams) {
+      // Check that all required parameters are not undefined
+      requiredParams.forEach((requiredParam) => {
+        if(opts[requiredParam] === undefined) {
+          // Found an excluded required parameter
+          return Promise.reject(new ZACCLError({
+            message: `We could not ${action} because the ${requiredParam} parameter is required but was excluded.`,
+            // Commented out because Error Codes are not defined yet
+            //code: errorCodes.endpointCallExcludedRequiredParam,
+          }));
+        }
+      });
+    }
 
     // Create the visitEndpoint function by wrapping the api.visitEndpoint
     // function and adding in the postProcessor
