@@ -11,9 +11,9 @@ describe('helpers > ruleMap', function () {
   // initialize ruleMap for testing, and add initial rules
   const ruleMap = new RuleMap();
   const templates = [
-    'test/{group}',
-    'test/{group}/{user}',
-    'test/{user}/call',
+    '/test/meeting/{meetingid}',
+    '/test/{user}',
+    '/test/call/{account}/{user}',
   ];
   const methods = ['GET', 'POST'];
   // Default values for all rules
@@ -35,9 +35,9 @@ describe('helpers > ruleMap', function () {
   it('returns a matching rule', function () {
     // lookup test endpoints
     const endpoints = [
-      'test/g1',
-      'test/g1/u1',
-      'test/u1/call',
+      '/test/meeting/m1',
+      '/test/u1',
+      '/test/call/a1/u1',
     ];
 
     endpoints.forEach((endpoint) => {
@@ -53,7 +53,7 @@ describe('helpers > ruleMap', function () {
       assert.equal(
         res.dailyTokensRemaining,
         defaultMaxRequestsPerDay,
-        'returned rule has incorrect daily tokens remaining on first call'
+        `returned rule for ${endpoint} has incorrect daily tokens remaining on first call`
       );
     });
   });
@@ -61,11 +61,11 @@ describe('helpers > ruleMap', function () {
   it('maintains the same queue for the same endpoint', function () {
     const r1 = ruleMap.lookup({
       method: 'GET',
-      path: 'test/g1',
+      path: '/test/u1',
     });
     const r2 = ruleMap.lookup({
       method: 'GET',
-      path: 'test/g2',
+      path: '/test/u2',
     });
 
     assert.equal(
@@ -78,11 +78,15 @@ describe('helpers > ruleMap', function () {
   it('maintains separate queues for separate endpoints', function () {
     const r1 = ruleMap.lookup({
       method: 'GET',
-      path: 'test/g1',
+      path: '/test/u1',
     });
     const r2 = ruleMap.lookup({
       method: 'POST',
-      path: 'test/g1',
+      path: '/test/u1',
+    });
+    const r3 = ruleMap.lookup({
+      method: 'GET',
+      path: '/test/call/a1/u1',
     });
 
     assert.notEqual(
@@ -90,12 +94,17 @@ describe('helpers > ruleMap', function () {
       r2.queue,
       'map does not maintain separate queues'
     );
+    assert.notEqual(
+      r1.queue,
+      r3.queue,
+      'map does not maintain separate queues'
+    );
   });
 
   it('does not allow duplicate rules', function () {
     try {
       ruleMap.store({
-        regexp: templateToRegExp('test/{group}/{person}'),
+        regexp: templateToRegExp('/test/meeting/{person}'),
         method: 'GET',
         maxRequestsPerInterval: 15,
         maxRequestsPerDay: 40,
@@ -113,7 +122,7 @@ describe('helpers > ruleMap', function () {
   it('maintains a daily counter per endpoint', function () {
     // add fresh rule
     ruleMap.store({
-      regexp: templateToRegExp('counter/{user}'),
+      regexp: templateToRegExp('/counter/{user}'),
       method: 'POST',
       maxRequestsPerDay: 20,
     });
@@ -123,7 +132,7 @@ describe('helpers > ruleMap', function () {
     for (let i = 0; i <= 20; i++) {
       const { dailyTokensRemaining } = ruleMap.lookup({
         method: 'POST',
-        path: `counter/u${i}`,
+        path: `/counter/u${i}`,
       });
       assert.equal(
         dailyTokensRemaining,
@@ -133,8 +142,11 @@ describe('helpers > ruleMap', function () {
     }
 
     // ensure counter does not go below zero
-    const { dailyTokensRemaining } = ruleMap.lookup('counter/u');
-    assert.equal(dailyTokensRemaining, 0, `daily counter is ${dailyTokensRemaining}`);
+    const { dailyTokensRemaining } = ruleMap.lookup({
+      method: 'POST',
+      path: '/counter/u20',
+    });
+    assert(dailyTokensRemaining >= 0, 'daily counter is negative');
 
     timekeeper.reset();
   });
@@ -142,11 +154,11 @@ describe('helpers > ruleMap', function () {
   it('resets daily counter on next lookup after resetAfter', function () {
     const res = ruleMap.lookup({
       method: 'POST',
-      path: 'counter/u1',
+      path: '/counter/u1',
     });
 
     // time travel
-    timekeeper.travel(res.resetAfter);
+    timekeeper.travel(res.resetAfter.getTime() + 10);
 
     const {
       maxRequestsPerDay,
@@ -154,7 +166,7 @@ describe('helpers > ruleMap', function () {
       resetAfter,
     } = ruleMap.lookup({
       method: 'POST',
-      path: 'counter/u1',
+      path: '/counter/u1',
     });
 
     assert.equal(
@@ -163,24 +175,24 @@ describe('helpers > ruleMap', function () {
       'daily counter did not reset properly'
     );
     assert.equal(
-      resetAfter,
+      resetAfter.getTime(),
       (new Date()).setUTCHours(24, 0, 0, 0),
-      'rule did not update resetAfter attribute on reset'
+      `rule did not update resetAfter attribute on reset: ${resetAfter}`
     );
 
     timekeeper.reset();
   });
 
-  it('updates the resetAfter attribute', function () {
+  it('pauses a queue until resetAfter', function () {
     const newReset = (new Date()).setUTCHours(26);
-    ruleMap.updateDailyReset({
-      regexp: templateToRegExp('counter/{user}'),
+    ruleMap.pauseEndpointUntil({
+      regexp: templateToRegExp('/counter/{user}'),
       method: 'POST',
       resetAfter: newReset,
     });
     const { resetAfter } = ruleMap.lookup({
       method: 'POST',
-      path: 'counter/u1',
+      path: '/counter/u1',
     });
 
     assert.equal(resetAfter, newReset, `resetAfter was not updated ${resetAfter}, ${newReset}`);

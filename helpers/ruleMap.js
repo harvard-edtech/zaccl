@@ -52,8 +52,11 @@ class RuleMap {
 
     // instantiate new throttler with specified limits
     const queue = new PQueue(queueOpts);
+    // instantiate Datetime object and set to next UTC midnight
+    const midnight = new Date();
+    midnight.setUTCHours(24, 0, 0, 0);
 
-    // rule object
+    // create rule object
     const rule = {
       // throttled queue
       queue,
@@ -63,7 +66,7 @@ class RuleMap {
       dailyTokensRemaining: maxRequestsPerDay,
       // timestamp after which to reset tokens to full,
       //   initially set to next UTC midnight
-      resetAfter: (new Date()).setUTCHours(24, 0, 0, 0),
+      resetAfter: midnight,
     };
 
     // add rule to nested map of the method, with the path regexp as its key
@@ -107,34 +110,35 @@ class RuleMap {
     }
 
     // iterate through method map keys, looking for regexp match
-    let returnedRule;
     const innerMap = this.map[method];
-    Object.keys(innerMap).forEach((regexp) => {
+    const regexps = Object.keys(innerMap);
+    for (let i = 0; i < regexps.length; i++) {
       // convert regexp string to RegExp object
+      const regexp = regexps[i];
       const re = new RegExp(regexp);
       // on match, update and return rule object
       if (re.test(path)) {
         const rule = innerMap[regexp];
         // perform daily counter arithmetic if necessary
         if (rule.maxRequestsPerDay) {
-          // check if we need to reset daily counter
-          if (rule.timeLastAccessed < rule.resetAfter) {
+          // check if we need update daily counter by adding 24 hours
+          if (rule.resetAfter < Date.now()) {
             rule.dailyTokensRemaining = rule.maxRequestsPerDay;
-            rule.resetAfter = (new Date()).setUTCHours(24, 0, 0, 0);
+            rule.resetAfter.setUTCHours(24, 0, 0, 0);
           }
-          rule.timeLastAccessed = Date.now();
         }
         // shallow copy rule to return
-        returnedRule = { ...rule };
+        const returnedRule = { ...rule };
         // decrement daily tokens if necessary
         if (rule.maxRequestsPerDay && rule.dailyTokensRemaining > 0) {
           rule.dailyTokensRemaining -= 1;
         }
+        return returnedRule;
       }
-    });
+    }
 
     // if no match, return default
-    return returnedRule || this.default;
+    return this.default;
   }
 
   /**
@@ -146,7 +150,7 @@ class RuleMap {
    * @param {string} opts.method - method of endpoint
    * @param {object} opts.resetAfter - Date object representing new reset time
    */
-  updateDailyReset(opts) {
+  pauseEndpointUntil(opts) {
     const {
       regexp,
       method,
@@ -154,11 +158,12 @@ class RuleMap {
     } = opts;
 
     if (this.map[method] && this.map[method][regexp]) {
+      this.map[method][regexp].dailyTokensRemaining = 0;
       this.map[method][regexp].resetAfter = resetAfter;
     } else {
       // TODO: decide whether to add daily limit to default queue
       throw new Error(
-        `The rule for path ${regexp.toString()} and method ${method} does not exist and cannot be updated.`
+        `The rule for path ${regexp.toString()} and method ${method} does not exist and cannot be paused.`
       );
     }
   }
