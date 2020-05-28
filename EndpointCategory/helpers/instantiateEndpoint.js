@@ -30,7 +30,7 @@ module.exports = (config) => {
     errorMap,
   } = config;
 
-  return async (opts) => {
+  return async (opts = {}) => {
     // Make sure all required parameters are included
     if (requiredParams) {
       // Check that all required parameters are not undefined
