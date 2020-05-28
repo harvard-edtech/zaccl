@@ -71,15 +71,17 @@ describe('API', async function () {
         callIters: 5,
       });
     } catch (err) {
-      assert(false, 'API canceled queue prematurely');
+      throw new Error('API canceled queue prematurely');
     }
 
     try {
       await testAPI._visitEndpoint({ path: './endpoint/g1/u1' });
+      throw new Error('API did not cancel queue');
     } catch (err) {
       assert.equal(
-        err,
-        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
+        err.message,
+        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        'API returned unexpected error'
       );
     }
   });
@@ -110,7 +112,6 @@ describe('API', async function () {
   });
 
   it('Cancels a queue on daily limit error', async function () {
-    // TODO: What is the intended behavior on unexpected daily limit error?
     try {
       await testDailyLimit({
         api: throttledTestAPI,
@@ -121,7 +122,8 @@ describe('API', async function () {
     } catch (err) {
       assert.equal(
         err,
-        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
+        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        'API threw unexpected error'
       );
     }
   });

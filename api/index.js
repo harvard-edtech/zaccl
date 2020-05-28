@@ -32,8 +32,6 @@ class API {
     this.key = key;
     this.secret = secret;
 
-    // TODO: initialize anything you might need
-    // NOTE: This class should use minimal memory, should clean up after itself
     this.ruleMap = new RuleMap();
   }
 
@@ -78,19 +76,72 @@ class API {
    * @param {string} path - the url path to hit
    * @param {string} [method=GET] - the https method to use
    * @param {object} [params] - the request params to include
+   * @param {number} [priority=0] - the priority of the endpoint call, where
+   *    higher numbers are scheduled first
    */
   async _visitEndpoint(opts) {
     // TODO: Visit the endpoint once the throttle has been satisfied
     // TODO: Throw daily rate limit errors if we are over the limit
+    const {
+      path,
+      params,
+      priority,
+    } = opts;
 
-    // TODO: add key and secret when sending zoom requests
-    return this.sendZoomRequest({
-      path: opts.path,
-      method: opts.method || 'GET',
-      params: opts.params,
-      key: this.key,
-      secret: this.secret,
+    const method = opts.method ? opts.method.toUpperCase() : 'GET';
+
+    // look for corresponding throttle rule in rule map
+    const {
+      regexp,
+      queue,
+      dailyTokensRemaining,
+    } = this.ruleMap.lookup({ path, method });
+
+    if (dailyTokensRemaining === 0) {
+      throw new Error(
+        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
+      );
+    }
+
+    // add zoomRequest call to throttled queue of endpoint
+    let response;
+    await queue.add(async () => {
+      response = await this.sendZoomRequest({
+        path,
+        method,
+        params,
+        key: this.key,
+        secret: this.secret,
+      },
+      {
+        priority,
+      });
+
+      const { status, headers } = response;
+
+      // check for rate limit errors
+      if (status === 429) {
+        if (headers['X-RateLimit-Type'] === 'daily') {
+          // clear the queue
+          queue.clear();
+          // prevent future calls today
+          const resetAfter = headers['Retry-After'];
+          this.ruleMap.pauseEndpointUntil({
+            regexp,
+            method,
+            resetAfter,
+          });
+          // TODO: Should this error be different?
+          throw new Error(
+            'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
+          );
+        } else if (headers['X-RateLimit-Type'] === 'rate') {
+          // TODO
+        }
+      }
     });
+
+    return response;
   }
 }
 

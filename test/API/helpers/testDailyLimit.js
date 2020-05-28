@@ -18,7 +18,7 @@ const testDailyLimit = async (opts) => {
 
   // call visitEndpoint callIters times
   for (let i = 0; i < callIters; i++) {
-    api.visitEndpoint({ path, method });
+    api._visitEndpoint({ path, method });
   }
 };
 

@@ -25,7 +25,9 @@
 		"axios": "^0.19.2",
 		"bottleneck": "^2.19.5",
 		"jsonwebtoken": "^8.5.1",
-		"qs": "^6.9.3"
+		"p-queue": "^6.4.0",
+		"qs": "^6.9.3",
+		"timekeeper": "^2.2.0"
 	},
 	"devDependencies": {
 		"eslint": "^6.8.0",

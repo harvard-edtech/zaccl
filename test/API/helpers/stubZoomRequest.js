@@ -1,3 +1,7 @@
+// Define Zoom response header strings
+const dailyLimitHeader = 'daily';
+const rateLimitHeader = 'rate';
+
 /**
  * Function that generates parameterized testing stub for sendZoomRequest
  * @author Grace Whitney
@@ -45,10 +49,12 @@ const genStubZoomRequest = (opts) => {
     let status;
     let headers;
 
-    // check whether call index is a specified failure
+    // check whether call index is a specified failure and mimic rate error
     if (failures.includes(currentIndex)) {
       status = 429;
-      headers = {};
+      headers = {
+        'X-RateLimit-Type': rateLimitHeader,
+      };
       body = {
         code: 429,
         message: 'You have reached the maximum per-second rate limit for this API. Try again later.',
@@ -57,7 +63,8 @@ const genStubZoomRequest = (opts) => {
     } else if (totalLimit && callIndex >= totalLimit) {
       status = 429;
       headers = {
-        'x-RateLimit-Limit': totalLimit,
+        'X-RateLimit-Type': dailyLimitHeader,
+        'X-RateLimit-Limit': totalLimit,
         'Retry-After': null,
       };
       body = {
@@ -68,8 +75,8 @@ const genStubZoomRequest = (opts) => {
     } else {
       status = 201;
       headers = {
-        'x-RateLimit-Limit': totalLimit,
-        'x-RateLimit-Remaining': totalLimit - currentIndex,
+        'X-RateLimit-Limit': totalLimit,
+        'X-RateLimit-Remaining': totalLimit - currentIndex,
       };
       // successful call returns its arguments for testing purposes
       body = {

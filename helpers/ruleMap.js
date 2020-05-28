@@ -1,5 +1,5 @@
 const { default: PQueue } = require('p-queue');
-const assert = require('assert');
+
 /**
  * Class for storing throttle and daily limit rules
  * @author Grace Whitney
@@ -10,7 +10,7 @@ class RuleMap {
    * @author Grace Whitney
    */
   constructor() {
-    // Stores a map from method -> (map from path regex -> rule object)
+    // Stores an object mapping method -> (map from path regex -> rule object)
     this.map = {};
     // Default unthrottled rule for non-rate-limited endpoints
     this.default = {
@@ -89,14 +89,14 @@ class RuleMap {
   }
 
   /**
-   * Look up an endpoint and return any matching throttle queue,
-   *   or the unthrottled queue if there's no match
+   * Look up an endpoint and return any matching rule object,
+   *   or the default unthrottled queue if there's no match
    * @author Grace Whitney
    * @param {string} method - method of endpoint to look up
    * @param {string} path - path of endpoint to look up
    * @returns {object} rule object for given endpoint if it exists,
    *    or default unthrottled rule, in the form:
-   *    {queue, maxRequestsPerDay?, dailyTokensRemaining?, resetAfter?}
+   *    {queue, regexp, maxRequestsPerDay?, dailyTokensRemaining?, resetAfter?}
    */
   lookup(opts) {
     const {
@@ -121,14 +121,20 @@ class RuleMap {
         const rule = innerMap[regexp];
         // perform daily counter arithmetic if necessary
         if (rule.maxRequestsPerDay) {
-          // check if we need update daily counter by adding 24 hours
+          // check if we need to update daily counter
           if (rule.resetAfter < Date.now()) {
             rule.dailyTokensRemaining = rule.maxRequestsPerDay;
-            rule.resetAfter.setUTCHours(24, 0, 0, 0);
+            // add 24 hours until resetAfter is in the future
+            while (rule.resetAfter < Date.now()) {
+              rule.resetAfter.setTime(
+                rule.resetAfter.getTime() + (86400 * 1000)
+              );
+            }
           }
         }
         // shallow copy rule to return
         const returnedRule = { ...rule };
+        returnedRule.regexp = regexp;
         // decrement daily tokens if necessary
         if (rule.maxRequestsPerDay && rule.dailyTokensRemaining > 0) {
           rule.dailyTokensRemaining -= 1;
@@ -142,13 +148,13 @@ class RuleMap {
   }
 
   /**
-   * Change the resetAfter attribute of an existing rule object, in case of
-   *    unexpected daily rate limit error
+   * Empty daily tokens and update resetAfter attribute of specific endpoint
+   *    rule, for use in case of unexpected daily rate limit error
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {object} opts.regexp - regexp object of endpoint path template
    * @param {string} opts.method - method of endpoint
-   * @param {object} opts.resetAfter - Date object representing new reset time
+   * @param {string} opts.resetAfter - string representing new reset time
    */
   pauseEndpointUntil(opts) {
     const {
@@ -157,13 +163,15 @@ class RuleMap {
       resetAfter,
     } = opts;
 
+    // Find corresponding rule in map if it exists, or throw an error
     if (this.map[method] && this.map[method][regexp]) {
       this.map[method][regexp].dailyTokensRemaining = 0;
-      this.map[method][regexp].resetAfter = resetAfter;
+      if (resetAfter) {
+        this.map[method][regexp].resetAfter = new Date(resetAfter);
+      }
     } else {
-      // TODO: decide whether to add daily limit to default queue
       throw new Error(
-        `The rule for path ${regexp.toString()} and method ${method} does not exist and cannot be paused.`
+        `The rule for path ${regexp} and method ${method} does not exist and cannot be paused.`
       );
     }
   }

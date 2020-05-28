@@ -184,17 +184,18 @@ describe('helpers > ruleMap', function () {
   });
 
   it('pauses a queue until resetAfter', function () {
-    const newReset = (new Date()).setUTCHours(26);
+    const newReset = new Date();
+    newReset.setUTCHours(26, 0, 0, 0);
     ruleMap.pauseEndpointUntil({
       regexp: templateToRegExp('/counter/{user}'),
       method: 'POST',
-      resetAfter: newReset,
+      resetAfter: newReset.toString(),
     });
     const { resetAfter } = ruleMap.lookup({
       method: 'POST',
       path: '/counter/u1',
     });
 
-    assert.equal(resetAfter, newReset, `resetAfter was not updated ${resetAfter}, ${newReset}`);
+    assert.deepEqual(resetAfter, newReset, 'resetAfter was not updated');
   });
 });
