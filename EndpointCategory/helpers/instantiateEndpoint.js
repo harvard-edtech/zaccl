@@ -33,8 +33,7 @@ module.exports = (config) => {
           // Found an excluded required parameter
           return Promise.reject(new ZACCLError({
             message: `We could not ${action} because the ${requiredParam} parameter is required but was excluded.`,
-            // Commented out because Error Codes are not defined yet
-            // code: errorCodes.endpointCallExcludedRequiredParam,
+            code: ERROR_CODES.endpointCallExcludedRequiredParam,
           }));
         }
       });
@@ -133,9 +132,7 @@ module.exports = (config) => {
       return Promise.reject(
         new ZACCLError({
           message: 'We ran into an internal error while attempting to bind the context of an endpoint function.',
-          // Commented out because Error Codes are not defined yet
-          // code: errorCodes.couldNotBindEndpoint,
-          // TODO: add a code
+          code: ERROR_CODES.couldNotBindEndpoint,
         })
       );
     }
