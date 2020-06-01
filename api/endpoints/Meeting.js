@@ -24,7 +24,7 @@ class Meeting extends EndpointCategory {
  * @method get
  * @param {number} meetingId - the Zoom id of the meeting (int64 format)
  * @param {string} [occurrenceId] - the id for the meeting occurrence
- * @param {boolean} [showAllOccurrences] - set to true to get meeting details of all past occurrences
+ * @param {boolean} [showAllOccurrences] - if truthy, retreives all past occurences
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
  */
 Meeting.get = function (options) {
@@ -57,7 +57,7 @@ Meeting.get.scopes = [
  * @memberof api.meeting
  * @method create
  * @param {string} userId - the user id or email address of the user
- * @param {Meeting} meetingObj - Zoom meeting object with details of meeting to be created
+ * @param {Meeting} meetingObj - Zoom meeting object with meeting details
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
  */
 Meeting.create = function (options) {
@@ -103,8 +103,8 @@ Meeting.update.scopes = [
  * @memberof api.meeting
  * @method delete
  * @param {number} meetingId - The meeting id (int64 format)
- * @param {string} occurrenceId - the id for the meeting occurrence
- * @param {boolean} notifyHosts - Sends email about cancellation to hosts when true
+ * @param {string} [occurrenceId] - the id for the meeting occurrence
+ * @param {boolean} [notifyHosts] - if truthy, sends cancellation email to hosts
  */
 Meeting.delete = function (options) {
 
