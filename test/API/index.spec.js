@@ -1,11 +1,8 @@
 const assert = require('assert');
-// library for testing date-related functionality
-const timekeeper = require('timekeeper');
 
 // import helpers
 const genStubZoomRequest = require('./helpers/stubZoomRequest');
 const testDailyLimit = require('./helpers/testDailyLimit');
-const testRateLimit = require('./helpers/testRateLimit');
 
 // import class to test
 const API = require('../../api');
@@ -96,7 +93,7 @@ describe('API', async function () {
     });
   });
 
-  const throttledTestAPI = new API({
+  const dailyLimitTestAPI = new API({
     key: 'fakeKey',
     secret: 'fakeSecret',
     sendZoomRequest: genStubZoomRequest({
@@ -105,7 +102,7 @@ describe('API', async function () {
     }),
   });
 
-  throttledTestAPI.addRule({
+  dailyLimitTestAPI.addRule({
     template: './endpoint/{groupID}/{userID}',
     method: 'GET',
     maxRequestsPerDay: 10,
@@ -113,26 +110,78 @@ describe('API', async function () {
 
   it('Cancels a queue on daily limit error', async function () {
     try {
-      await testDailyLimit({
-        api: throttledTestAPI,
-        path: './endpoint/g1/u1',
-        method: 'GET',
-        callIters: 9,
-      });
+      const results = [];
+      for (let i = 0; i < 9; i++) {
+        results.push(
+          dailyLimitTestAPI._visitEndpoint({
+            path: './endpoint/g1/u1',
+            method: 'GET',
+          })
+        );
+      }
+      await Promise.all(results);
+      throw new Error('Daily limit error was not thrown');
     } catch (err) {
       assert.equal(
-        err,
+        err.message,
         'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-        'API threw unexpected error'
+        `API threw unexpected error: ${err}`
       );
     }
   });
 
-  it('Resets daily count at midnight', function () {
-    // TODO: Use timekeeper library to manipulate time
+  // Rate limit tests
+  const rateLimitTestAPI = new API({
+    key: 'fakeKey',
+    secret: 'fakeSecret',
+    sendZoomRequest: genStubZoomRequest({
+      failures: [0, 3, 4, 8, 15, 16, 17, 19],
+      totalLimit: 20,
+    }),
+    timePerRequest: 10,
   });
 
-  // Rate limit tests
+  rateLimitTestAPI.addRule({
+    template: './endpoint/{groupID}',
+    method: 'POST',
+    maxRequestsPerDay: 10,
+  });
+
+  it('Retries one request on rate limit error', async function () {
+    let result;
+    try {
+      result = await rateLimitTestAPI._visitEndpoint({
+        path: './endpoint/g1',
+        method: 'POST',
+      });
+    } catch (err) {
+      throw new Error(`Received unexpected error: ${err.message}`);
+    }
+
+    assert.equal(result.status, 201, 'API did not return successful call');
+  });
+
+  it('Retries all requests on rate limit error', async function () {
+    let results = [];
+    try {
+      for (let i = 0; i < 8; i++) {
+        const result = rateLimitTestAPI._visitEndpoint({
+          path: './endpoint/g1',
+          method: 'POST',
+        });
+        results.push(result);
+      }
+      results = await Promise.all(results);
+    } catch (err) {
+      throw new Error(`Received unexpected error: ${err.message}`);
+    }
+
+    assert(
+      results.every((result) => { return result.status === 201; }),
+      `API did not return all successful calls: ${results}`
+    );
+  });
+
   it('Enforces a rate limit rule', function () {
 
   });
@@ -142,6 +191,14 @@ describe('API', async function () {
   });
 
   it('Pauses a queue on rate limit error', function () {
+
+  });
+
+  it('Handles combined rate and daily limit error correctly', function () {
+
+  });
+
+  it('Doesn\'t double count requests on rate limit error', function () {
 
   });
 

@@ -161,7 +161,7 @@ class API {
             }
 
             // On success, restart queue
-            queue.resume();
+            queue.start();
           }
         }
       }
