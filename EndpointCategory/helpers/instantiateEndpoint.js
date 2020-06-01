@@ -62,7 +62,12 @@ module.exports = (config) => {
      * @return {object} body of the response from Zoom
      */
     const visitEndpoint = async (options) => {
+      // Destructure arguments
+      const { postProcessor, errorMap } = options;
+
       let response;
+      let zoomErrorMessage;
+
       try {
         response = await api._visitEndpoint(options);
       } catch (err) {
@@ -81,17 +86,27 @@ module.exports = (config) => {
       if (status < 200 || status >= 300) {
         // A Zoom error occurred
 
-        // Determine the error message
-        // TODO: Work on this:
-        // 1. Check the status to see if that's in the errorMap
-        // 2. Check body.code for the sub code and see if that's in the error map
-        // 3. If we don't have an error given by the error map, check for and use body.message
-        // 4. If we still don't have an error message, use a generic one.
-        const errorMessage = 'DETERMINED BY LOGIC ABOVE';
-        // ^ for all these, make sure you take advantage of the action
-        // Example: `We couldn't ${action} because an error occurred: ${message}`
+        // Check status to see if its in the error map
+        if (errorMap[status]) {
+          if (typeof errorMap[status] === 'string' || errorMap[status] instanceof String) {
+            // Found the error message
+            zoomErrorMessage = errorMap[status];
+          } else if (body.code) {
+            // Check for nested error message
+            if (typeof errorMap[status][body.code] === 'string' || errorMap[status][body.code] instanceof String) {
+              // Found nested error message
+              zoomErrorMessage = errorMap[status][body.code];
+            }
+          } // Error message is not in the error map so go with body.message
+        } else if (body.message) {
+          if (typeof body.message === 'string' || body.message instanceof String) {
+            zoomErrorMessage = body.message;
+          } // Error message not found anywhere so go with a generic one
+        } else {
+          zoomErrorMessage = 'An unknown error occurred';
+        }
 
-        // Determine the error code
+        const errorMessage = `We couldn't ${action} because an error occurred: ${zoomErrorMessage}`;
         const errorCode = `ZOOM${status}${body.code ? `-${body.code}` : ''}`;
 
         throw new ZACCLError({
@@ -103,38 +118,31 @@ module.exports = (config) => {
       // Run the post-processor, throwing any errors it produces
       // and convert non-ZACCLError errors into ZACCLErrors with better text
       let modifiedResponse = response;
-      if (options.postProcessor) {
+      if (postProcessor) {
         try {
-          modifiedResponse = options.postProcessor(response);
+          modifiedResponse = postProcessor(response);
         } catch (err) {
-          // Turn into CACCLError if not already
+          // Turn into ZACCLError if not already
           let newError = err;
           if (!err.isZACCLError) {
             newError = new ZACCLError(err);
-            // TODO: set a default message, something like "An error occurred while post-processing the response from Zoom."
-            // TODO: add an error code to ERROR_CODES for post-processor errors
+            newError.message = 'An error occurred while post-processing the response from Zoom.';
+            newError.code = ERROR_CODES.POST_PROCESSING_ERROR;
           }
-
-          // TODO: add better message text to the error
-          // newError.message =
-
           throw newError;
         }
       }
-
-      // Return the body of the response
-      return modifiedResponse.body;
+      // Return the body of the zoom response
+      return modifiedResponse;
     };
 
     // Make sure endpointCoreFunction can be bound
     if (!endpointCoreFunction.prototype) {
       // Cannot be bound!
-      return Promise.reject(
-        new ZACCLError({
-          message: 'We ran into an internal error while attempting to bind the context of an endpoint function.',
-          code: ERROR_CODES.couldNotBindEndpoint,
-        })
-      );
+      throw new ZACCLError({
+        message: 'We ran into an internal error while attempting to bind the context of an endpoint function.',
+        code: ERROR_CODES.couldNotBindEndpoint,
+      });
     }
 
     // build the context: { api, visitEndpoint }
@@ -151,11 +159,14 @@ module.exports = (config) => {
       const body = runCoreFunction(opts);
       return body;
     } catch (err) {
-      if (err.isZACCLError) {
-        throw err;
+      let newError = err;
+      // Convert to non ZACCL errors to ZACCL errors
+      if (!err.isZACCLError) {
+        newError = new ZACCLError(err);
+        newError.message = 'An unknown error occurred while sending requests to Zoom.';
+        newError.code = ERROR_CODES.UNKNOWN_ERROR;
       }
-
-      // TODO: throw new ZACCLError with a 'An unknown error occurred while sending requests to Zoom.'
+      throw newError;
     }
   };
-};
+};S
