@@ -169,4 +169,4 @@ module.exports = (config) => {
       throw newError;
     }
   };
-};S
+};
