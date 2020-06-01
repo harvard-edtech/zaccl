@@ -59,6 +59,7 @@ class API {
       maxRequestsPerDay,
     } = opts;
 
+    /* --------------------------- Store the Rule --------------------------- */
     const regexp = templateToRegExp(template);
     this.ruleMap.store({
       regexp,
@@ -76,71 +77,98 @@ class API {
    * @param {string} path - the url path to hit
    * @param {string} [method=GET] - the https method to use
    * @param {object} [params] - the request params to include
-   * @param {number} [priority=0] - the priority of the endpoint call, where
-   *    higher numbers are scheduled first
+   * @param {boolean} [highPriority=false] - the priority of the endpoint call
    */
   async _visitEndpoint(opts) {
-    // TODO: Visit the endpoint once the throttle has been satisfied
-    // TODO: Throw daily rate limit errors if we are over the limit
     const {
       path,
       params,
-      priority,
+      highPriority,
     } = opts;
 
     const method = opts.method ? opts.method.toUpperCase() : 'GET';
 
-    // look for corresponding throttle rule in rule map
+    // Look up throttle rule for endpoint
     const {
       regexp,
       queue,
       dailyTokensRemaining,
     } = this.ruleMap.lookup({ path, method });
 
+    // If daily limit has been reached, reject request
     if (dailyTokensRemaining === 0) {
       throw new Error(
         'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
       );
     }
 
-    // add zoomRequest call to throttled queue of endpoint
+    // Variable to store sendRequest response, will be returned
     let response;
-    await queue.add(async () => {
+
+    // Recursive function that calls sendZoomRequest with error handling
+    const getResponse = async () => {
+      /* --------------------------- Send Request --------------------------- */
       response = await this.sendZoomRequest({
         path,
         method,
         params,
         key: this.key,
         secret: this.secret,
-      },
-      {
-        priority,
       });
 
       const { status, headers } = response;
 
-      // check for rate limit errors
+      /* -------------------------- Error Handling ---------------------------*/
       if (status === 429) {
+        // On daily limit error, clear queue, pause endpoint, and reject request
         if (headers['X-RateLimit-Type'] === 'daily') {
-          // clear the queue
           queue.clear();
-          // prevent future calls today
           const resetAfter = headers['Retry-After'];
           this.ruleMap.pauseEndpointUntil({
             regexp,
             method,
             resetAfter,
           });
+
           // TODO: Should this error be different?
           throw new Error(
             'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
           );
+        // On rate limit error, retry request with exponential backoff
         } else if (headers['X-RateLimit-Type'] === 'rate') {
-          // TODO
+          // If an earlier error has already paused the queue, resubmit request
+          //   with high priority
+          if (queue.isPaused) {
+            await queue.add(getResponse, { priority: 2 });
+          } else {
+            // Otherwise, pause the queue and retry this request until success
+            queue.pause();
+            let backoff = 10;
+            while (
+              response.status === 429
+              && response.headers['X-RateLimit-Type'] === 'rate'
+            ) {
+              const b = backoff;
+              await new Promise((r) => { setTimeout(r, b); });
+              backoff *= 2;
+              response = await this.sendZoomRequest({
+                path,
+                method,
+                params,
+                key: this.key,
+                secret: this.secret,
+              });
+            }
+
+            // On success, restart queue
+            queue.resume();
+          }
         }
       }
-    });
+    };
 
+    // Add request to throttled queue with specified priority
+    await queue.add(getResponse, { priority: highPriority ? 0 : 1 });
     return response;
   }
 }
