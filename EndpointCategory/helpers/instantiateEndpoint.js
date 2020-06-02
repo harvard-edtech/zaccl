@@ -1,4 +1,4 @@
-/** Initializes an enpoint instance function
+/** Initializes an endpoint instance function
  * @author Aryan Pandey
  */
 
@@ -31,10 +31,10 @@ module.exports = (config) => {
       requiredParams.forEach((requiredParam) => {
         if (opts[requiredParam] === undefined) {
           // Found an excluded required parameter
-          return Promise.reject(new ZACCLError({
+          throw new ZACCLError({
             message: `We could not ${action} because the ${requiredParam} parameter is required but was excluded.`,
-            code: ERROR_CODES.endpointCallExcludedRequiredParam,
-          }));
+            code: ERROR_CODES.ENDPOINT_CALL_EXCLUDED_REQUIRED_PARAM,
+          });
         }
       });
     }
@@ -62,14 +62,21 @@ module.exports = (config) => {
      * @return {object} body of the response from Zoom
      */
     const visitEndpoint = async (options) => {
-      // Destructure arguments
-      const { postProcessor, errorMap } = options;
+      // Destructure arguments and
+      // separate extraneous arguments from options object
+      const {
+        postProcessor,
+        errorMap,
+        ...endpointOptions
+      } = options;
 
       let response;
-      let zoomErrorMessage;
+      // Initialize with generic error message
+      let zoomErrorMessage = 'An unknown error occurred';
 
       try {
-        response = await api._visitEndpoint(options);
+        // Call method with only necessary arguments
+        response = await api._visitEndpoint(endpointOptions);
       } catch (err) {
         // We encountered an error while sending the request
         throw new ZACCLError({
@@ -88,23 +95,30 @@ module.exports = (config) => {
 
         // Check status to see if its in the error map
         if (errorMap[status]) {
-          if (typeof errorMap[status] === 'string' || errorMap[status] instanceof String) {
+          if (typeof errorMap[status] === 'string') {
             // Found the error message
             zoomErrorMessage = errorMap[status];
           } else if (body.code) {
             // Check for nested error message
-            if (typeof errorMap[status][body.code] === 'string' || errorMap[status][body.code] instanceof String) {
+            if (typeof errorMap[status][body.code] === 'string') {
               // Found nested error message
               zoomErrorMessage = errorMap[status][body.code];
+            } else if (body.message) {
+              // errorMap[status][code] did not return err message
+              // so we check body
+              if (typeof body.message === 'string') {
+                zoomErrorMessage = body.message;
+              }
             }
-          } // Error message is not in the error map so go with body.message
+          }
         } else if (body.message) {
-          if (typeof body.message === 'string' || body.message instanceof String) {
+          // Error message not in the error map so check body
+          if (typeof body.message === 'string') {
             zoomErrorMessage = body.message;
-          } // Error message not found anywhere so go with a generic one
-        } else {
-          zoomErrorMessage = 'An unknown error occurred';
+          }
         }
+        // Note: if none of the conditionals hit,
+        // zoomErrorMessage defaults to generic error message
 
         const errorMessage = `We couldn't ${action} because an error occurred: ${zoomErrorMessage}`;
         const errorCode = `ZOOM${status}${body.code ? `-${body.code}` : ''}`;
@@ -141,7 +155,7 @@ module.exports = (config) => {
       // Cannot be bound!
       throw new ZACCLError({
         message: 'We ran into an internal error while attempting to bind the context of an endpoint function.',
-        code: ERROR_CODES.couldNotBindEndpoint,
+        code: ERROR_CODES.ENDPOINT_BIND_ERROR,
       });
     }
 
