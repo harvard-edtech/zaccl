@@ -1,4 +1,4 @@
-// Highest error: ZAC1
+// Highest error: ZAC6
 
 module.exports = {
   // Network errors
@@ -6,8 +6,8 @@ module.exports = {
   UNKNOWN_NETWORK_ERROR: 'ZAC2',
 
   // Endpoint errors
-  endpointCallExcludedRequiredParam: 'ZAC3',
-  couldNotBindEndpoint: 'ZAC4',
+  ENDPOINT_CALL_EXCLUDED_REQUIRED_PARAM: 'ZAC3',
+  ENDPOINT_BIND_ERROR: 'ZAC4',
 
   // Processing errors
   POST_PROCESSING_ERROR: 'ZAC5',
