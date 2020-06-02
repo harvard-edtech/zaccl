@@ -22,9 +22,10 @@ class Meeting extends EndpointCategory {
  * @instance
  * @memberof api.meeting
  * @method get
- * @param {number} meetingId - the Zoom id of the meeting (int64 format)
- * @param {string} [occurrenceId] - the id for the meeting occurrence
- * @param {boolean} [showAllOccurrences] - if truthy, retreives all past occurences
+ * @param {number} meetingId - the Zoom ID of the meeting
+ * @param {string} [occurrenceId] - the ID for the meeting occurrence
+ * @param {boolean} [showAllOccurrences] - if truthy,
+ * retrieves all past occurences
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
  */
 Meeting.get = function (options) {
@@ -56,8 +57,8 @@ Meeting.get.scopes = [
  * @instance
  * @memberof api.meeting
  * @method create
- * @param {string} userId - the user id or email address of the user
- * @param {Meeting} meetingObj - Zoom meeting object with meeting details
+ * @param {string} userId - the user ID or email address of the user
+ * @param {Meeting} meetingObj - Zoom meeting object with meeting details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
  */
 Meeting.create = function (options) {
@@ -66,7 +67,7 @@ Meeting.create = function (options) {
 
 };
 Meeting.create.action = 'create a new meeting';
-Meeting.create.requiredParams = ['userId, meetingObj'];
+Meeting.create.requiredParams = ['userId', 'meetingObj'];
 Meeting.create.scopes = [
   'meeting:write:admin',
   'meeting:write',
@@ -79,9 +80,9 @@ Meeting.create.scopes = [
  * @instance
  * @memberof api.meeting
  * @method update
- * @param {number} meetingId - The meeting id (int64 format)
+ * @param {number} meetingId - the Zoom ID of the meeting
  * @param {Meeting} meetingObj - Zoom meeting object with updated details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingupdate#request-body}
- * @param {string} [occurrenceId] - the id for the meeting occurrence
+ * @param {string} [occurrenceId] - the ID for the meeting occurrence
  */
 Meeting.update = function (options) {
 
@@ -102,8 +103,8 @@ Meeting.update.scopes = [
  * @instance
  * @memberof api.meeting
  * @method delete
- * @param {number} meetingId - The meeting id (int64 format)
- * @param {string} [occurrenceId] - the id for the meeting occurrence
+ * @param {number} meetingId - the Zoom ID of the meeting
+ * @param {string} [occurrenceId] - the ID for the meeting occurrence
  * @param {boolean} [notifyHosts] - if truthy, sends cancellation email to hosts
  */
 Meeting.delete = function (options) {
