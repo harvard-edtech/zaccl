@@ -1,6 +1,8 @@
 const axios = require('axios');
 const qs = require('qs');
 
+const ERROR_CODES = require('../ERROR_CODES');
+
 /**
  * Sends and retries an http request
  * @author Gabe Abrams
@@ -69,7 +71,10 @@ const sendRequest = (options) => {
       }
 
       // No tries left
-      throw new Error('We encountered an error when trying to send a network request. If this issue persists, contact an admin.');
+      throw new ZACCLError({
+        message: 'We encountered an error when trying to send a network request. If this issue persists, contact an admin.',
+        code: ERROR_CODES.NETWORK_ERROR,
+      });
     })
     .then((response) => {
       return {
