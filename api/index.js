@@ -8,6 +8,11 @@
 const defaultSendZoomRequest = require('./sendZoomRequest');
 const RuleMap = require('../helpers/ruleMap');
 const templateToRegExp = require('../helpers/templateToRegExp');
+const ZACCLError = require('../ZACCLError');
+const { DAILY_LIMIT_ERROR } = require('../ERROR_CODES');
+
+// Constants
+const msBACKOFF: 10, // milliseconds of backoff after rate-limited request
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -48,7 +53,6 @@ class API {
    *   time interval
    * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
-   * @returns
    */
   addRule(opts) {
     const {
@@ -86,7 +90,7 @@ class API {
       highPriority,
     } = opts;
 
-    const method = opts.method ? opts.method.toUpperCase() : 'GET';
+    const method = (opts.method ? opts.method.toUpperCase() : 'GET');
 
     // Look up throttle rule for endpoint
     const {
@@ -97,9 +101,10 @@ class API {
 
     // If daily limit has been reached, reject request
     if (dailyTokensRemaining === 0) {
-      throw new Error(
-        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
-      );
+      throw new ZACCLError({
+        message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        code: DAILY_LIMIT_ERROR,
+      });
     }
 
     // Variable to store sendRequest response, will be returned
@@ -130,11 +135,11 @@ class API {
             resetAfter,
           });
 
-          // TODO: Should this error be different?
-          throw new Error(
-            'The maximum daily call limit for this tool has been reached. Please try again tomorrow.'
-          );
-        // On rate limit error, retry request with exponential backoff
+          throw new ZACCLError({
+            message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+            code: DAILY_LIMIT_ERROR,
+          });
+        // On rate limit error, retry request with delay
         } else if (headers['X-RateLimit-Type'] === 'rate') {
           // If an earlier error has already paused the queue, resubmit request
           //   with high priority
@@ -143,14 +148,11 @@ class API {
           } else {
             // Otherwise, pause the queue and retry this request until success
             queue.pause();
-            let backoff = 10;
             while (
               response.status === 429
               && response.headers['X-RateLimit-Type'] === 'rate'
             ) {
-              const b = backoff;
-              await new Promise((r) => { setTimeout(r, b); });
-              backoff *= 2;
+              await new Promise((r) => { setTimeout(r, msBACKOFF); });
               response = await this.sendZoomRequest({
                 path,
                 method,

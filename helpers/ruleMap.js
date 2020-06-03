@@ -1,5 +1,8 @@
 const { default: PQueue } = require('p-queue');
 
+const ZACCLError = require('../ZACCLError');
+const { DUPLICATE_RULE_ERROR, PAUSE_QUEUE_ERROR } = require('../ERROR_CODES');
+
 /**
  * Class for storing throttle and daily limit rules
  * @author Grace Whitney
@@ -43,12 +46,14 @@ class RuleMap {
     // case insensitive by method
     const method = opts.method.toUpperCase();
 
-    const queueOpts = maxRequestsPerInterval
-      ? {
-        intervalCap: maxRequestsPerInterval,
-        interval: millisecondsPerInterval || 1000,
-      }
-      : {};
+    const queueOpts = (
+      maxRequestsPerInterval
+        ? {
+          intervalCap: maxRequestsPerInterval,
+          interval: millisecondsPerInterval || 1000,
+        }
+        : {}
+    );
 
     // instantiate new throttler with specified limits
     const queue = new PQueue(queueOpts);
@@ -80,9 +85,10 @@ class RuleMap {
 
     // throw an error on duplicate rule
     if (regexp in innerMap) {
-      throw new Error(
-        'A rule for this path already exists. You may not define duplicate rules.'
-      );
+      throw new ZACCLError({
+        message: 'A rule for this path already exists. You may not define duplicate rules.',
+        code: DUPLICATE_RULE_ERROR,
+      });
     }
     // otherwise, add rule to map
     innerMap[regexp] = rule;
@@ -170,9 +176,10 @@ class RuleMap {
         this.map[method][regexp].resetAfter = new Date(resetAfter);
       }
     } else {
-      throw new Error(
-        `The rule for path ${regexp} and method ${method} does not exist and cannot be paused.`
-      );
+      throw new ZACCLError({
+        message: `The rule for path ${regexp} and method ${method} does not exist and cannot be paused.`,
+        code: PAUSE_QUEUE_ERROR,
+      });
     }
   }
 }
