@@ -22,26 +22,36 @@ class Meeting extends EndpointCategory {
  * @instance
  * @memberof api.meeting
  * @method get
- * @param {number} meetingId - the Zoom ID of the meeting
- * @param {string} [occurrenceId] - the ID for the meeting occurrence
- * @param {boolean} [showAllOccurrences] - if truthy,
+ * @param {object} options - object containing ll arguments
+ * @param {number} options.meetingId - the Zoom ID of the meeting
+ * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
+ * @param {boolean} [options.showAllOccurrences=false] - if truthy,
  * retrieves all past occurences
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
  */
 Meeting.get = function (options) {
-  // TODO: write core function
-  // return this.visitEndpoint({
-  //   path: `/meetings/${options.meetingId}`,
-  //   method: 'GET',
-  //   params: {},
-  //   errorMap: {
-  //     ......
-  //   },
-  //   postProcessor: (response) => {
-  //     // some operations
-  //     return newResponse;
-  //   },
-  // })
+  return this.visitEndpoint({
+    path: `/meetings/${options.meetingId}`,
+    method: 'GET',
+    params: {
+      occurerenceId: options.occurrenceId || '',
+      showAllOccurrences: !(!options.showAllOccurrences),
+    },
+    errorMap: {
+      400: {
+        1010: 'User not found on this account',
+        3000: 'Cannot access webinar info',
+      },
+      404: {
+        1001: 'Meeting not found because user does not exist',
+        3001: `Meeting ${options.meetingId} is not found or has expired`,
+      },
+    },
+    postProcessor: (response) => {
+      // TODO: Add postprocessing operations if necessary
+      return response;
+    },
+  });
 };
 Meeting.get.action = 'get info on a meeting';
 Meeting.get.requiredParams = ['meetingId'];
