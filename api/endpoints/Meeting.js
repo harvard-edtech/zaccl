@@ -105,14 +105,35 @@ Meeting.create.scopes = [
  * @instance
  * @memberof api.meeting
  * @method update
- * @param {number} meetingId - the Zoom ID of the meeting
- * @param {Meeting} meetingObj - Zoom meeting object with updated details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingupdate#request-body}
- * @param {string} [occurrenceId] - the ID for the meeting occurrence
+ * @param {object} options - object containing all arguments
+ * @param {number} options.meetingId - the Zoom ID of the meeting
+ * @param {Meeting} options.meetingObj - Zoom meeting object with updated details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingupdate#request-body}
+ * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
  */
 Meeting.update = function (options) {
-
-  // TODO: write core function
-
+  // TODO?: Add preprocessing checks for the fields in options.meetingObj
+  return this.visitEndpoint({
+    path: (options.occurerenceId ? `/meetings/${options.meetingId}?occurrence_id=${options.occurerenceId}`
+      : `/meetings/${options.meetingId}`),
+    method: 'PATCH',
+    params: options.meetingObj,
+    errorMap: {
+      300: 'User has reached max user limit for creating/updating meetings',
+      400: {
+        1010: 'User not found on this account',
+        3000: 'Cannot access meeting information',
+        3003: 'You are not the meeting host',
+      },
+      404: {
+        1001: 'User does not exist',
+        3001: `A meeting with the ID ${options.meetingId} is not found / has expired`,
+      },
+    },
+    postProcessor: (response) => {
+      // TODO: Add postprocessing operations if necessary
+      return response;
+    },
+  });
 };
 Meeting.update.action = 'update the details of a meeting';
 Meeting.update.requiredParams = ['meetingId, meetingObj'];
