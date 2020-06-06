@@ -67,14 +67,29 @@ Meeting.get.scopes = [
  * @instance
  * @memberof api.meeting
  * @method create
- * @param {string} userId - the user ID or email address of the user
- * @param {Meeting} meetingObj - Zoom meeting object with meeting details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ * @param {Meeting} options.meetingObj - Zoom meeting object with meeting details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
  */
 Meeting.create = function (options) {
+  // TODO?: Add preprocessing checks for the fields in options.meetingObj
 
-  // TODO: write core function
-
+  return this.visitEndpoint({
+    path: `/users/${options.userId}/meetings`,
+    method: 'POST',
+    params: options.meetingObj,
+    errorMap: {
+      300: `User ${options.userId} has reached max user limit for creating/updating meetings`,
+      404: {
+        1001: `User ${options.userId} does not exist / belong to this account`,
+      },
+    },
+    postProcessor: (response) => {
+      // TODO: Add postprocessing operations if necessary
+      return response;
+    },
+  });
 };
 Meeting.create.action = 'create a new meeting';
 Meeting.create.requiredParams = ['userId', 'meetingObj'];
