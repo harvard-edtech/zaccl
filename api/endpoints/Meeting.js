@@ -34,8 +34,8 @@ Meeting.get = function (options) {
     path: `/meetings/${options.meetingId}`,
     method: 'GET',
     params: {
-      occurerenceId: options.occurrenceId || '',
-      showAllOccurrences: !(!options.showAllOccurrences),
+      occurrence_id: options.occurrenceId || '',
+      show_previous_occurrences: !(!options.showAllOccurrences),
     },
     errorMap: {
       400: {
@@ -149,14 +149,39 @@ Meeting.update.scopes = [
  * @instance
  * @memberof api.meeting
  * @method delete
- * @param {number} meetingId - the Zoom ID of the meeting
- * @param {string} [occurrenceId] - the ID for the meeting occurrence
- * @param {boolean} [notifyHosts] - if truthy, sends cancellation email to hosts
+ * @param {object} options - object contining all arguments
+ * @param {number} options.meetingId - the Zoom ID of the meeting
+ * @param {string} [options.occurrenceId=null] - the ID for the meeting occurrence
+ * @param {boolean} [options.notifyHosts=false] - if truthy, sends cancellation email to hosts
  */
 Meeting.delete = function (options) {
-
-  // TODO: write core function
-
+  return this.visitEndpoint({
+    path: `/meetings/${options.meetingId}`,
+    method: 'DELETE',
+    params: {
+      occurrence_id: options.occurrenceId || '',
+      schedule_for_reminder: !(!options.notifyHosts),
+    },
+    errorMap: {
+      400: {
+        1010: 'User does not belong to this account',
+        3000: 'Cannot access meeting information',
+        3002: 'Meeting cannot be deleted since it is still in progress',
+        3003: 'You are not the meeting host',
+        3007: 'You cannot delete this meeting since it has ended',
+        3018: 'You are not allowed to delete PMI',
+        3037: 'You are not allowed to delete PAC',
+      },
+      404: {
+        1001: 'User does not exist',
+        3001: `A meeting with the ID ${options.meetingId} is not found / has expired`,
+      },
+    },
+    postProcessor: (response) => {
+      // TODO: Add postprocessing operations if necessary
+      return response;
+    },
+  });
 };
 Meeting.delete.action = 'delete a meeting';
 Meeting.delete.requiredParams = ['meetingId'];
