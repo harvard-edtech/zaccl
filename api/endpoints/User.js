@@ -40,6 +40,7 @@ User.getZAKToken = function (options) {
     },
     postProcessor: (response) => {
       // return just the zak token from the response object
+      // TODO: Double check if this is the right way to do it
       return response.body.token;
     },
   });

@@ -22,7 +22,7 @@ class Meeting extends EndpointCategory {
  * @instance
  * @memberof api.meeting
  * @method get
- * @param {object} options - object containing ll arguments
+ * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
  * @param {boolean} [options.showAllOccurrences=false] - if truthy,
@@ -151,8 +151,9 @@ Meeting.update.scopes = [
  * @method delete
  * @param {object} options - object contining all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
- * @param {string} [options.occurrenceId=null] - the ID for the meeting occurrence
- * @param {boolean} [options.notifyHosts=false] - if truthy, sends cancellation email to hosts
+ * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
+ * @param {boolean} [options.notifyHosts=false] - if truthy,
+ * sends cancellation email to hosts
  */
 Meeting.delete = function (options) {
   return this.visitEndpoint({
@@ -189,3 +190,9 @@ Meeting.delete.scopes = [
   'meeting:write:admin',
   'meeting:write',
 ];
+
+/*------------------------------------------------------------------------*/
+/*                                 Export                                 */
+/*------------------------------------------------------------------------*/
+
+module.exports = Meeting;
