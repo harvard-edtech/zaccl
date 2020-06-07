@@ -5,6 +5,8 @@
  */
 
 const EndpointCategory = require('../../EndpointCategory');
+const ZACCLError = require('../../ZACCLError');
+const ERROR_CODES = require('../../ERROR_CODES');
 const utils = require('../../EndpointCategory/helpers/utils');
 
 class CloudRecording extends EndpointCategory {
@@ -23,12 +25,20 @@ class CloudRecording extends EndpointCategory {
  * @memberof api.cloudRecording
  * @method list
  * @param {object} options - object containing all arguments
- * @param {number} options.meetingId - the Zoom ID of the meeting
+ * @param {String} options.meetingId - the Zoom ID of the meeting
  * @return {Recording} Zoom meeting recording object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
  */
 CloudRecording.list = function (options) {
+  // Check if meeting ID is a valid string
+  if (typeof options.meetingId !== 'string') {
+    throw new ZACCLError({
+      message: 'Meeting ID is not a string',
+      code: ERROR_CODES.INVALID_MEETING_ID,
+    });
+  }
+
   return this.visitEndpoint({
-    path: `/meetings/${options.meetingId}/recordings`,
+    path: `/meetings/${utils.doubleEncodeIfNeeded(options.meetingId)}/recordings`,
     method: 'GET',
     errorMap: {
       400: {
