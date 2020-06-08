@@ -113,6 +113,7 @@ Meeting.create.scopes = [
 Meeting.update = function (options) {
   // TODO?: Add preprocessing checks for the fields in options.meetingObj
   return this.visitEndpoint({
+    // Note: Not sure if this is the right way to implement sending occurrenceId
     path: (options.occurerenceId ? `/meetings/${options.meetingId}?occurrence_id=${options.occurerenceId}`
       : `/meetings/${options.meetingId}`),
     method: 'PATCH',
@@ -189,6 +190,37 @@ Meeting.delete.requiredParams = ['meetingId'];
 Meeting.delete.scopes = [
   'meeting:write:admin',
   'meeting:write',
+];
+
+/**
+ * Get a list of ended meeting instances
+ * @author Aryan Pandey
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method getInstances
+ * @param {object} options - object contining all arguments
+ * @param {number} options.meetingId - the Zoom ID of the meeting
+ * @returns {MeetingList} - list of ended meeting instances {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/pastmeetings#responses}
+ */
+Meeting.getInstances = function (options) {
+  return this.visitEndpoint({
+    path: `/past_meetings/${options.meetingId}/instances`,
+    method: 'GET',
+    errorMap: {
+      404: `Meeting ${options.meetingId} not found`,
+    },
+    postProcessor: (response) => {
+      // TODO: Add postprocessing operations if necessary
+      return response;
+    },
+  });
+};
+Meeting.getInstances.action = 'get list of ended meeting instances';
+Meeting.getInstances.requiredParams = ['meetingId'];
+Meeting.getInstances.scopes = [
+  'meeting:read:admin',
+  'meeting:read',
 ];
 
 /*------------------------------------------------------------------------*/
