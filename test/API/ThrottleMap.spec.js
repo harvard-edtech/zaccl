@@ -9,29 +9,34 @@ const ThrottleMap = require('../../helpers/ThrottleMap');
 describe('helpers > ThrottleMap', function () {
   // initialize ThrottleMap for testing, and add initial Throttles
   const throttleMap = new ThrottleMap();
-  const templates = [
-    '/test/meeting/{meetingid}',
-    '/test/{user}',
-    '/test/call/{account}/{user}',
-  ];
-  const methods = ['GET', 'POST'];
-  // Default values for all throttles
-  const defaultMaxRequestsPerDay = 30;
-  const defaultMaxRequestsPerInterval = 10;
-
-  templates.forEach((template) => {
-    const regexp = templateToRegExp(template);
-    methods.forEach((method) => {
-      throttleMap.addThrottle({
-        regexp,
-        method,
-        maxRequestsPerDay: defaultMaxRequestsPerDay,
-        maxRequestsPerInterval: defaultMaxRequestsPerInterval,
-      });
-    });
-  });
 
   it('returns a matching throttle', function () {
+    const templates = [
+      '/test/meeting/{meetingid}',
+      '/test/{user}',
+      '/test/call/{account}/{user}',
+    ];
+    const methods = ['GET', 'POST'];
+    // Default values for all throttles
+    const defaultMaxRequestsPerDay = 30;
+    const defaultMaxRequestsPerInterval = 10;
+
+    templates.forEach((template) => {
+      const regExp = templateToRegExp(template);
+      methods.forEach((method) => {
+        try {
+          throttleMap.addThrottle({
+            regExp,
+            method,
+            maxRequestsPerDay: defaultMaxRequestsPerDay,
+            maxRequestsPerInterval: defaultMaxRequestsPerInterval,
+          });
+        } catch (err) {
+          throw new Error(err.message);
+        }
+      });
+    });
+
     // look up test endpoints
     const endpoints = [
       '/test/meeting/m1',
@@ -47,12 +52,12 @@ describe('helpers > ThrottleMap', function () {
       assert.equal(
         res.maxRequestsPerDay,
         defaultMaxRequestsPerDay,
-        `returned Throttle has incorrect daily limit: ${res.regexp}`
+        `returned throttle has incorrect daily limit: ${res.regexp}`
       );
       assert.equal(
         res.dailyTokensRemaining,
         defaultMaxRequestsPerDay,
-        `returned Throttle for ${endpoint} has incorrect daily tokens remaining on first call`
+        `returned throttle for ${endpoint} has incorrect daily tokens remaining on first call`
       );
     });
   });
@@ -100,20 +105,26 @@ describe('helpers > ThrottleMap', function () {
     );
   });
 
-  it('does not allow duplicate Throttles', function () {
+  it('does not allow duplicate rules', function () {
     try {
       throttleMap.addThrottle({
-        regexp: templateToRegExp('/test/meeting/{person}'),
+        regexp: templateToRegExp('/test/operation/{user}'),
         method: 'GET',
         maxRequestsPerInterval: 15,
         maxRequestsPerDay: 40,
+      });
+      throttleMap.addThrottle({
+        regexp: templateToRegExp('/test/operation/{user}'),
+        method: 'GET',
+        maxRequestsPerInterval: 15,
+        maxRequestsPerDay: 30,
       });
       assert(false);
     } catch (err) {
       assert.equal(
         err.message,
-        'A throttle for this path already exists. You may not define duplicate Throttles.',
-        'unexpected error thrown when adding duplicate throttle'
+        'A throttle rule for this path already exists. You may not define duplicate rules.',
+        'unexpected error thrown when adding duplicate throttle rule'
       );
     }
   });

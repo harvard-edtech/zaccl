@@ -7,7 +7,7 @@
  */
 const templateToRegExp = (template) => {
   const placeholder = /\{\w*\}/g;
-  return `^${template.replace(placeholder, '\\w+')}$`;
+  return `^${template.replace(placeholder, '([^?/])+')}$`;
 };
 
 module.exports = templateToRegExp;

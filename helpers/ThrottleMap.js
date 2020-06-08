@@ -62,8 +62,8 @@ class ThrottleMap {
     // throw an error on duplicate throttle
     if (regExp in this.map[method]) {
       throw new ZACCLError({
-        message: 'A throttle for this path already exists. You may not define duplicate throttles.',
-        code: ERROR_CODES.DUPLICATE_throttle_ERROR,
+        message: 'A throttle rule for this path already exists. You may not define duplicate rules.',
+        code: ERROR_CODES.DUPLICATE_RULE_ERROR,
       });
     }
     // otherwise, add throttle to map

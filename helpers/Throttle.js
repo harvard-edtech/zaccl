@@ -5,7 +5,7 @@ const Mutex = require('./Mutex');
  * Class that contains a throttle and daily limit rule
  * @author Grace Whitney
  */
-class Rule {
+class Throttle {
   /**
    * Create a new Rule instance
    * @author Grace Whitney
@@ -37,7 +37,7 @@ class Rule {
     this.hasRateLimit = !!dequeueIntervalMS;
   }
 
-  async incrementTokens() {
+  async incrementDailyTokens() {
     await this._checkForReset();
     const unlock = await this._mutex.lock();
     if (
@@ -49,7 +49,7 @@ class Rule {
     unlock();
   }
 
-  async decrementTokens() {
+  async decrementDailyTokens() {
     await this._checkForReset();
     const unlock = await this._mutex.lock();
     if (this.hasDailyLimit && this._dailyTokensRemaining > 0) {
@@ -109,4 +109,4 @@ class Rule {
   }
 }
 
-module.exports = Rule;
+module.exports = Throttle;
