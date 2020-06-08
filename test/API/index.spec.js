@@ -130,6 +130,14 @@ describe('API', async function () {
     }
   });
 
+  it('maintains a daily counter per endpoint', function () {
+
+  });
+
+  it('resets daily counter on next request after resetAfter', function () {
+
+  });
+
   // Rate limit tests
   const rateLimitTestAPI = new API({
     key: 'fakeKey',

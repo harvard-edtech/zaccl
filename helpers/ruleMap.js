@@ -1,7 +1,7 @@
-const { default: PQueue } = require('p-queue');
-
+const Mutex = require('./Mutex');
+const TaskQueue = require('./TaskQueue');
 const ZACCLError = require('../ZACCLError');
-const { DUPLICATE_RULE_ERROR, PAUSE_QUEUE_ERROR } = require('../ERROR_CODES');
+const { DUPLICATE_RULE_ERROR } = require('../ERROR_CODES');
 
 /**
  * Class for storing throttle and daily limit rules
@@ -17,7 +17,8 @@ class RuleMap {
     this.map = {};
     // Default unthrottled rule for non-rate-limited endpoints
     this.default = {
-      queue: new PQueue(),
+      queue: new TaskQueue(),
+      mutex: new Mutex(),
     };
   }
 
@@ -33,7 +34,6 @@ class RuleMap {
    *   rate interval
    * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
-   * @returns
    */
   store(opts) {
     const {
@@ -46,23 +46,22 @@ class RuleMap {
     // case insensitive by method
     const method = opts.method.toUpperCase();
 
-    const queueOpts = (
+    const dequeueIntervalMS = (
       maxRequestsPerInterval
-        ? {
-          intervalCap: maxRequestsPerInterval,
-          interval: millisecondsPerInterval || 1000,
-        }
-        : {}
+        ? (millisecondsPerInterval || 1000) / maxRequestsPerInterval
+        : 0
     );
 
     // instantiate new throttler with specified limits
-    const queue = new PQueue(queueOpts);
+    const queue = new TaskQueue(dequeueIntervalMS);
     // instantiate Datetime object and set to next UTC midnight
     const midnight = new Date();
     midnight.setUTCHours(24, 0, 0, 0);
 
     // create rule object
     const rule = {
+      // mutex to acquire before altering rule object
+      mutex: new Mutex(),
       // throttled queue
       queue,
       // total allowed calls per day
@@ -95,14 +94,11 @@ class RuleMap {
   }
 
   /**
-   * Look up an endpoint and return any matching rule object,
-   *   or the default unthrottled queue if there's no match
+   * Look up an endpoint and return any matching endpoint template regexp
    * @author Grace Whitney
    * @param {string} method - method of endpoint to look up
    * @param {string} path - path of endpoint to look up
-   * @returns {object} rule object for given endpoint if it exists,
-   *    or default unthrottled rule, in the form:
-   *    {queue, regexp, maxRequestsPerDay?, dailyTokensRemaining?, resetAfter?}
+   * @returns {string} matching regexp string
    */
   lookup(opts) {
     const {
@@ -122,65 +118,14 @@ class RuleMap {
       // convert regexp string to RegExp object
       const regexp = regexps[i];
       const re = new RegExp(regexp);
-      // on match, update and return rule object
+      // on match, return matching regexp
       if (re.test(path)) {
-        const rule = innerMap[regexp];
-        // perform daily counter arithmetic if necessary
-        if (rule.maxRequestsPerDay) {
-          // check if we need to update daily counter
-          if (rule.resetAfter < Date.now()) {
-            rule.dailyTokensRemaining = rule.maxRequestsPerDay;
-            // add 24 hours until resetAfter is in the future
-            while (rule.resetAfter < Date.now()) {
-              rule.resetAfter.setTime(
-                rule.resetAfter.getTime() + (86400 * 1000)
-              );
-            }
-          }
-        }
-        // shallow copy rule to return
-        const returnedRule = { ...rule };
-        returnedRule.regexp = regexp;
-        // decrement daily tokens if necessary
-        if (rule.maxRequestsPerDay && rule.dailyTokensRemaining > 0) {
-          rule.dailyTokensRemaining -= 1;
-        }
-        return returnedRule;
+        return innerMap[regexp];
       }
     }
 
     // if no match, return default
     return this.default;
-  }
-
-  /**
-   * Empty daily tokens and update resetAfter attribute of specific endpoint
-   *    rule, for use in case of unexpected daily rate limit error
-   * @author Grace Whitney
-   * @param {object} opts - object containing all options
-   * @param {object} opts.regexp - regexp object of endpoint path template
-   * @param {string} opts.method - method of endpoint
-   * @param {string} opts.resetAfter - string representing new reset time
-   */
-  pauseEndpointUntil(opts) {
-    const {
-      regexp,
-      method,
-      resetAfter,
-    } = opts;
-
-    // Find corresponding rule in map if it exists, or throw an error
-    if (this.map[method] && this.map[method][regexp]) {
-      this.map[method][regexp].dailyTokensRemaining = 0;
-      if (resetAfter) {
-        this.map[method][regexp].resetAfter = new Date(resetAfter);
-      }
-    } else {
-      throw new ZACCLError({
-        message: `The rule for path ${regexp} and method ${method} does not exist and cannot be paused.`,
-        code: PAUSE_QUEUE_ERROR,
-      });
-    }
   }
 }
 

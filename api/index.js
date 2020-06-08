@@ -12,7 +12,7 @@ const ZACCLError = require('../ZACCLError');
 const { DAILY_LIMIT_ERROR } = require('../ERROR_CODES');
 
 // Constants
-const msBACKOFF: 10, // milliseconds of backoff after rate-limited request
+const msBACKOFF = 10; // milliseconds of backoff after rate-limited request
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -92,26 +92,62 @@ class API {
 
     const method = (opts.method ? opts.method.toUpperCase() : 'GET');
 
-    // Look up throttle rule for endpoint
-    const {
-      regexp,
-      queue,
-      dailyTokensRemaining,
-    } = this.ruleMap.lookup({ path, method });
+    /**
+     * Reset a rule's daily values if necessary
+     * @param  {string} endpoint - the endpoint of the rule to be updated
+     */
+    const checkForReset = (ruleObj) => {
+      // Find rule in ruleMap
+      const { rule } = ruleObj;
 
-    // If daily limit has been reached, reject request
-    if (dailyTokensRemaining === 0) {
-      throw new ZACCLError({
-        message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-        code: DAILY_LIMIT_ERROR,
-      });
-    }
+      // Perform daily counter arithmetic if necessary
+      if (rule.maxRequestsPerDay) {
+        // Check if we need to update daily counter
+        if (rule.resetAfter < Date.now()) {
+          rule.dailyTokensRemaining = rule.maxRequestsPerDay;
+          // Add 24 hours until resetAfter is in the future
+          while (rule.resetAfter < Date.now()) {
+            rule.resetAfter.setTime(
+              rule.resetAfter.getTime() + (86400 * 1000)
+            );
+          }
+          // If queue is unthrottled, re-throttle
+          if (rule.queue.isPaused) {
+            rule.queue.start();
+          }
+        }
+      }
+    };
+
+    // Look up throttle rule for path and method
+    const rule = this.ruleMap.lookup({ path, method });
+    const { queue } = rule;
 
     // Variable to store sendRequest response, will be returned
     let response;
 
     // Recursive function that calls sendZoomRequest with error handling
     const getResponse = async () => {
+      /* ----------------- Check and update daily tokens -------------------- */
+      // Acquire mutex
+      let unlock = await rule.mutex.lock();
+
+      checkForReset({ rule });
+      const { dailyTokensRemaining } = rule;
+      if (dailyTokensRemaining === 0) {
+        throw new ZACCLError({
+          message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+          code: DAILY_LIMIT_ERROR,
+        });
+      }
+      // Decrement tokens on dequeue, protected by mutex
+      if (dailyTokensRemaining > 0) {
+        rule.dailyTokensRemaining -= 1;
+      }
+
+      // Unlock mutex
+      unlock();
+
       /* --------------------------- Send Request --------------------------- */
       response = await this.sendZoomRequest({
         path,
@@ -125,52 +161,63 @@ class API {
 
       /* -------------------------- Error Handling ---------------------------*/
       if (status === 429) {
-        // On daily limit error, clear queue, pause endpoint, and reject request
+        // On daily limit error, reject request, purge queue, and pause endpoint
         if (headers['X-RateLimit-Type'] === 'daily') {
-          queue.clear();
-          const resetAfter = headers['Retry-After'];
-          this.ruleMap.pauseEndpointUntil({
-            regexp,
-            method,
-            resetAfter,
-          });
-
-          throw new ZACCLError({
-            message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-            code: DAILY_LIMIT_ERROR,
-          });
-        // On rate limit error, retry request with delay
-        } else if (headers['X-RateLimit-Type'] === 'rate') {
-          // If an earlier error has already paused the queue, resubmit request
-          //   with high priority
-          if (queue.isPaused) {
-            await queue.add(getResponse, { priority: 2 });
+          // If default queue, throw error but do not purge endpoint
+          if (queue === this.ruleMap.default.queue) {
+            throw new ZACCLError({
+              message: `We received an unexpected daily limit error. Please add a throttle rule for the endpoint ${path}.`,
+              code: DAILY_LIMIT_ERROR,
+            });
           } else {
-            // Otherwise, pause the queue and retry this request until success
-            queue.pause();
-            while (
-              response.status === 429
-              && response.headers['X-RateLimit-Type'] === 'rate'
-            ) {
-              await new Promise((r) => { setTimeout(r, msBACKOFF); });
-              response = await this.sendZoomRequest({
-                path,
-                method,
-                params,
-                key: this.key,
-                secret: this.secret,
-              });
+            queue.purge(new ZACCLError({
+              message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+              code: DAILY_LIMIT_ERROR,
+            }));
+            // Empty token reservoir
+            rule.dailyTokensRemaining = 0;
+            // Update resetAfter
+            const resetAfter = headers['Retry-After'];
+            if (resetAfter) {
+              rule.resetAfter = new Date(resetAfter);
             }
 
-            // On success, restart queue
-            queue.start();
+            throw new ZACCLError({
+              message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+              code: DAILY_LIMIT_ERROR,
+            });
           }
+        // On rate limit error, pause queue and resubmit request
+        } else if (headers['X-RateLimit-Type'] === 'rate') {
+          // Increment daily tokens on failed request
+          unlock = await rule.mutex.lock();
+          rule.dailyTokensRemaining += 1;
+          unlock();
+          // Pause the queue and resume after delay, if not already paused
+          if (!queue.isPaused) {
+            queue.pause();
+            const now = new Date();
+            const resume = new Date(now.getTime() + msBACKOFF);
+            queue.resumeAt(resume);
+          }
+          await queue.add({
+            task: getResponse,
+            addToFrontOfLine: true,
+          });
         }
       }
     };
 
+    // Check daily tokens before adding to the queue
+    checkForReset({ rule });
+    if (rule.dailyTokensRemaining === 0) {
+      throw new ZACCLError({
+        message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        code: DAILY_LIMIT_ERROR,
+      });
+    }
     // Add request to throttled queue with specified priority
-    await queue.add(getResponse, { priority: highPriority ? 0 : 1 });
+    await queue.add({ task: getResponse.bind(this), highPriority });
     return response;
   }
 }
