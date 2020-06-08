@@ -6,13 +6,13 @@
  */
 
 const defaultSendZoomRequest = require('./sendZoomRequest');
-const RuleMap = require('../helpers/ruleMap');
+const ThrottleMap = require('../helpers/ThrottleMap');
 const templateToRegExp = require('../helpers/templateToRegExp');
 const ZACCLError = require('../ZACCLError');
-const { DAILY_LIMIT_ERROR } = require('../ERROR_CODES');
+const ERROR_CODES = require('../ERROR_CODES');
 
 // Constants
-const msBACKOFF = 10; // milliseconds of backoff after rate-limited request
+const BACKOFF_MS = 10; // milliseconds of backoff after rate-limited request
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -37,11 +37,11 @@ class API {
     this.key = key;
     this.secret = secret;
 
-    this.ruleMap = new RuleMap();
+    this.throttleMap = new ThrottleMap();
   }
 
   /**
-   * Add a throttle rule
+   * Add a throttle throttle
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {string} opts.template - endpoint URL template where placeholders
@@ -54,7 +54,7 @@ class API {
    * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
    */
-  addRule(opts) {
+  addThrottle(opts) {
     const {
       template,
       method,
@@ -63,10 +63,10 @@ class API {
       maxRequestsPerDay,
     } = opts;
 
-    /* --------------------------- Store the Rule --------------------------- */
-    const regexp = templateToRegExp(template);
-    this.ruleMap.store({
-      regexp,
+    /* ------------------------- Store the Throttle ------------------------- */
+    const regExp = templateToRegExp(template);
+    this.throttleMap.store({
+      regExp,
       method,
       maxRequestsPerInterval,
       millisecondsPerInterval,
@@ -82,6 +82,7 @@ class API {
    * @param {string} [method=GET] - the https method to use
    * @param {object} [params] - the request params to include
    * @param {boolean} [highPriority=false] - the priority of the endpoint call
+   * @return {object} the object returned by the endpoint request
    */
   async _visitEndpoint(opts) {
     const {
@@ -92,61 +93,27 @@ class API {
 
     const method = (opts.method ? opts.method.toUpperCase() : 'GET');
 
-    /**
-     * Reset a rule's daily values if necessary
-     * @param  {string} endpoint - the endpoint of the rule to be updated
-     */
-    const checkForReset = (ruleObj) => {
-      // Find rule in ruleMap
-      const { rule } = ruleObj;
-
-      // Perform daily counter arithmetic if necessary
-      if (rule.maxRequestsPerDay) {
-        // Check if we need to update daily counter
-        if (rule.resetAfter < Date.now()) {
-          rule.dailyTokensRemaining = rule.maxRequestsPerDay;
-          // Add 24 hours until resetAfter is in the future
-          while (rule.resetAfter < Date.now()) {
-            rule.resetAfter.setTime(
-              rule.resetAfter.getTime() + (86400 * 1000)
-            );
-          }
-          // If queue is unthrottled, re-throttle
-          if (rule.queue.isPaused) {
-            rule.queue.start();
-          }
-        }
-      }
-    };
-
-    // Look up throttle rule for path and method
-    const rule = this.ruleMap.lookup({ path, method });
-    const { queue } = rule;
+    // Look up throttle throttle for path and method
+    const throttle = this.throttleMap.lookup({ path, method });
 
     // Variable to store sendRequest response, will be returned
     let response;
 
-    // Recursive function that calls sendZoomRequest with error handling
+    /**
+     * Wrapper for sendZoomRequest that includes error handling, for submission
+     *  to the endpoint's throttled queue
+     *  @author Grace Whitney
+     *  @async
+     */
     const getResponse = async () => {
       /* ----------------- Check and update daily tokens -------------------- */
-      // Acquire mutex
-      let unlock = await rule.mutex.lock();
-
-      checkForReset({ rule });
-      const { dailyTokensRemaining } = rule;
-      if (dailyTokensRemaining === 0) {
+      if ((await throttle.getDailyTokensRemaining()) === 0) {
         throw new ZACCLError({
-          message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-          code: DAILY_LIMIT_ERROR,
+          message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
+          code: ERROR_CODES.DAILY_LIMIT_ERROR,
         });
       }
-      // Decrement tokens on dequeue, protected by mutex
-      if (dailyTokensRemaining > 0) {
-        rule.dailyTokensRemaining -= 1;
-      }
-
-      // Unlock mutex
-      unlock();
+      await throttle.decrementTokens();
 
       /* --------------------------- Send Request --------------------------- */
       response = await this.sendZoomRequest({
@@ -164,43 +131,39 @@ class API {
         // On daily limit error, reject request, purge queue, and pause endpoint
         if (headers['X-RateLimit-Type'] === 'daily') {
           // If default queue, throw error but do not purge endpoint
-          if (queue === this.ruleMap.default.queue) {
+          if (!throttle.hasRateLimit) {
             throw new ZACCLError({
-              message: `We received an unexpected daily limit error. Please add a throttle rule for the endpoint ${path}.`,
-              code: DAILY_LIMIT_ERROR,
+              message: `We received an unexpected daily limit error. Please add a throttle throttle for the endpoint ${path}.`,
+              code: ERROR_CODES.DAILY_LIMIT_ERROR,
             });
           } else {
-            queue.purge(new ZACCLError({
-              message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-              code: DAILY_LIMIT_ERROR,
+            await throttle.queue.rejectAll(new ZACCLError({
+              message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
+              code: ERROR_CODES.DAILY_LIMIT_ERROR,
             }));
             // Empty token reservoir
-            rule.dailyTokensRemaining = 0;
+            await throttle.emptyTokenReservoir();
             // Update resetAfter
             const resetAfter = headers['Retry-After'];
             if (resetAfter) {
-              rule.resetAfter = new Date(resetAfter);
+              await throttle.updateResetAfter(new Date(resetAfter));
             }
 
             throw new ZACCLError({
-              message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-              code: DAILY_LIMIT_ERROR,
+              message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
+              code: ERROR_CODES.DAILY_LIMIT_ERROR,
             });
           }
         // On rate limit error, pause queue and resubmit request
         } else if (headers['X-RateLimit-Type'] === 'rate') {
           // Increment daily tokens on failed request
-          unlock = await rule.mutex.lock();
-          rule.dailyTokensRemaining += 1;
-          unlock();
+          throttle.incrementDailyTokens();
+
           // Pause the queue and resume after delay, if not already paused
-          if (!queue.isPaused) {
-            queue.pause();
-            const now = new Date();
-            const resume = new Date(now.getTime() + msBACKOFF);
-            queue.resumeAt(resume);
-          }
-          await queue.add({
+          const now = new Date();
+          const resume = new Date(now.getTime() + BACKOFF_MS);
+          throttle.pauseQueueUntil(resume);
+          await throttle.addTaskToQueue({
             task: getResponse,
             addToFrontOfLine: true,
           });
@@ -209,15 +172,17 @@ class API {
     };
 
     // Check daily tokens before adding to the queue
-    checkForReset({ rule });
-    if (rule.dailyTokensRemaining === 0) {
+    if (throttle.getDailyTokensRemaining() === 0) {
       throw new ZACCLError({
         message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
-        code: DAILY_LIMIT_ERROR,
+        code: ERROR_CODES.DAILY_LIMIT_ERROR,
       });
     }
     // Add request to throttled queue with specified priority
-    await queue.add({ task: getResponse.bind(this), highPriority });
+    await throttle.addTaskToQueue({
+      task: getResponse.bind(this),
+      highPriority,
+    });
     return response;
   }
 }

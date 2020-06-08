@@ -39,24 +39,25 @@ class TaskQueue {
   }
 
   /**
-   * Stop regular execution of tasks
-   * @author Gabe Abrams
-   */
-  pause() {
-    clearInterval(this.intervalId);
-    this.isPaused = true;
-  }
-
-  /**
-   * Immediately resume queue execution after a certain timestamp
+   * Pause queue execution, and then resume after a certain timestamp
+   *  If the queue is already paused, this will have no effect
    * @author Grace Whitney
-   * @param { object } time - DateTime object of timestamp at which to resume
+   * @param {object} time - DateTime object of timestamp at which to resume
    */
-  async resumeAt(time) {
-    // If queue is not currently paused, do nothing
-    if (!this.isPaused) {
+  async pauseUntil(time) {
+    // Lock mutex while altering this.isPaused
+    const unlock = await this.mutex.lock();
+
+    // If queue is already paused, do nothing
+    if (this.isPaused) {
       return;
     }
+
+    clearInterval(this.intervalId);
+    this.isPaused = true;
+
+    unlock();
+
     if (time > Date.now()) {
       await new Promise((r) => { setTimeout(r, time - Date.now()); });
     }
@@ -117,7 +118,7 @@ class TaskQueue {
    * @author Gabe Abrams
    * @param {ZACCLError} err - the error to apply to all tasks
    */
-  async purge(err) {
+  async rejectAll(err) {
     // If no tasks, just return
     if (this.prioritizedTasks.length === 0) {
       return;

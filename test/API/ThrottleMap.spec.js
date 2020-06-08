@@ -1,29 +1,28 @@
 const assert = require('assert');
-const timekeeper = require('timekeeper');
 
 // import helper functions
 const templateToRegExp = require('../../helpers/templateToRegExp');
 
 // import class to test
-const RuleMap = require('../../helpers/ruleMap');
+const ThrottleMap = require('../../helpers/ThrottleMap');
 
-describe('helpers > ruleMap', function () {
-  // initialize ruleMap for testing, and add initial rules
-  const ruleMap = new RuleMap();
+describe('helpers > ThrottleMap', function () {
+  // initialize ThrottleMap for testing, and add initial Throttles
+  const throttleMap = new ThrottleMap();
   const templates = [
     '/test/meeting/{meetingid}',
     '/test/{user}',
     '/test/call/{account}/{user}',
   ];
   const methods = ['GET', 'POST'];
-  // Default values for all rules
+  // Default values for all throttles
   const defaultMaxRequestsPerDay = 30;
   const defaultMaxRequestsPerInterval = 10;
 
   templates.forEach((template) => {
     const regexp = templateToRegExp(template);
     methods.forEach((method) => {
-      ruleMap.store({
+      throttleMap.addThrottle({
         regexp,
         method,
         maxRequestsPerDay: defaultMaxRequestsPerDay,
@@ -32,8 +31,8 @@ describe('helpers > ruleMap', function () {
     });
   });
 
-  it('returns a matching rule', function () {
-    // lookup test endpoints
+  it('returns a matching throttle', function () {
+    // look up test endpoints
     const endpoints = [
       '/test/meeting/m1',
       '/test/u1',
@@ -41,29 +40,29 @@ describe('helpers > ruleMap', function () {
     ];
 
     endpoints.forEach((endpoint) => {
-      const res = ruleMap.lookup({
+      const res = throttleMap.getThrottle({
         method: 'GET',
         path: endpoint,
       });
       assert.equal(
         res.maxRequestsPerDay,
         defaultMaxRequestsPerDay,
-        `returned rule has incorrect daily limit: ${res.regexp}`
+        `returned Throttle has incorrect daily limit: ${res.regexp}`
       );
       assert.equal(
         res.dailyTokensRemaining,
         defaultMaxRequestsPerDay,
-        `returned rule for ${endpoint} has incorrect daily tokens remaining on first call`
+        `returned Throttle for ${endpoint} has incorrect daily tokens remaining on first call`
       );
     });
   });
 
   it('maintains the same queue for the same endpoint', function () {
-    const r1 = ruleMap.lookup({
+    const r1 = throttleMap.getThrottle({
       method: 'GET',
       path: '/test/u1',
     });
-    const r2 = ruleMap.lookup({
+    const r2 = throttleMap.getThrottle({
       method: 'GET',
       path: '/test/u2',
     });
@@ -76,15 +75,15 @@ describe('helpers > ruleMap', function () {
   });
 
   it('maintains separate queues for separate endpoints', function () {
-    const r1 = ruleMap.lookup({
+    const r1 = throttleMap.getThrottle({
       method: 'GET',
       path: '/test/u1',
     });
-    const r2 = ruleMap.lookup({
+    const r2 = throttleMap.getThrottle({
       method: 'POST',
       path: '/test/u1',
     });
-    const r3 = ruleMap.lookup({
+    const r3 = throttleMap.getThrottle({
       method: 'GET',
       path: '/test/call/a1/u1',
     });
@@ -101,9 +100,9 @@ describe('helpers > ruleMap', function () {
     );
   });
 
-  it('does not allow duplicate rules', function () {
+  it('does not allow duplicate Throttles', function () {
     try {
-      ruleMap.store({
+      throttleMap.addThrottle({
         regexp: templateToRegExp('/test/meeting/{person}'),
         method: 'GET',
         maxRequestsPerInterval: 15,
@@ -113,10 +112,9 @@ describe('helpers > ruleMap', function () {
     } catch (err) {
       assert.equal(
         err.message,
-        'A rule for this path already exists. You may not define duplicate rules.',
-        'unexpected error thrown when adding duplicate rule'
+        'A throttle for this path already exists. You may not define duplicate Throttles.',
+        'unexpected error thrown when adding duplicate throttle'
       );
     }
   });
 });
-
