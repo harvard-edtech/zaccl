@@ -41,7 +41,7 @@ class API {
   }
 
   /**
-   * Add a throttle throttle
+   * Add a throttle rule
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {string} opts.template - endpoint URL template where placeholders
@@ -54,7 +54,7 @@ class API {
    * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
    */
-  addThrottle(opts) {
+  addRule(opts) {
     const {
       template,
       method,
@@ -65,7 +65,7 @@ class API {
 
     /* ------------------------- Store the Throttle ------------------------- */
     const regExp = templateToRegExp(template);
-    this.throttleMap.store({
+    this.throttleMap.addThrottle({
       regExp,
       method,
       maxRequestsPerInterval,
@@ -94,7 +94,7 @@ class API {
     const method = (opts.method ? opts.method.toUpperCase() : 'GET');
 
     // Look up throttle throttle for path and method
-    const throttle = this.throttleMap.lookup({ path, method });
+    const throttle = this.throttleMap.getThrottle({ path, method });
 
     // Variable to store sendRequest response, will be returned
     let response;
@@ -113,7 +113,7 @@ class API {
           code: ERROR_CODES.DAILY_LIMIT_ERROR,
         });
       }
-      await throttle.decrementTokens();
+      await throttle.decrementDailyTokens();
 
       /* --------------------------- Send Request --------------------------- */
       response = await this.sendZoomRequest({
