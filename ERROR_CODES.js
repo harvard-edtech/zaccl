@@ -1,4 +1,4 @@
-// Highest error: ZAC9
+// Highest error: ZAC8
 
 module.exports = {
   // Network errors
@@ -13,7 +13,6 @@ module.exports = {
   // Processing errors
   POST_PROCESSING_ERROR: 'ZAC5',
   DUPLICATE_RULE_ERROR: 'ZAC8',
-  PAUSE_QUEUE_ERROR: 'ZAC9',
 
   UNKNOWN_ERROR: 'ZAC6',
 };
