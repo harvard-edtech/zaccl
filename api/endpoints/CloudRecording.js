@@ -76,15 +76,13 @@ CloudRecording.list.scopes = [
  *   returned from a single API call
  * @param {string} [options.nextPageToken=null] - token used to pageinate
  *   through large result sets
- *
- * // Note: Confusing -- look further into this
- * @param {string} [options.queryMetadata=false] -
- *
+ * @param {string} [options.queryMetadata=false] - query metadata of recording
+ * if On-Premise Meeting connector was used for the meeting
  * @param {boolean} [options.searchTrash=false] - if truthy,
  *   include recordings from trash
  * @param {string} [options.trashtype='meeting_recordings'] - Indicate type of
  *   cloud recording to retreive from the trash.
- *   Options - meeting_recordings or recording_file
+ *   options - {'meeting_recordings', 'recording_file'}
  * @param {string} [options.startDate=null] - query start date in
  *   'yyyy-mm-dd' format within last 6 months
  * @param {string} [options.endDate=null] - query end date in
@@ -92,10 +90,47 @@ CloudRecording.list.scopes = [
  * @return {RecordingList} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.getList = function (options) {
-  // Note: the default for page_size on zoom is 30 with max of 300.
+  // Validate date strings if passed in
+  if (options.startDate) {
+    if (!utils.validateDate(options.startDate)) {
+      throw new ZACCLError({
+        message: 'Date needs to be in the format yyyy-mm-dd',
+        code: ERROR_CODES.INVALID_DATE_FORMAT,
+      });
+    }
+  }
 
-  // TODO:  Write core functions
-
+  if (options.endDate) {
+    if (!utils.validateDate(options.endDate)) {
+      throw new ZACCLError({
+        message: 'Date needs to be in the format yyyy-mm-dd',
+        code: ERROR_CODES.INVALID_DATE_FORMAT,
+      });
+    }
+  }
+  return this.visitEndpoint({
+    path: `/users/${options.userId}/recordings`,
+    method: 'GET',
+    params: {
+    // Note: The max page size allowed by zoom is 300
+      page_size: options.pageSize || 300,
+      next_page_token: options.nextPageToken || '',
+      mc: options.mc || 'false',
+      trash: !(!options.searchTrash),
+      trash_type: options.trashtype || 'meeting_recordings',
+      from: options.startDate || '',
+      to: options.endDate || '',
+    },
+    errorMap: {
+      404: {
+        1001: 'User does not exist / belong to this account',
+      },
+    },
+    postProcessor: (response) => {
+    // TODO: Add postprocessing operations if necessary
+      return response;
+    },
+  });
 };
 CloudRecording.getList.action = 'list all cloud recordings of a user';
 CloudRecording.getList.requiredParams = ['userId'];
