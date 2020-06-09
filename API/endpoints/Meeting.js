@@ -76,7 +76,7 @@ Meeting.create = function (options) {
     errorMap: {
       300: `User ${options.userId} has reached the maximum limit for creating and updating meetings`,
       404: {
-        1001: `User ${options.userId} either does not exist or belong to this account`,
+        1001: `User ${options.userId} either does not exist or does not belong to this account`,
       },
     },
   });
