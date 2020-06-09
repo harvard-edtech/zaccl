@@ -47,10 +47,6 @@ Meeting.get = function (options) {
         3001: `Meeting ${options.meetingId} is not found or has expired`,
       },
     },
-    postProcessor: (response) => {
-      // TODO: Add postprocessing operations if necessary
-      return response;
-    },
   });
 };
 Meeting.get.action = 'get info on a meeting';
@@ -169,10 +165,6 @@ Meeting.delete = function (options) {
         1001: 'User does not exist',
         3001: `A meeting with the ID ${options.meetingId} is not found / has expired`,
       },
-    },
-    postProcessor: (response) => {
-      // TODO: Add postprocessing operations if necessary
-      return response;
     },
   });
 };
