@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#lisPastInstances">lisPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -135,7 +135,7 @@
 
     
 
-    <h4 class="name" id="listMeetingRecordings"><span class="type-signature">(async) </span>listMeetingRecordings<span class="signature">(options)</span><span class="type-signature"> &rarr; {Recording}</span></h4>
+    <h4 class="name" id="listMeetingRecordings"><span class="type-signature">(async) </span>listMeetingRecordings<span class="signature">(options)</span><span class="type-signature"> &rarr; {Array.&lt;Recording>}</span></h4>
 
     
 
@@ -326,7 +326,7 @@
 
         
 <div class="param-desc">
-    Zoom meeting recording object <a href="https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses">https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses</a>
+    list of Zoom meeting recording objects <a href="https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses">https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses</a>
 </div>
 
 
@@ -337,7 +337,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Recording</span>
+<span class="param-type">Array.&lt;Recording></span>
 
 
     </dd>
@@ -352,7 +352,7 @@
 
     
 
-    <h4 class="name" id="listUserRecordings"><span class="type-signature">(async) </span>listUserRecordings<span class="signature">(options)</span><span class="type-signature"> &rarr; {RecordingList}</span></h4>
+    <h4 class="name" id="listUserRecordings"><span class="type-signature">(async) </span>listUserRecordings<span class="signature">(options)</span><span class="type-signature"> &rarr; {Array.&lt;Recording>}</span></h4>
 
     
 
@@ -808,7 +808,7 @@
     </dt>
     <dd>
         
-<span class="param-type">RecordingList</span>
+<span class="param-type">Array.&lt;Recording></span>
 
 
     </dd>
