@@ -130,30 +130,22 @@ class API {
       if (status === 429) {
         // On daily limit error, reject request, purge queue, and pause endpoint
         if (headers['X-RateLimit-Type'] === 'daily') {
-          // If default queue, throw error but do not purge endpoint
-          if (!throttle.hasRateLimit) {
-            throw new ZACCLError({
-              message: `We received an unexpected daily limit error. Please add a throttle throttle for the endpoint ${path}.`,
-              code: ERROR_CODES.DAILY_LIMIT_ERROR,
-            });
-          } else {
-            await throttle.queue.rejectAll(new ZACCLError({
-              message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
-              code: ERROR_CODES.DAILY_LIMIT_ERROR,
-            }));
-            // Empty token reservoir
-            await throttle.emptyTokenReservoir();
-            // Update resetAfter
-            const resetAfter = headers['Retry-After'];
-            if (resetAfter) {
-              await throttle.updateResetAfter(new Date(resetAfter));
-            }
-
-            throw new ZACCLError({
-              message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
-              code: ERROR_CODES.DAILY_LIMIT_ERROR,
-            });
+          await throttle.rejectAllFromQueue(new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
+            code: ERROR_CODES.DAILY_LIMIT_ERROR,
+          }));
+          // Empty token reservoir
+          await throttle.emptyTokenReservoir();
+          // Update resetAfter
+          const resetAfter = headers['Retry-After'];
+          if (resetAfter) {
+            await throttle.updateResetAfter(new Date(resetAfter));
           }
+
+          throw new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
+            code: ERROR_CODES.DAILY_LIMIT_ERROR,
+          });
         // On rate limit error, pause queue and resubmit request
         } else if (headers['X-RateLimit-Type'] === 'rate') {
           // Increment daily tokens on failed request

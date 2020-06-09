@@ -19,23 +19,24 @@ class TaskQueue {
     this.dequeueIntervalMS = dequeueIntervalMS;
 
     // Store whether the queue is paused
-    this.isPaused = false;
+    this.isPaused = true;
 
     // Start execution
-    this.start();
+    this._start();
   }
 
   /**
    * Start regular execution of tasks
    * @author Gabe Abrams
    */
-  start() {
+  _start() {
+    this.isPaused = false;
+    // Run one task
+    this._attemptTask();
     // Start a task that continuously performs tasks on the interval
     this.intervalId = setInterval(() => {
       this._attemptTask();
     }, this.dequeueIntervalMS);
-
-    this.isPaused = false;
   }
 
   /**
@@ -61,10 +62,8 @@ class TaskQueue {
     if (time > Date.now()) {
       await new Promise((r) => { setTimeout(r, time - Date.now()); });
     }
-    this.isPaused = false;
-    // Immediately dequeue one task, then begin new execution interval.
-    this._attemptTask();
-    this.start();
+    // Begin new execution interval.
+    this._start();
   }
 
   /**
