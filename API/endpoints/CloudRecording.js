@@ -26,7 +26,7 @@ class CloudRecording extends EndpointCategory {
  * @method listMeetingRecordings
  * @param {object} options - object containing all arguments
  * @param {string|number} options.meetingId - the Zoom meeting ID or UUID
- * @return {Recording} Zoom meeting recording object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
+ * @return {Recording[]} list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
  */
 CloudRecording.listMeetingRecordings = function (options) {
   // Check if required param is present
@@ -84,7 +84,7 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   'yyyy-mm-dd' format within last 6 months
  * @param {string} [options.endDate=null] - query end date in
  *   'yyyy-mm-dd' format within last 6 months
- * @return {RecordingList} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
+ * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {
   // Validate date strings if passed in
@@ -113,6 +113,11 @@ CloudRecording.listUserRecordings = function (options) {
       trash_type: options.trashType || 'meeting_recordings',
       from: options.startDate || '',
       to: options.endDate || '',
+    },
+    postProcessor: (response) => {
+      // Extract the recordings from the body
+      const { body } = response;
+      return body.meetings; // No idea why they're not called "recordings"
     },
     errorMap: {
       404: {

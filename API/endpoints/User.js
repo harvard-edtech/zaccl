@@ -5,7 +5,6 @@
  */
 
 const EndpointCategory = require('../../EndpointCategory');
-const utils = require('../../EndpointCategory/helpers/utils');
 
 class User extends EndpointCategory {
   constructor(config) {
