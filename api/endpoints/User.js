@@ -24,7 +24,7 @@ class User extends EndpointCategory {
  * @method getZAKToken
  * @param {object} options - object containing all arguments
  * @param {string} options.userId - the user ID or email address of the user
- * @return {string} - returns the ZAK token of the user
+ * @return {string} returns the ZAK token of the user
  */
 User.getZAKToken = function (options) {
   return this.visitEndpoint({

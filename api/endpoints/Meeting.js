@@ -184,7 +184,7 @@ Meeting.delete.scopes = [
  * @method lisPastInstances
  * @param {object} options - object contining all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
- * @returns {MeetingList} - list of ended meeting instances {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/pastmeetings#responses}
+ * @returns {MeetingList} list of ended meeting instances {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/pastmeetings#responses}
  */
 Meeting.listPastInstances = function (options) {
   return this.visitEndpoint({

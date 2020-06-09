@@ -13,7 +13,7 @@ module.exports = {
    *   Function assumes valid string is passed
    * @author Aryan Pandey
    * @param {string} str - String that might need to be double encoded
-   * @returns {string} - processed string
+   * @returns {string} processed string
    */
   doubleEncodeIfNeeded: (str) => {
     // Variable to decide whether to double encode str
