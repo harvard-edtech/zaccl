@@ -5,11 +5,21 @@
  * @author Gabe Abrams
  */
 
-const defaultSendZoomRequest = require('./sendZoomRequest');
+ // Import classes
 const ThrottleMap = require('../helpers/ThrottleMap');
-const templateToRegExp = require('../helpers/templateToRegExp');
 const ZACCLError = require('../ZACCLError');
+
+// Import helpers
+const defaultSendZoomRequest = require('./sendZoomRequest');
+const templateToRegExp = require('../helpers/templateToRegExp');
+
+// Import constants
 const ERROR_CODES = require('../ERROR_CODES');
+
+// Import endpoints
+const CloudRecording = require('./endpoints/CloudRecording');
+const Meeting = require('./endpoints/Meeting');
+const User = require('./endpoints/User');
 
 // Constants
 const BACKOFF_MS = 10; // milliseconds of backoff after rate-limited request
@@ -38,6 +48,11 @@ class API {
     this.secret = secret;
 
     this.throttleMap = new ThrottleMap();
+
+    // Initialize endpoint categories
+    this.cloudRecording = new CloudRecording({ api: this });
+    this.meeting = new Meeting({ api: this });
+    this.user = new User({ api: this });
   }
 
   /**

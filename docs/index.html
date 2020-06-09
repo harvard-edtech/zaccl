@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
+    
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#lisPastInstances">lisPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    
+
+
+
+    
+
+
+    <section class="package">
+        <h3> </h3>		
+    </section>
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    <section class="readme usertext">
+        <article><h1>The Zoom API, but simpler and more powerful</h1>
+<p>This project is designed <em>by</em> educators <em>for</em> educators.</p>
+<h1 style="display: flex; align-items: center;">
+  <div style="flex-grow: 1; height: 1px; background: #ccc; margin-right: 10px;">
+  </div>
+  <div>
+    Quickstart
+  </div>
+  <div style="flex-grow: 1; height: 1px; background: #ccc; margin-left: 10px;">
+  </div>
+</h1>
+<h2>1. Create an <code>api</code> instance</h2>
+<pre class="prettyprint source lang-js"><code>const API = require('zaccl/API');
+
+const api = new API({
+  key: '348AJ9...',
+  secret: 'NM9UO1..',
+});
+</code></pre>
+<h2>2. Call an endpoint function</h2>
+<p>All endpoint functions are asynchronous, so we recommend using async/await syntax:</p>
+<pre class="prettyprint source lang-js"><code>const submissions = await api.meeting.create({
+  userId: 'someone@example.edu',
+  meetingObj: {
+    ...
+  },
+});
+</code></pre></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+We use <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> and the <a href="https://github.com/clenemt/docdash">docdash</a> theme to generate our docs.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

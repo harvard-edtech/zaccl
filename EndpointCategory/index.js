@@ -14,9 +14,6 @@ class EndpointCategory {
    * @author Gabe Abrams
    */
   constructor(config, Subclass) {
-    // Deconstruct config
-    const { api } = config;
-
     // Go through subcategories and functions to initialize the tree
     Object.keys(Subclass).forEach((prop) => {
       const childIsCategory = (

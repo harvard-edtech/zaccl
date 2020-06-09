@@ -170,7 +170,7 @@ module.exports = (config) => {
 
     // call the core function, catching errors
     try {
-      const body = runCoreFunction(opts);
+      const { body } = await runCoreFunction(opts);
       return body;
     } catch (err) {
       let newError = err;

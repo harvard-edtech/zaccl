@@ -4,6 +4,7 @@
 	"description": "The Zoom App Complete Connection Library, a project that handles everything required to build a zoom-integrated app.",
 	"main": "index.js",
 	"scripts": {
+		"build-docs": "rm -rf ./docBuilder/template;cp -r ./node_modules/docdash ./docBuilder/template; node ./docBuilder/updateBuilder.js;rm -rf ./docs;./node_modules/.bin/jsdoc -c ./docBuilder/jsdocConfig.json",
 		"test": "mocha --exit --recursive --reporter spec"
 	},
 	"repository": {
@@ -30,12 +31,15 @@
 		"timekeeper": "^2.2.0"
 	},
 	"devDependencies": {
+		"docdash": "^1.2.0",
+		"doctrine": "^3.0.0",
 		"eslint": "^6.8.0",
 		"eslint-config-airbnb": "^18.1.0",
 		"eslint-plugin-import": "^2.20.2",
 		"eslint-plugin-jest": "^23.8.2",
 		"eslint-plugin-jsx-a11y": "^6.2.3",
 		"eslint-plugin-react": "^7.19.0",
+		"jsdoc": "^3.6.4",
 		"mocha": "^7.1.2"
 	}
 }
