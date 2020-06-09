@@ -22,7 +22,7 @@ class ThrottleMap {
    * Add a new endpoint throttle to the map.
    * @author Grace Whitney
    * @param {object} opts - object containing all options
-   * @param {string} opts.regexp - regexp string of endpoint path template
+   * @param {string} opts.regExp - reg exp string of endpoint path template
    * @param {string} opts.method - method of endpoint
    * @param {number} [opts.maxRequestsPerInterval=unlimited] - the maximum
    *   number of requests allowed each rate limit interval
@@ -45,7 +45,7 @@ class ThrottleMap {
     const dequeueIntervalMS = (
       maxRequestsPerInterval
         ? (millisecondsPerInterval || 1000) / maxRequestsPerInterval
-        : 0
+        : undefined
     );
 
     // create new throttle instance

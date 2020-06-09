@@ -42,7 +42,7 @@ class Throttle {
    * @author Grace Whitney
    */
   async incrementDailyTokens() {
-    await this._checkForReset();
+    await this._resetIfRequired();
     const unlock = await this._mutex.lock();
     if (
       this._dailyTokensRemaining
@@ -58,7 +58,7 @@ class Throttle {
    * @author Grace Whitney
    */
   async decrementDailyTokens() {
-    await this._checkForReset();
+    await this._resetIfRequired();
     const unlock = await this._mutex.lock();
     if (this.hasDailyLimit && this._dailyTokensRemaining > 0) {
       this._dailyTokensRemaining -= 1;
@@ -81,7 +81,7 @@ class Throttle {
   /**
    * Sets resetAfter attribute to a new timestamp
    * @author Grace Whitney
-   * @param {object} newResetAfter - DateTime object of the new reset timestamp
+   * @param {Date} newResetAfter - DateTime object of the new reset timestamp
    */
   async updateResetAfter(newResetAfter) {
     const unlock = await this._mutex.lock();
@@ -94,7 +94,7 @@ class Throttle {
    *  daily token reservoir and updates the resetAfter timestamp
    * @author Grace Whitney
    */
-  async _checkForReset() {
+  async _resetIfRequired() {
     const unlock = await this._mutex.lock();
     // Perform daily counter arithmetic if necessary
     if (this.hasDailyLimit && this._resetAfter < Date.now()) {
@@ -115,7 +115,7 @@ class Throttle {
    * @returns {number} the current daily tokens remaining
    */
   async getDailyTokensRemaining() {
-    await this._checkForReset();
+    await this._resetIfRequired();
     return this._dailyTokensRemaining;
   }
 
@@ -146,6 +146,18 @@ class Throttle {
       await this._queue.add(opts);
     } else {
       await task();
+    }
+  }
+
+  /**
+   * If there's a queue, reject all remaining tasks on the queue
+   * @param  {ZACCLError} err - the error to pass to rejectAll
+   */
+  async rejectAllFromQueue(err) {
+    if (this.hasRateLimit) {
+      const unlock = await this.mutex.lock();
+      await this._queue.rejectAll(err);
+      unlock();
     }
   }
 }
