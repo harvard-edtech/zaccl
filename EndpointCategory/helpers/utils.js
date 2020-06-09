@@ -16,11 +16,14 @@ module.exports = {
    * @returns {string} - processed string
    */
   doubleEncodeIfNeeded: (str) => {
-  // Variable to decide whether to double encode str
+    // Variable to decide whether to double encode str
     const encodingRequired = str.startsWith('/') || str.includes('//');
 
-    return (encodingRequired ? encodeURIComponent(encodeURIComponent(str))
-      : str);
+    return (
+      encodingRequired
+        ? encodeURIComponent(encodeURIComponent(str))
+        : str
+    );
   },
 
   /**
