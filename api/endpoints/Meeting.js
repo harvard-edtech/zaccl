@@ -25,8 +25,8 @@ class Meeting extends EndpointCategory {
  * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
- * @param {boolean} [options.showAllOccurrences=false] - if truthy,
- * retrieves all past occurences
+ * @param {boolean} [options.showAllOccurrences] - if truthy,
+ * retrieves all past occurrences
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
  */
 Meeting.get = function (options) {
@@ -73,21 +73,15 @@ Meeting.get.scopes = [
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingcreate#request-body}}
  */
 Meeting.create = function (options) {
-  // TODO?: Add preprocessing checks for the fields in options.meetingObj
-
   return this.visitEndpoint({
     path: `/users/${options.userId}/meetings`,
     method: 'POST',
     params: options.meetingObj,
     errorMap: {
-      300: `User ${options.userId} has reached max user limit for creating/updating meetings`,
+      300: `User ${options.userId} has reached the maximum limit for creating and updating meetings`,
       404: {
-        1001: `User ${options.userId} does not exist / belong to this account`,
+        1001: `User ${options.userId} either does not exist or belong to this account`,
       },
-    },
-    postProcessor: (response) => {
-      // TODO: Add postprocessing operations if necessary
-      return response;
     },
   });
 };
@@ -111,11 +105,12 @@ Meeting.create.scopes = [
  * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
  */
 Meeting.update = function (options) {
-  // TODO?: Add preprocessing checks for the fields in options.meetingObj
   return this.visitEndpoint({
-    // Note: Not sure if this is the right way to implement sending occurrenceId
-    path: (options.occurerenceId ? `/meetings/${options.meetingId}?occurrence_id=${options.occurerenceId}`
-      : `/meetings/${options.meetingId}`),
+    path: (
+      options.occurrenceId
+        ? `/meetings/${options.meetingId}?occurrence_id=${options.occurrenceId}`
+        : `/meetings/${options.meetingId}`
+    ),
     method: 'PATCH',
     params: options.meetingObj,
     errorMap: {
@@ -129,10 +124,6 @@ Meeting.update = function (options) {
         1001: 'User does not exist',
         3001: `A meeting with the ID ${options.meetingId} is not found / has expired`,
       },
-    },
-    postProcessor: (response) => {
-      // TODO: Add postprocessing operations if necessary
-      return response;
     },
   });
 };
@@ -209,10 +200,6 @@ Meeting.getInstances = function (options) {
     method: 'GET',
     errorMap: {
       404: `Meeting ${options.meetingId} not found`,
-    },
-    postProcessor: (response) => {
-      // TODO: Add postprocessing operations if necessary
-      return response;
     },
   });
 };
