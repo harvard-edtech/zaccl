@@ -195,7 +195,7 @@ Meeting.listPastInstances = function (options) {
     },
   });
 };
-Meeting.listPastInstances.action = 'get list of ended meeting instances';
+Meeting.listPastInstances.action = 'get the list of ended meeting instances';
 Meeting.listPastInstances.requiredParams = ['meetingId'];
 Meeting.listPastInstances.scopes = [
   'meeting:read:admin',
