@@ -77,7 +77,7 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   through large result sets
  * @param {boolean} [options.searchTrash=false] - if truthy,
  *   include recordings from trash
- * @param {string} [options.trashtype='meeting_recordings'] - Indicate type of
+ * @param {string} [options.trashType='meeting_recordings'] - Indicate type of
  *   cloud recording to retreive from the trash.
  *   options - {'meeting_recordings', 'recording_file'}
  * @param {string} [options.startDate=null] - query start date in
@@ -110,7 +110,7 @@ CloudRecording.listUserRecordings = function (options) {
       page_size: options.pageSize || 300,
       next_page_token: options.nextPageToken || '',
       trash: !!options.searchTrash,
-      trash_type: options.trashtype || 'meeting_recordings',
+      trash_type: options.trashType || 'meeting_recordings',
       from: options.startDate || '',
       to: options.endDate || '',
     },
