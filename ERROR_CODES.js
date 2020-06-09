@@ -1,4 +1,4 @@
-// Highest error: ZAC6
+// Highest error: ZAC8
 
 module.exports = {
   // Network errors
@@ -11,6 +11,10 @@ module.exports = {
 
   // Processing errors
   POST_PROCESSING_ERROR: 'ZAC5',
+
+  // Argument errors
+  INVALID_MEETING_ID: 'ZAC7',
+  INVALID_DATE_FORMAT: 'ZAC8',
 
   UNKNOWN_ERROR: 'ZAC6',
 };
