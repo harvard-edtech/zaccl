@@ -1,0 +1,24 @@
+{
+  "source": {
+    "include": [
+      "API/endpoints"
+    ]
+  },
+  "opts": {
+    "readme": "./docBuilder/DOCS_HOME.md",
+    "destination": "./docs",
+    "recurse": true,
+    "template": "./docBuilder/template"
+  },
+  "templates": {
+    "systemName": "zaccl api",
+    "systemSummary": "A class that defines a set of smart Zoom endpoints that actually behave how you'd expect them to.",
+    "footer": "Created by Gabe Abrams in the Harvard Division of Continuing Education",
+    "copyright": "All code, materials, documentation, and other parts of this project under MIT license",
+    "showTableOfContents": true,
+    "includeDate": false,
+    "default": {
+      "useLongnameInNav": true
+    }
+  }
+}

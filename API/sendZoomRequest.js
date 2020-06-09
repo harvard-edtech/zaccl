@@ -3,21 +3,10 @@ const jwt = require('jsonwebtoken');
 
 const sendRequest = require('../helpers/sendRequest');
 
-// TODO: auto-detect "429 Too Many Requests" and retry after "retry-after"
-
 /* -------------------------- Constants ------------------------- */
 
 // Constants
 const EXPIRY_SEC = 60;
-
-/* ------------------------- Throttlers ------------------------- */
-
-let throttleReady = Promise.resolve();
-const resetThrottle = () => {
-  throttleReady = new Promise((r) => {
-    setTimeout(r, 1000);
-  });
-};
 
 /* -------------------------- Function -------------------------- */
 
@@ -38,10 +27,6 @@ module.exports = async (opts) => {
     key,
     secret,
   } = opts;
-
-  /* --------------------- Deal with Throttle --------------------- */
-  await throttleReady;
-  resetThrottle();
 
   /* ---------------------- Generate a Token ---------------------- */
   const token = jwt.sign({
