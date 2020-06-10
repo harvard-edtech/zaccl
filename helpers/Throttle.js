@@ -9,14 +9,15 @@ class Throttle {
   /**
    * Create a new Rule instance
    * @author Grace Whitney
-   * @param {number} [dequeueIntervalMS] - the throttle interval
-   * @param {number} [maxRequestsPerDay] - the daily call limit
+   * @param {object} [opts={}] - the object containing all options
+   * @param {number} [opts.dequeueIntervalMS] - the throttle interval
+   * @param {number} [opts.maxRequestsPerDay] - the daily call limit
    */
   constructor(opts) {
     const {
       dequeueIntervalMS,
       maxRequestsPerDay,
-    } = opts;
+    } = opts || {};
 
     // Store a rule mutex for safe operations
     this._mutex = new Mutex();
