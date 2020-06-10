@@ -1,5 +1,5 @@
 const genStubZoomRequest = require('./stubZoomRequest');
-const API = require('../../../api');
+const API = require('../../../API');
 
 const testDailyLimit = async (opts) => {
   const {
@@ -17,9 +17,11 @@ const testDailyLimit = async (opts) => {
   });
 
   // call visitEndpoint callIters times
+  const calls = [];
   for (let i = 0; i < callIters; i++) {
-    api._visitEndpoint({ path, method });
+    calls.push(api._visitEndpoint({ path, method }));
   }
+  await Promise.all(calls);
 };
 
 module.exports = testDailyLimit;

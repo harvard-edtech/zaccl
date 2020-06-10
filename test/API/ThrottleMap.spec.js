@@ -10,7 +10,7 @@ describe('helpers > ThrottleMap', function () {
   // initialize ThrottleMap for testing, and add initial Throttles
   const throttleMap = new ThrottleMap();
 
-  it('returns a matching throttle', function () {
+  it('returns a matching throttle', async function () {
     const templates = [
       '/test/meeting/{meetingid}',
       '/test/{user}',
@@ -49,15 +49,13 @@ describe('helpers > ThrottleMap', function () {
         method: 'GET',
         path: endpoint,
       });
-      assert.equal(
-        res.maxRequestsPerDay,
-        defaultMaxRequestsPerDay,
-        `returned throttle has incorrect daily limit: ${res.regexp}`
+      assert(
+        res.hasDailyLimit,
+        `returned throttle for ${endpoint}  does not have a daily limit`
       );
-      assert.equal(
-        res.dailyTokensRemaining,
-        defaultMaxRequestsPerDay,
-        `returned throttle for ${endpoint} has incorrect daily tokens remaining on first call`
+      assert(
+        res.hasRateLimit,
+        `returned throttle for ${endpoint} does not have a rate limit`
       );
     });
   });
@@ -94,13 +92,13 @@ describe('helpers > ThrottleMap', function () {
     });
 
     assert.notEqual(
-      r1.queue,
-      r2.queue,
+      r1._queue,
+      r2._queue,
       'map does not maintain separate queues'
     );
     assert.notEqual(
-      r1.queue,
-      r3.queue,
+      r1._queue,
+      r3._queue,
       'map does not maintain separate queues'
     );
   });
