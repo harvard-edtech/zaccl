@@ -20,7 +20,7 @@ class ThrottleMap {
   }
 
   /**
-   * Add a new endpoint throttle to the map.
+   * Add a new endpoint throttle to the map. Does not allow duplicate rules.
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {string} opts.regExp - reg exp string of endpoint path template
@@ -73,7 +73,7 @@ class ThrottleMap {
 
   /**
    * Look up an endpoint and return the Throttle for any matching template,
-   *  or a new empty Throttle if none is found.
+   *  or the default empty Throttle if none is found.
    * @author Grace Whitney
    * @param {string} method - method of endpoint to look up
    * @param {string} path - path of endpoint to look up

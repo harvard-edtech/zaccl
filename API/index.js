@@ -115,7 +115,7 @@ class API {
     let response;
 
     /**
-     * Asyncronous task wrapper for sendZoomRequest that includes error
+     * Asynchronous task wrapper for sendZoomRequest that includes error
      *   handling, for submission to the endpoint's throttled queue
      * @author Grace Whitney
      * @async
