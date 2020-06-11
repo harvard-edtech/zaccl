@@ -124,7 +124,7 @@ Meeting.update = function (options) {
   });
 };
 Meeting.update.action = 'update the details of a meeting';
-Meeting.update.requiredParams = ['meetingId, meetingObj'];
+Meeting.update.requiredParams = ['meetingId', 'meetingObj'];
 Meeting.update.scopes = [
   'meeting:write:admin',
   'meeting:write',
