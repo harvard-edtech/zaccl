@@ -115,7 +115,7 @@ CloudRecording.listUserRecordings = function (options) {
       to: options.endDate || '',
     },
     postProcessor: (response) => {
-      // Change the body to extract the meetings from inside the body
+      // Extract the recordings from the body
       const newResponse = response;
       newResponse.body = response.body.meetings;
       // ^ no idea why they're not called "recordings"
