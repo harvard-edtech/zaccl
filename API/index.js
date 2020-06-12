@@ -144,7 +144,7 @@ class API {
       /* -------------------------- Error Handling ---------------------------*/
       if (status === 429) {
         // On daily limit error, reject request, purge queue, and pause endpoint
-        if (headers['X-RateLimit-Type'] === 'daily') {
+        if (headers['X-RateLimit-Type'] === 'Daily-limit') {
           await throttle.rejectAllFromQueue(new ZACCLError({
             message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
             code: ERROR_CODES.DAILY_LIMIT_ERROR,
@@ -162,7 +162,7 @@ class API {
             code: ERROR_CODES.DAILY_LIMIT_ERROR,
           });
         // On rate limit error, pause queue and resubmit request
-        } else if (headers['X-RateLimit-Type'] === 'rate') {
+        } else if (headers['X-RateLimit-Type'] === 'QPS') {
           // Increment daily tokens on failed request
           throttle.incrementDailyTokens();
 
