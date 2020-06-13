@@ -40,4 +40,20 @@ module.exports = {
     const regex = /\d{4}-([1-9]|0[1-9]|1[012])-([1-9]|0[1-9]|[12][0-9]|3[01])$/;
     return regex.test(date);
   },
+
+  /**
+   * Returns parsed int if arg is a valid number,
+   *   throws error otherwise
+   * @author Aryan Pandey
+   * @param {number} num - number that needs to be sanitized
+   * @returns {number} parsed number
+   */
+  sanitizeInt: (num) => {
+    const parsedNum = Number.parseInt(num);
+    // If not a number throw a standard error
+    if (Number.isNaN(parsedNum)) {
+      throw new Error('Not a number');
+    }
+    return parsedNum;
+  },
 };
