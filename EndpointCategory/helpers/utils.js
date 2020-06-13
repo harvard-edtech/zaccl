@@ -3,6 +3,7 @@
  */
 
 const ERROR_CODES = require('../../ERROR_CODES');
+const ZACCLError = require('../../ZACCLError');
 
 module.exports = {
 
@@ -27,18 +28,41 @@ module.exports = {
   },
 
   /**
-   * Returns true if string is in the format yyyy-mm-dd
+   * Returns formatte date string if possible,
+   *   throws ZACCL Error otherwise
    * @author Aryan Pandey
-   * @param {string} date - date string that needs to be validated
-   * @returns {boolean} true if valid, false otherwise
+   * @param {string|Date} date - date string or Date instance
+   *   that needs to be validated
+   * @returns {string} formatted date string
    */
-  validateDate: (date) => {
-    // Check if valid string passed
-    if (typeof date !== 'string') {
-      return false;
+  sanitizeDate: (date) => {
+    // Check if string passed
+    if (typeof date === 'string') {
+      const re = /\d{4}-([1-9]|0[1-9]|1[012])-([1-9]|0[1-9]|[12][0-9]|3[01])$/;
+      // If string is in correct format, return as is
+      if (re.test(date)) {
+        return date;
+      }
+      // Throw error if date doesn't match format
+      throw new ZACCLError({
+        message: 'Date needs to be in the format "yyyy-mm-dd" or a Date instance',
+        code: ERROR_CODES.INVALID_DATE_FORMAT,
+      });
     }
-    const regex = /\d{4}-([1-9]|0[1-9]|1[012])-([1-9]|0[1-9]|[12][0-9]|3[01])$/;
-    return regex.test(date);
+
+    // Check if Date instance passed
+    if (typeof date.getMonth === 'function') {
+      // Add 1 to month to get 1-12 scale
+      const month = date.getMonth() + 1;
+
+      // Return formatted Date string
+      return `${date.getFullYear()}-${month}-${date.getDate()}`;
+    }
+
+    throw new ZACCLError({
+      message: 'Date needs to be in the format "yyyy-mm-dd" or a Date instance',
+      code: ERROR_CODES.INVALID_DATE_FORMAT,
+    });
   },
 
   /**
