@@ -26,15 +26,22 @@ class User extends EndpointCategory {
  * @return {string} returns the ZAK token of the user
  */
 User.getZAKToken = function (options) {
+  let { userId } = options;
+
+  // Cast to string if included
+  if (userId) {
+    userId = userId.toString();
+  }
+
   return this.visitEndpoint({
-    path: `/users/${options.userId}/token`,
+    path: `/users/${userId}/token`,
     method: 'GET',
     params: {
       type: 'zak',
     },
     errorMap: {
       404: {
-        1001: `User ${options.userId} does not exist`,
+        1001: `User ${userId} does not exist`,
       },
     },
     postProcessor: (response) => {
