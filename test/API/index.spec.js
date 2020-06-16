@@ -1,4 +1,5 @@
 const assert = require('assert');
+const timekeeper = require('timekeeper');
 
 // import helpers
 const genStubZoomRequest = require('./helpers/stubZoomRequest');
@@ -9,15 +10,16 @@ const API = require('../../API');
 
 // TODO: Fill in tests
 describe('API', async function () {
-  const testAPI = new API({
-    key: 'fakeKey',
-    secret: 'fakeSecret',
-    sendZoomRequest: genStubZoomRequest({ failures: [] }),
-  });
-
   // Functionality tests
   it('Visits the correct endpoint', async function () {
-    const ret = await testAPI._visitEndpoint({ path: '/unthrottled/u1' });
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
+
+    const ret = await testAPI._visitEndpoint({ path: '/unthrottled' });
     // Successful call to stubZoomRequest returns its parameters
     assert.equal(ret.status, 201, 'Unthrottled endpoint unsuccessful');
     assert.deepEqual(
@@ -25,7 +27,7 @@ describe('API', async function () {
       {
         key: 'fakeKey',
         secret: 'fakeSecret',
-        path: '/unthrottled/u1',
+        path: '/unthrottled',
         method: 'GET',
       },
       'API did not pass correct parameters to sendZoomRequest'
@@ -33,8 +35,16 @@ describe('API', async function () {
   });
 
   it('Is case-insensitive', async function () {
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
+
+    // Don't capitalize method
     const ret = await testAPI._visitEndpoint({
-      path: '/unthrottled/u1',
+      path: '/unthrottled',
       method: 'Post',
     });
     // Successful call to stubZoomRequest returns its parameters
@@ -44,7 +54,7 @@ describe('API', async function () {
       {
         key: 'fakeKey',
         secret: 'fakeSecret',
-        path: '/unthrottled/u1',
+        path: '/unthrottled',
         method: 'POST',
       },
       'API did not pass correct parameters to sendZoomRequest'
@@ -53,6 +63,13 @@ describe('API', async function () {
 
   // Daily limit tests
   it('Enforces a daily limit rule', async function () {
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
+
     // Add rule to test
     testAPI._addRule({
       template: './endpoint/{groupID}/{userID}',
@@ -63,7 +80,7 @@ describe('API', async function () {
     try {
       await testDailyLimit({
         api: testAPI,
-        path: './endpoint/g1/u1',
+        path: '/endpoint/g1/u1',
         method: 'GET',
         callIters: 5,
       });
@@ -72,8 +89,13 @@ describe('API', async function () {
     }
 
     try {
-      await testAPI._visitEndpoint({ path: './endpoint/g1/u1' });
-      throw new Error('API did not cancel queue');
+      await testAPI._visitEndpoint({ path: '/endpoint/g1/u1' });
+      const throttle = testAPI.throttleMap.getThrottle({
+        path: '/endpoint/g1/u1',
+        method: 'GET',
+      });
+      const tokens = await throttle.getDailyTokensRemaining();
+      throw new Error(`API did not cancel queue. Daily tokens remaining are ${tokens}`);
     } catch (err) {
       assert.equal(
         err.message,
@@ -84,37 +106,39 @@ describe('API', async function () {
   });
 
   it('Doesn\'t throttle unlimited endpoints', async function () {
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
+
     // Propagates error on failure
     await testDailyLimit({
       api: testAPI,
-      path: './unthrottled/u1',
+      path: './unthrottled',
       method: 'GET',
       callIters: 100, // This is arbitrary
     });
   });
 
-  const dailyLimitTestAPI = new API({
-    key: 'fakeKey',
-    secret: 'fakeSecret',
-    sendZoomRequest: genStubZoomRequest({
-      failures: [],
-      totalLimit: 5,
-    }),
-  });
+  it('Throws a daily limit error for unthrottled endpoints', async function () {
+    // Set up API instance with enforced daily limit
+    const dailyLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [],
+        totalLimit: 5,
+      }),
+    });
 
-  dailyLimitTestAPI._addRule({
-    template: './endpoint/{groupID}/{userID}',
-    method: 'GET',
-    maxRequestsPerDay: 10,
-  });
-
-  it('Cancels a queue on daily limit error', async function () {
     try {
       const results = [];
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < 6; i++) {
         results.push(
           dailyLimitTestAPI._visitEndpoint({
-            path: './endpoint/g1/u1',
+            path: '/unthrottled',
             method: 'GET',
           })
         );
@@ -130,46 +154,129 @@ describe('API', async function () {
     }
   });
 
-  it('maintains a daily counter per endpoint', function () {
+  it('Throws a daily limit error for throttled endpoints', async function () {
+    // Set up API instance with enforced daily limit
+    const dailyLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [],
+        totalLimit: 5,
+      }),
+    });
 
+    dailyLimitTestAPI._addRule({
+      template: '/endpoint/{groupID}/{userID}',
+      method: 'GET',
+      maxRequestsPerDay: 10,
+    });
+
+    try {
+      const results = [];
+      for (let i = 0; i < 6; i++) {
+        results.push(
+          dailyLimitTestAPI._visitEndpoint({
+            path: '/endpoint/g0/u0',
+            method: 'GET',
+          })
+        );
+      }
+      await Promise.all(results);
+      throw new Error('Daily limit error was not thrown');
+    } catch (err) {
+      assert.equal(
+        err.message,
+        'Zoom is very busy right now. Please try this operation again tomorrow.',
+        `API threw unexpected error: ${err}`
+      );
+    }
   });
 
-  it('resets daily counter on next request after resetAfter', function () {
+  it('resets daily counter on next request after resetAfter', async function () {
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
 
+    testAPI.addRule({
+      template: '/endpoint/{groupID}/{userID}',
+      method: 'GET',
+      maxRequestsPerDay: 2,
+    });
+
+    // Use up daily limit
+    for (let i = 0; i < 2; i++) {
+      await testAPI._visitEndpoint({
+        path: '/endpoint/g0/u0',
+        method: 'GET',
+      });
+    }
+
+    // Check that subsequent call fails
+    try {
+      await testAPI._visitEndpoint({
+        path: '/endpoint/g0/u0',
+        method: 'GET',
+      });
+      throw new Error('API did not throw daily limit error');
+    } catch (err) {
+      assert.equal(
+        err.message,
+        'Zoom is very busy right now. Please try this operation again tomorrow.',
+        'API threw unexpected error'
+      );
+    }
+
+    // Travel past midnight
+    const justPastMidnight = new Date();
+    justPastMidnight.setUTCHours(24, 0, 0, 10);
+    timekeeper.travel(justPastMidnight);
+
+    // Check that subsequent call succeeds
+    try {
+      await testAPI._visitEndpoint({
+        path: '/endpoint/g0/u0',
+        method: 'GET',
+      });
+    } catch (err) {
+      throw new Error(`API call failed with error ${err.message}`);
+    } finally {
+      timekeeper.reset();
+    }
   });
 
   // Rate limit tests
-  const rateLimitTestAPI = new API({
-    key: 'fakeKey',
-    secret: 'fakeSecret',
-    sendZoomRequest: genStubZoomRequest({
-      failures: [0, 3, 4, 8, 15, 16, 17, 19],
-      totalLimit: 20,
-    }),
-    timePerRequest: 10,
-  });
-
-  rateLimitTestAPI._addRule({
-    template: './endpoint/{groupID}',
-    method: 'POST',
-    maxRequestsPerDay: 10,
-  });
-
   it('Retries one request on rate limit error', async function () {
-    let result;
-    try {
-      result = await rateLimitTestAPI._visitEndpoint({
-        path: './endpoint/g1',
-        method: 'POST',
-      });
-    } catch (err) {
-      throw new Error(`Received unexpected error: ${err.message}`);
-    }
+    const rateLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [0, 3, 4, 8, 15, 16, 17, 19],
+        totalLimit: 20,
+      }),
+      timePerRequest: 10,
+    });
 
+    const result = await rateLimitTestAPI._visitEndpoint({
+      path: './endpoint/g1',
+      method: 'POST',
+    });
     assert.equal(result.status, 201, 'API did not return successful call');
   });
 
   it('Retries all requests on rate limit error', async function () {
+    const rateLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [0, 3, 4, 8, 15, 16, 17, 19],
+        totalLimit: 20,
+      }),
+      timePerRequest: 10,
+    });
+
     let results = [];
     try {
       for (let i = 0; i < 8; i++) {
@@ -195,22 +302,22 @@ describe('API', async function () {
   });
 
   it('Throttles per endpoint', function () {
-
+    this.skip();
   });
 
   it('Pauses a queue on rate limit error', function () {
-
+    this.skip();
   });
 
   it('Handles combined rate and daily limit error correctly', function () {
-
+    this.skip();
   });
 
   it('Doesn\'t double count requests on rate limit error', function () {
-
+    this.skip();
   });
 
   it('Sends multiple parallel requests', function () {
-
+    this.skip();
   });
 });

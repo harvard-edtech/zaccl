@@ -60,6 +60,30 @@ describe('helpers > ThrottleMap', function () {
     });
   });
 
+  it('returns an unlimited throttle when no rule is found', function () {
+    // List of params to test, including one with a new method
+    const paramList = [
+      {
+        method: 'DELETE',
+        path: 'unthrottled',
+      },
+      {
+        method: 'GET',
+        path: 'unthrottled',
+      },
+    ];
+
+    paramList.forEach((params) => {
+      const throttle = throttleMap.getThrottle(params);
+
+      // Check that a throttle is returned
+      assert(throttle, 'getThrottle did not return throttle for unlimited endpoint');
+      // Check that the throttle is unlimited
+      assert(!throttle.hasRateLimit, 'unlimited throttle has rate limit');
+      assert(!throttle.hasDailyLimit, 'unlimited throttle has daily limit');
+    });
+  });
+
   it('maintains the same queue for the same endpoint', function () {
     const r1 = throttleMap.getThrottle({
       method: 'GET',
