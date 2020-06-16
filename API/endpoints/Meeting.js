@@ -24,27 +24,34 @@ class Meeting extends EndpointCategory {
  * @method get
  * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
- * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
- * @param {boolean} [options.showAllOccurrences] - if truthy,
- * retrieves all past occurrences
+ * @param {string} [options.occurrenceId] - ID for the meeting occurrence
+ * @param {boolean} [options.showAllOccurrences=false] - if truthy,
+ *   retrieves all past occurrences
  * @return {Meeting} Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
  */
 Meeting.get = function (options) {
+  // Initialize params object
+  const params = {
+    show_previous_occurrences: !!options.showAllOccurrences,
+  };
+
+  // Add optional param if exists
+  if (options.occurrenceId) {
+    params.occurrence_id = options.occurrenceId.toString();
+  }
+
   return this.visitEndpoint({
     path: `/meetings/${options.meetingId}`,
     method: 'GET',
-    params: {
-      occurrence_id: options.occurrenceId || '',
-      show_previous_occurrences: !(!options.showAllOccurrences),
-    },
+    params,
     errorMap: {
       400: {
-        1010: 'User not found on this account',
-        3000: 'Cannot access webinar info',
+        1010: 'The user could not be found on this account',
+        3000: 'We could not access webinar info',
       },
       404: {
-        1001: 'Meeting not found because user does not exist',
-        3001: `Meeting ${options.meetingId} is not found or has expired`,
+        1001: 'We could not find the meeting because the user does not exist',
+        3001: `Meeting ${options.meetingId} could not be found or has expired`,
       },
     },
   });
@@ -98,7 +105,7 @@ Meeting.create.scopes = [
  * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @param {Meeting} options.meetingObj - Zoom meeting object with updated details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meetingupdate#request-body}
- * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
+ * @param {string} [options.occurrenceId] - ID for the meeting occurrence
  */
 Meeting.update = function (options) {
   return this.visitEndpoint({
@@ -112,13 +119,13 @@ Meeting.update = function (options) {
     errorMap: {
       300: 'User has reached max user limit for creating/updating meetings',
       400: {
-        1010: 'User not found on this account',
-        3000: 'Cannot access meeting information',
+        1010: 'User could not be found on this account',
+        3000: 'We could not access meeting information',
         3003: 'You are not the meeting host',
       },
       404: {
-        1001: 'User does not exist',
-        3001: `A meeting with the ID ${options.meetingId} is not found / has expired`,
+        1001: 'The user does not exist',
+        3001: `A meeting with the ID ${options.meetingId} could not be found or has expired`,
       },
     },
   });
@@ -139,31 +146,37 @@ Meeting.update.scopes = [
  * @method delete
  * @param {object} options - object contining all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
- * @param {string} [options.occurrenceId=null] - ID for the meeting occurrence
+ * @param {string} [options.occurrenceId] - ID for the meeting occurrence
  * @param {boolean} [options.notifyHosts=false] - if truthy,
- * sends cancellation email to hosts
+ *   sends cancellation email to hosts
  */
 Meeting.delete = function (options) {
+  // Initialize params object
+  const params = {
+    schedule_for_reminder: !!options.notifyHosts,
+  };
+
+  // Add optional param if exists
+  if (options.occurrenceId) {
+    params.occurrence_id = options.occurrenceId.toString();
+  }
   return this.visitEndpoint({
     path: `/meetings/${options.meetingId}`,
     method: 'DELETE',
-    params: {
-      occurrence_id: options.occurrenceId || '',
-      schedule_for_reminder: !(!options.notifyHosts),
-    },
+    params,
     errorMap: {
       400: {
-        1010: 'User does not belong to this account',
-        3000: 'Cannot access meeting information',
-        3002: 'Meeting cannot be deleted since it is still in progress',
+        1010: 'The user does not belong to this account',
+        3000: `We could not access meeting information for meeting ${options.meetingId}`,
+        3002: 'We could not delete the meeting since it is still in progress',
         3003: 'You are not the meeting host',
-        3007: 'You cannot delete this meeting since it has ended',
-        3018: 'You are not allowed to delete PMI',
-        3037: 'You are not allowed to delete PAC',
+        3007: 'You cannot delete this meeting since it has already ended',
+        3018: 'You are not allowed to delete your Personal Meeting ID',
+        3037: 'You are not allowed to delete a Personal Meeting Conference',
       },
       404: {
-        1001: 'User does not exist',
-        3001: `A meeting with the ID ${options.meetingId} is not found / has expired`,
+        1001: 'The user does not exist',
+        3001: `A meeting with the ID ${options.meetingId} could not be found or has expired`,
       },
     },
   });
@@ -191,7 +204,7 @@ Meeting.listPastInstances = function (options) {
     path: `/past_meetings/${options.meetingId}/instances`,
     method: 'GET',
     errorMap: {
-      404: `Meeting ${options.meetingId} not found`,
+      404: `We could not find a meeting with the ID ${options.meetingId}`,
     },
   });
 };

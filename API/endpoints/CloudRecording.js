@@ -73,52 +73,90 @@ CloudRecording.listMeetingRecordings.scopes = [
  * @param {string} options.userId - the user ID or email address of the user
  * @param {number} [options.pageSize=300] - number of records
  *   returned from a single API call
- * @param {string} [options.nextPageToken=null] - token used to pageinate
+ * @param {string} [options.nextPageToken] - token used to pageinate
  *   through large result sets
  * @param {boolean} [options.searchTrash=false] - if truthy,
  *   include recordings from trash
  * @param {string} [options.trashType='meeting_recordings'] - Indicate type of
  *   cloud recording to retreive from the trash.
  *   options - {'meeting_recordings', 'recording_file'}
- * @param {string} [options.startDate=null] - query start date in
+ * @param {string|Date} [options.startDate] - query start date in
  *   'yyyy-mm-dd' format within last 6 months
- * @param {string} [options.endDate=null] - query end date in
+ * @param {string|Date} [options.endDate] - query end date in
  *   'yyyy-mm-dd' format within last 6 months
  * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {
-  // Validate date strings if passed in
-  if (options.startDate && !utils.validateDate(options.startDate)) {
-    throw new ZACCLError({
-      message: 'Date needs to be in the format yyyy-mm-dd',
-      code: ERROR_CODES.INVALID_DATE_FORMAT,
-    });
+  // Destructure arguments
+  const {
+    userId,
+    searchTrash,
+  } = options;
+
+  let {
+    pageSize,
+    nextPageToken,
+    trashType,
+    startDate,
+    endDate,
+  } = options;
+
+  // If pageSize included, sanitize the value
+  if (pageSize) {
+    try {
+      // sanitizeInt throws standard Error if number invalid
+      pageSize = utils.sanitizeInt(pageSize);
+    } catch (err) {
+      // Throw specific ZACCL Error
+      throw new ZACCLError({
+        message: 'Page size parameter should be a valid number',
+        code: ERROR_CODES.INVALID_PAGE_SIZE,
+      });
+    }
+    // Throw error if pageSize is over max val of 300
+    if (pageSize >= 300) {
+      throw new ZACCLError({
+        message: 'Page size cannot be higher than 300',
+        code: ERROR_CODES.INVALID_PAGE_SIZE,
+      });
+    }
   }
 
-  if (options.endDate && !utils.validateDate(options.endDate)) {
-    throw new ZACCLError({
-      message: 'Date needs to be in the format yyyy-mm-dd',
-      code: ERROR_CODES.INVALID_DATE_FORMAT,
-    });
+  // Initialize params object with default values and only add
+  // optional params if they are defined
+  const params = {
+    page_size: pageSize || 300,
+    trash: !!searchTrash,
+  };
+
+  if (startDate) {
+    startDate = utils.sanitizeDate(startDate);
+    params.from = startDate;
+  }
+
+  if (endDate) {
+    endDate = utils.sanitizeDate(endDate);
+    params.to = endDate;
+  }
+
+  if (trashType) {
+    trashType = trashType.toString();
+    params.trash_type = trashType;
+  }
+
+  if (nextPageToken) {
+    nextPageToken = nextPageToken.toString();
+    params.next_page_token = nextPageToken;
   }
 
   return this.visitEndpoint({
-    path: `/users/${options.userId}/recordings`,
+    path: `/users/${userId}/recordings`,
     method: 'GET',
-    params: {
-      // Note: The max page size allowed by zoom is 300
-      page_size: options.pageSize || 300,
-      next_page_token: options.nextPageToken || '',
-      trash: !!options.searchTrash,
-      trash_type: options.trashType || 'meeting_recordings',
-      from: options.startDate || '',
-      to: options.endDate || '',
-    },
+    params,
     postProcessor: (response) => {
-      // Change the body to extract the meetings from inside the body
+      // Extract the recordings from the body
       const newResponse = response;
       newResponse.body = response.body.meetings;
-      // ^ no idea why they're not called "recordings"
       return newResponse;
     },
     errorMap: {
