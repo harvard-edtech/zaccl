@@ -5,7 +5,7 @@
  * @author Gabe Abrams
  */
 
- // Import classes
+// Import classes
 const ThrottleMap = require('../helpers/ThrottleMap');
 const ZACCLError = require('../ZACCLError');
 
@@ -15,14 +15,12 @@ const templateToRegExp = require('../helpers/templateToRegExp');
 
 // Import constants
 const ERROR_CODES = require('../ERROR_CODES');
+const THROTTLE_CONSTANTS = require('../constants/THROTTLE');
 
 // Import endpoints
 const CloudRecording = require('./endpoints/CloudRecording');
 const Meeting = require('./endpoints/Meeting');
 const User = require('./endpoints/User');
-
-// Constants
-const BACKOFF_MS = 10; // milliseconds of backoff after rate-limited request
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -115,12 +113,12 @@ class API {
     let response;
 
     /**
-     * Wrapper for sendZoomRequest that includes error handling, for submission
-     *  to the endpoint's throttled queue
-     *  @author Grace Whitney
-     *  @async
+     * Asynchronous task wrapper for sendZoomRequest that includes error
+     *   handling, for submission to the endpoint's throttled queue
+     * @author Grace Whitney
+     * @async
      */
-    const getResponse = async () => {
+    const zoomRequestTask = async () => {
       /* ----------------- Check and update daily tokens -------------------- */
       if ((await throttle.getDailyTokensRemaining()) === 0) {
         throw new ZACCLError({
@@ -144,11 +142,15 @@ class API {
       /* -------------------------- Error Handling ---------------------------*/
       if (status === 429) {
         // On daily limit error, reject request, purge queue, and pause endpoint
-        if (headers['X-RateLimit-Type'] === 'daily') {
-          await throttle.rejectAllFromQueue(new ZACCLError({
-            message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
-            code: ERROR_CODES.DAILY_LIMIT_ERROR,
-          }));
+        if (
+          headers['X-RateLimit-Type'] === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
+        ) {
+          await throttle.rejectAllFromQueue(
+            new ZACCLError({
+              message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
+              code: ERROR_CODES.DAILY_LIMIT_ERROR,
+            })
+          );
           // Empty token reservoir
           await throttle.emptyTokenReservoir();
           // Update resetAfter
@@ -162,16 +164,19 @@ class API {
             code: ERROR_CODES.DAILY_LIMIT_ERROR,
           });
         // On rate limit error, pause queue and resubmit request
-        } else if (headers['X-RateLimit-Type'] === 'rate') {
+        } else if (
+          headers['X-RateLimit-Type'] === THROTTLE_CONSTANTS.RATE_LIMIT_HEADER
+        ) {
           // Increment daily tokens on failed request
           throttle.incrementDailyTokens();
 
           // Pause the queue and resume after delay, if not already paused
-          const now = new Date();
-          const resume = new Date(now.getTime() + BACKOFF_MS);
+          const now = new Date().getTime();
+          const resume = new Date(now + THROTTLE_CONSTANTS.BACKOFF_MS);
           throttle.pauseQueueUntil(resume);
           await throttle.addTaskToQueue({
-            task: getResponse,
+            task: zoomRequestTask,
+            highPriority,
             addToFrontOfLine: true,
           });
         }
@@ -179,15 +184,15 @@ class API {
     };
 
     // Check daily tokens before adding to the queue
-    if (throttle.getDailyTokensRemaining() === 0) {
+    if ((await throttle.getDailyTokensRemaining()) === 0) {
       throw new ZACCLError({
-        message: 'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
         code: ERROR_CODES.DAILY_LIMIT_ERROR,
       });
     }
     // Add request to throttled queue with specified priority
     await throttle.addTaskToQueue({
-      task: getResponse.bind(this),
+      task: zoomRequestTask.bind(this),
       highPriority,
     });
     return response;

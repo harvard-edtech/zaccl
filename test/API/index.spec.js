@@ -5,7 +5,7 @@ const genStubZoomRequest = require('./helpers/stubZoomRequest');
 const testDailyLimit = require('./helpers/testDailyLimit');
 
 // import class to test
-const API = require('../../api');
+const API = require('../../API');
 
 // TODO: Fill in tests
 describe('API', async function () {
@@ -77,7 +77,7 @@ describe('API', async function () {
     } catch (err) {
       assert.equal(
         err.message,
-        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        'Zoom is very busy right now. Please try this operation again tomorrow.',
         'API returned unexpected error'
       );
     }
@@ -124,7 +124,7 @@ describe('API', async function () {
     } catch (err) {
       assert.equal(
         err.message,
-        'The maximum daily call limit for this tool has been reached. Please try again tomorrow.',
+        'Zoom is very busy right now. Please try this operation again tomorrow.',
         `API threw unexpected error: ${err}`
       );
     }

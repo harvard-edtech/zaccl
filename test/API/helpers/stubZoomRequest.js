@@ -1,6 +1,5 @@
-// Define Zoom response header strings
-const dailyLimitHeader = 'daily';
-const rateLimitHeader = 'rate';
+// Import constants
+const THROTTLE_CONSTANTS = require('../../../constants/THROTTLE');
 
 /**
  * Function that generates parameterized testing stub for sendZoomRequest
@@ -53,7 +52,7 @@ const genStubZoomRequest = (opts) => {
     if (failures.includes(currentIndex)) {
       status = 429;
       headers = {
-        'X-RateLimit-Type': rateLimitHeader,
+        'X-RateLimit-Type': THROTTLE_CONSTANTS.RATE_LIMIT_HEADER,
       };
       body = {
         code: 429,
@@ -63,7 +62,7 @@ const genStubZoomRequest = (opts) => {
     } else if (totalLimit && callIndex >= totalLimit) {
       status = 429;
       headers = {
-        'X-RateLimit-Type': dailyLimitHeader,
+        'X-RateLimit-Type': THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER,
         'X-RateLimit-Limit': totalLimit,
         'Retry-After': null,
       };

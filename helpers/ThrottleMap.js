@@ -14,12 +14,13 @@ class ThrottleMap {
   constructor() {
     // Stores an object mapping method -> (map from path regex -> throttle)
     this.map = {};
-    // Default unlimited throttle instance for unrecognized endpoints
-    this.default = new Throttle({});
+
+    // Default unlimited throttle for endpoints that do not have a rule
+    this.default = new Throttle();
   }
 
   /**
-   * Add a new endpoint throttle to the map.
+   * Add a new endpoint throttle to the map. Does not allow duplicate rules.
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {string} opts.regExp - reg exp string of endpoint path template
@@ -71,11 +72,12 @@ class ThrottleMap {
   }
 
   /**
-   * Look up an endpoint and return the throttle for any matching endpoint
+   * Look up an endpoint and return the Throttle for any matching template,
+   *  or the default empty Throttle if none is found.
    * @author Grace Whitney
    * @param {string} method - method of endpoint to look up
    * @param {string} path - path of endpoint to look up
-   * @returns {string} matching regexp string
+   * @returns {Throttle} Throttle object of matching endpoint template
    */
   getThrottle(opts) {
     const {
@@ -88,16 +90,16 @@ class ThrottleMap {
       return this.default;
     }
 
-    // iterate through method map keys, looking for regexp match
+    // iterate through method map keys, looking for regExp match
     const innerMap = this.map[method];
-    const regexps = Object.keys(innerMap);
-    for (let i = 0; i < regexps.length; i++) {
-      // convert regexp string to RegExp object
-      const regexp = regexps[i];
-      const re = new RegExp(regexp);
+    const regExps = Object.keys(innerMap);
+    for (let i = 0; i < regExps.length; i++) {
+      // convert regExp string to RegExp object
+      const regExp = regExps[i];
+      const re = new RegExp(regExp);
       // on match, return matching regexp
       if (re.test(path)) {
-        return innerMap[regexp];
+        return innerMap[regExp];
       }
     }
 
