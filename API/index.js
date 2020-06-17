@@ -64,17 +64,18 @@ class API {
   }
 
   /**
-   * Add a throttle rule. Only one of maxRequestsPerMinute and maxRequestsPerDay
-   *   may be included in the options.
+   * Add a throttle rule.
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {string} opts.template - endpoint URL template where placeholders
    *   are surrounded by curly braces. Example: /users/{userId}/meetings
    * @param {string} opts.method - method of the endpoint
    * @param {number} [opts.maxRequestsPerSecond=unlimited] - the maximum number
-   *   of requests allowed per second
+   *   of requests allowed per second. Only one of maxRequestsPerMinute and
+   *   maxRequestsPerDay may be included in the options.
    * @param {number} [opts.maxRequestsPerMinute=unlimited] - the maximum number
-   *   of requests allowed per minute
+   *   of requests allowed per minute. Only one of maxRequestsPerMinute and
+   *   maxRequestsPerDay may be included in the options.
    * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
    */
