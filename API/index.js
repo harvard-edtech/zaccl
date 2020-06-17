@@ -30,6 +30,9 @@ class API {
    * @author Grace Whitney
    * @param {string} key - the Zoom API key to use to generate credentials
    * @param {string} secret - the Zoom API secret to use to generate credentials
+   * @param {boolean} [dontUseDefaultThrottleRules=false] - if true, does not
+   *   use default throttle rules,
+   *   as defined in constants/ZOOM_THROTTLE_LIMIT_RULES.js
    * @param {function} [sendZoomRequest=default request sender] - a function
    *   that sends requests to the Zoom API, matching the specs in
    *   /API/sendZoomRequest.js
@@ -38,6 +41,7 @@ class API {
     const {
       key,
       secret,
+      dontUseDefaultThrottleRules,
       sendZoomRequest,
     } = opts;
 
@@ -53,8 +57,10 @@ class API {
     this.meeting = new Meeting({ api: this });
     this.user = new User({ api: this });
 
-    // Add throttle rules from ZOOM_THROTTLE_LIMIT_RULES file
-    THROTTLE_LIMIT_RULES.forEach((rule) => { this._addRule(rule); });
+    // Unless specified, use throttle rules from ZOOM_THROTTLE_LIMIT_RULES.js
+    if (!dontUseDefaultThrottleRules) {
+      THROTTLE_LIMIT_RULES.forEach((rule) => { this._addRule(rule); });
+    }
   }
 
   /**
