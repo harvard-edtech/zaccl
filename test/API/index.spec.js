@@ -54,7 +54,7 @@ describe('API', async function () {
   // Daily limit tests
   it('Enforces a daily limit rule', async function () {
     // Add rule to test
-    testAPI.addRule({
+    testAPI._addRule({
       template: './endpoint/{groupID}/{userID}',
       method: 'GET',
       maxRequestsPerDay: 5,
@@ -102,7 +102,7 @@ describe('API', async function () {
     }),
   });
 
-  dailyLimitTestAPI.addRule({
+  dailyLimitTestAPI._addRule({
     template: './endpoint/{groupID}/{userID}',
     method: 'GET',
     maxRequestsPerDay: 10,
@@ -149,7 +149,7 @@ describe('API', async function () {
     timePerRequest: 10,
   });
 
-  rateLimitTestAPI.addRule({
+  rateLimitTestAPI._addRule({
     template: './endpoint/{groupID}',
     method: 'POST',
     maxRequestsPerDay: 10,

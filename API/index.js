@@ -16,6 +16,7 @@ const templateToRegExp = require('../helpers/templateToRegExp');
 // Import constants
 const ERROR_CODES = require('../ERROR_CODES');
 const THROTTLE_CONSTANTS = require('../constants/THROTTLE');
+const THROTTLE_LIMIT_RULES = require('../constants/ZOOM_THROTTLE_LIMIT_RULES');
 
 // Import endpoints
 const CloudRecording = require('./endpoints/CloudRecording');
@@ -29,6 +30,9 @@ class API {
    * @author Grace Whitney
    * @param {string} key - the Zoom API key to use to generate credentials
    * @param {string} secret - the Zoom API secret to use to generate credentials
+   * @param {boolean} [dontUseDefaultThrottleRules=false] - if true, does not
+   *   use default throttle rules,
+   *   as defined in constants/ZOOM_THROTTLE_LIMIT_RULES.js
    * @param {function} [sendZoomRequest=default request sender] - a function
    *   that sends requests to the Zoom API, matching the specs in
    *   /API/sendZoomRequest.js
@@ -37,6 +41,7 @@ class API {
     const {
       key,
       secret,
+      dontUseDefaultThrottleRules,
       sendZoomRequest,
     } = opts;
 
@@ -51,33 +56,60 @@ class API {
     this.cloudRecording = new CloudRecording({ api: this });
     this.meeting = new Meeting({ api: this });
     this.user = new User({ api: this });
+
+    // Unless specified, use throttle rules from ZOOM_THROTTLE_LIMIT_RULES.js
+    if (!dontUseDefaultThrottleRules) {
+      THROTTLE_LIMIT_RULES.forEach((rule) => { this._addRule(rule); });
+    }
   }
 
   /**
-   * Add a throttle rule
+   * Add a throttle rule.
    * @author Grace Whitney
    * @param {object} opts - object containing all options
    * @param {string} opts.template - endpoint URL template where placeholders
    *   are surrounded by curly braces. Example: /users/{userId}/meetings
    * @param {string} opts.method - method of the endpoint
-   * @param {number} [opts.maxRequestsPerInterval=unlimited] - the maximum
-   *   number of requests allowed per time interval
-   * @param {number} [opts.millisecondsPerInterval=1000] - the milliseconds per
-   *   time interval
+   * @param {number} [opts.maxRequestsPerSecond=unlimited] - the maximum number
+   *   of requests allowed per second. Only one of maxRequestsPerMinute and
+   *   maxRequestsPerDay may be included in the options.
+   * @param {number} [opts.maxRequestsPerMinute=unlimited] - the maximum number
+   *   of requests allowed per minute. Only one of maxRequestsPerMinute and
+   *   maxRequestsPerDay may be included in the options.
    * @param {number} [opts.maxRequestsPerDay=unlimited] - the maximum number of
    *   requests allowed each day
    */
-  addRule(opts) {
+  _addRule(opts) {
     const {
       template,
       method,
-      maxRequestsPerInterval,
-      millisecondsPerInterval,
+      maxRequestsPerSecond,
+      maxRequestsPerMinute,
       maxRequestsPerDay,
     } = opts;
 
-    /* ------------------------- Store the Throttle ------------------------- */
+    // Convert template string to regular expression string
     const regExp = templateToRegExp(template);
+
+    // Ensure only one rate limit is provided
+    if (maxRequestsPerSecond && maxRequestsPerMinute) {
+      throw new ZACCLError({
+        message: 'We could not set up the Zoom API because conflicting information was provided. Please contact an administrator.',
+        code: ERROR_CODES.THROTTLE_RULE_PARAM_ERROR,
+      });
+    }
+
+    // Convert rate limits to intervals
+    let maxRequestsPerInterval;
+    let millisecondsPerInterval;
+    if (maxRequestsPerSecond) {
+      maxRequestsPerInterval = maxRequestsPerSecond;
+      millisecondsPerInterval = 1000;
+    } else if (maxRequestsPerMinute) {
+      maxRequestsPerInterval = maxRequestsPerMinute;
+      millisecondsPerInterval = 60000;
+    }
+
     this.throttleMap.addThrottle({
       regExp,
       method,
