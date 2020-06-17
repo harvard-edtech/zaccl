@@ -72,7 +72,7 @@ describe('API', async function () {
 
     // Add rule to test
     testAPI._addRule({
-      template: './endpoint/{groupID}/{userID}',
+      template: '/endpoint/{groupID}/{userID}',
       method: 'GET',
       maxRequestsPerDay: 5,
     });
@@ -200,7 +200,7 @@ describe('API', async function () {
       sendZoomRequest: genStubZoomRequest({ failures: [] }),
     });
 
-    testAPI.addRule({
+    testAPI._addRule({
       template: '/endpoint/{groupID}/{userID}',
       method: 'GET',
       maxRequestsPerDay: 2,
