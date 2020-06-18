@@ -1,11 +1,14 @@
 const assert = require('assert');
 const timekeeper = require('timekeeper');
 
-// import helpers
+// Import helpers
 const genStubZoomRequest = require('./helpers/stubZoomRequest');
 const testDailyLimit = require('./helpers/testDailyLimit');
 
-// import class to test
+// Import constants
+const THROTTLE_CONSTANTS = require('../../constants/THROTTLE');
+
+// Import class to test
 const API = require('../../API');
 
 // TODO: Fill in tests
@@ -59,6 +62,48 @@ describe('API', async function () {
       },
       'API did not pass correct parameters to sendZoomRequest'
     );
+  });
+
+  it('Adds default rules by default', function () {
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
+
+    try {
+      // Duplicate rule will throw error
+      testAPI._addRule({
+        template: '/meetings/{meetingId}/recordings',
+        method: 'GET',
+        maxRequestsPerSecond: 90,
+      });
+      throw new Error('Default rules were not added');
+    } catch (err) {
+      assert.equal(
+        err.message,
+        'A throttle rule for this path already exists. You may not define duplicate rules.',
+        'Unexpected error occurred'
+      );
+    }
+  });
+
+  it('Omits default rules when specified', function () {
+    // Set up API instance to test
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      dontUseDefaultThrottleRules: true,
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
+
+    // Duplicate rule will throw an error
+    testAPI._addRule({
+      template: '/meetings/{meetingId}/recordings',
+      method: 'GET',
+      maxRequestsPerSecond: 90,
+    });
   });
 
   // Daily limit tests
@@ -297,16 +342,78 @@ describe('API', async function () {
     );
   });
 
-  it('Enforces a rate limit rule', function () {
+  it('Enforces a rate limit rule', async function () {
+    const testAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({ failures: [] }),
+    });
 
+    testAPI._addRule({
+      template: '/endpoint',
+      method: 'POST',
+      maxRequestsPerSecond: 100,
+    });
+
+    const calls = [];
+
+    const start = new Date().getTime();
+    // Make 10 calls
+    for (let i = 0; i < 10; i++) {
+      calls.push(
+        testAPI._visitEndpoint({
+          path: '/endpoint',
+          method: 'POST',
+        })
+      );
+    }
+    await Promise.all(calls);
+    const finish = new Date().getTime();
+    // Check that finish is ~100 milliseconds after start
+    assert(
+      (finish - start) > 98,
+      `Calls completed too quickly: ${finish - start}ms`
+    );
+    assert(
+      (finish - start) < 110,
+      `Calls completed too slowly: ${finish - start}ms`
+    );
   });
 
-  it('Throttles per endpoint', function () {
-    this.skip();
-  });
+  it('Pauses a queue on rate limit error', async function () {
+    const rateLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [0],
+      }),
+    });
 
-  it('Pauses a queue on rate limit error', function () {
-    this.skip();
+    rateLimitTestAPI._addRule({
+      template: '/endpoint',
+      method: 'POST',
+      maxRequestsPerSecond: 1000,
+    });
+
+    const start = new Date().getTime();
+
+    // First call will receive a rate limit error
+    const result1 = rateLimitTestAPI._visitEndpoint({
+      path: '/endpoint',
+      method: 'POST',
+    });
+    const result2 = rateLimitTestAPI._visitEndpoint({
+      path: '/endpoint',
+      method: 'POST',
+    });
+    await Promise.all([result1, result2]);
+
+    const finish = new Date().getTime();
+
+    assert(
+      (finish - start) > (THROTTLE_CONSTANTS.BACKOFF_MS + 2),
+      'Queue did not pause sufficiently on rate limit error'
+    );
   });
 
   it('Handles combined rate and daily limit error correctly', function () {
@@ -317,7 +424,40 @@ describe('API', async function () {
     this.skip();
   });
 
-  it('Sends multiple parallel requests', function () {
-    this.skip();
+  it('Sends multiple parallel requests', async function () {
+    // Set up test API with long delay
+    const rateLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [],
+        timePerRequest: 50,
+      }),
+    });
+
+    rateLimitTestAPI._addRule({
+      template: '/endpoint',
+      method: 'POST',
+      maxRequestsPerSecond: 1000,
+    });
+
+    const start = new Date().getTime();
+
+    // Make 10 endpoint calls
+    const calls = [];
+    for (let i = 0; i < 10; i++) {
+      calls.push(
+        rateLimitTestAPI._visitEndpoint({
+          path: '/endpoint',
+          method: 'POST',
+        })
+      );
+    }
+    await Promise.all(calls);
+
+    const finish = new Date().getTime();
+
+    // Ensure calls happened in parallel
+    assert((finish - start) < 75, 'Requests not sent in parallel');
   });
 });
