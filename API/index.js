@@ -168,7 +168,6 @@ class API {
         key: this.key,
         secret: this.secret,
       });
-
       const { status, headers } = response;
 
       /* -------------------------- Error Handling ---------------------------*/
@@ -177,14 +176,15 @@ class API {
         if (
           headers['X-RateLimit-Type'] === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
         ) {
+          // Empty token reservoir
+          await throttle.emptyTokenReservoir();
+          // Reject all pending tasks
           await throttle.rejectAllFromQueue(
             new ZACCLError({
               message: 'Zoom is very busy right now. Please try this operation again tomorrow.',
               code: ERROR_CODES.DAILY_LIMIT_ERROR,
             })
           );
-          // Empty token reservoir
-          await throttle.emptyTokenReservoir();
           // Update resetAfter
           const resetAfter = headers['Retry-After'];
           if (resetAfter) {
@@ -200,7 +200,7 @@ class API {
           headers['X-RateLimit-Type'] === THROTTLE_CONSTANTS.RATE_LIMIT_HEADER
         ) {
           // Increment daily tokens on failed request
-          throttle.incrementDailyTokens();
+          await throttle.incrementDailyTokens();
 
           // Pause the queue and resume after delay, if not already paused
           const now = new Date().getTime();

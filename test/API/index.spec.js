@@ -416,12 +416,28 @@ describe('API', async function () {
     );
   });
 
-  it('Handles combined rate and daily limit error correctly', function () {
-    this.skip();
-  });
+  it('Doesn\'t double count requests on rate limit error', async function () {
+    // Set up test API with long delay
+    const rateLimitTestAPI = new API({
+      key: 'fakeKey',
+      secret: 'fakeSecret',
+      sendZoomRequest: genStubZoomRequest({
+        failures: [0],
+      }),
+    });
 
-  it('Doesn\'t double count requests on rate limit error', function () {
-    this.skip();
+    rateLimitTestAPI._addRule({
+      template: '/endpoint',
+      method: 'POST',
+      maxRequestsPerSecond: 1000,
+      maxRequestsPerDay: 1,
+    });
+
+    // If the call is double-counted, this will fail
+    await rateLimitTestAPI._visitEndpoint({
+      path: '/endpoint',
+      method: 'POST',
+    });
   });
 
   it('Sends multiple parallel requests', async function () {

@@ -46,7 +46,7 @@ class Throttle {
     await this._resetIfRequired();
     const unlock = await this._mutex.lock();
     if (
-      this._dailyTokensRemaining
+      this.hasDailyLimit
       && this._dailyTokensRemaining < this._maxRequestsPerDay
     ) {
       this._dailyTokensRemaining += 1;
