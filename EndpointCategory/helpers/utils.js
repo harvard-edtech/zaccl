@@ -31,8 +31,10 @@ module.exports = {
    * Returns formatted date string if possible,
    *   throws ZACCL Error otherwise
    * @author Aryan Pandey
-   * @param {string|Date} date - date string or Date instance
-   *   that needs to be validated
+   * @param {string|Date} date - string accepted by JS Date constructor
+   *   or instance of Date object
+   * @param {string} type - date type to include in error message for
+   *   specificity
    * @returns {string} formatted date string
    */
   formatDate: (date, type) => {
