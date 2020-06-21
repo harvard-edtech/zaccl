@@ -28,7 +28,7 @@ module.exports = {
   },
 
   /**
-   * Returns formatte date string if possible,
+   * Returns formatted date string if possible,
    *   throws ZACCL Error otherwise
    * @author Aryan Pandey
    * @param {string|Date} date - date string or Date instance
@@ -36,33 +36,26 @@ module.exports = {
    * @returns {string} formatted date string
    */
   sanitizeDate: (date) => {
-    // Check if string passed
-    if (typeof date === 'string') {
-      const re = /\d{4}-([1-9]|0[1-9]|1[012])-([1-9]|0[1-9]|[12][0-9]|3[01])$/;
-      // If string is in correct format, return as is
-      if (re.test(date)) {
-        return date;
-      }
-      // Throw error if date doesn't match format
+    // Check if date instance passed
+    if (date instanceof Date) {
+      // return formatted date string
+      return date.toISOString()
+        .split('T')[0];
+    }
+
+    // Check if passed parameter can be accepted by the Date constructor
+    const timestamp = Date.parse(date);
+    if (Number.isNaN(timestamp)) {
+      // Param cannot be converted to a Date object so throw an error
       throw new ZACCLError({
-        message: 'Date needs to be in the format "yyyy-mm-dd" or a Date instance',
+        message: 'Passed date needs to be a JS Date instance or a string accepted by the Date constructor',
         code: ERROR_CODES.INVALID_DATE_FORMAT,
       });
     }
 
-    // Check if Date instance passed
-    if (typeof date.getMonth === 'function') {
-      // Add 1 to month to get 1-12 scale
-      const month = date.getMonth() + 1;
-
-      // Return formatted Date string
-      return `${date.getFullYear()}-${month}-${date.getDate()}`;
-    }
-
-    throw new ZACCLError({
-      message: 'Date needs to be in the format "yyyy-mm-dd" or a Date instance',
-      code: ERROR_CODES.INVALID_DATE_FORMAT,
-    });
+    // Param can be converted to a Date instance so return formatted date
+    return new Date(timestamp).toISOString()
+      .split('T')[0];
   },
 
   /**
