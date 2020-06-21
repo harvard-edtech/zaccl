@@ -35,7 +35,7 @@ module.exports = {
    *   that needs to be validated
    * @returns {string} formatted date string
    */
-  formatDate: (date) => {
+  formatDate: (date, type) => {
     // Check if date instance passed
     if (date instanceof Date) {
       // return formatted date string
@@ -48,7 +48,7 @@ module.exports = {
     if (Number.isNaN(timestamp)) {
       // Param cannot be converted to a Date object so throw an error
       throw new ZACCLError({
-        message: 'Passed date needs to be a JS Date instance or a string accepted by the Date constructor',
+        message: `${type} date needs to be a JS Date instance or a string accepted by the Date constructor`,
         code: ERROR_CODES.INVALID_DATE_FORMAT,
       });
     }

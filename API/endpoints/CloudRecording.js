@@ -91,25 +91,30 @@ CloudRecording.listUserRecordings = function (options) {
   const {
     userId,
     searchTrash,
-  } = options;
-
-  let {
-    pageSize,
     nextPageToken,
     trashType,
     startDate,
     endDate,
+    pageSize,
   } = options;
 
-  // Declare default start Date
-  const date = new Date();
-  date.setMonth(date.getMonth() - 6);
+  // Declare default start Date to 6 months before
+  const defaultDate = new Date();
+  defaultDate.setMonth(defaultDate.getMonth() - 6);
+
+  // Initialize params object with default values and only add
+  // optional params if they are defined
+  const params = {
+    page_size: 300,
+    trash: !!searchTrash,
+    from: utils.formatDate(defaultDate),
+  };
 
   // If pageSize included, sanitize the value
   if (pageSize) {
     try {
       // sanitizeInt throws standard Error if number invalid
-      pageSize = utils.sanitizeInt(pageSize);
+      params.page_size = utils.sanitizeInt(pageSize);
     } catch (err) {
       // Throw specific ZACCL Error
       throw new ZACCLError({
@@ -126,32 +131,20 @@ CloudRecording.listUserRecordings = function (options) {
     }
   }
 
-  // Initialize params object with default values and only add
-  // optional params if they are defined
-  const params = {
-    page_size: pageSize || 300,
-    trash: !!searchTrash,
-    from: utils.formatDate(date),
-  };
-
   if (startDate) {
-    startDate = utils.formatDate(startDate);
-    params.from = startDate;
+    params.from = utils.formatDate(startDate, 'Start');
   }
 
   if (endDate) {
-    endDate = utils.formatDate(endDate);
-    params.to = endDate;
+    params.to = utils.formatDate(endDate, 'End');
   }
 
   if (trashType) {
-    trashType = String(trashType);
-    params.trash_type = trashType;
+    params.trash_type = String(trashType);
   }
 
   if (nextPageToken) {
-    nextPageToken = String(nextPageToken);
-    params.next_page_token = nextPageToken;
+    params.next_page_token = String(nextPageToken);
   }
 
   return this.visitEndpoint({
