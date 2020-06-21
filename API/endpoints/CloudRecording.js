@@ -101,6 +101,10 @@ CloudRecording.listUserRecordings = function (options) {
     endDate,
   } = options;
 
+  // Declare default start Date
+  const date = new Date();
+  date.setMonth(date.getMonth() - 6);
+
   // If pageSize included, sanitize the value
   if (pageSize) {
     try {
@@ -127,6 +131,7 @@ CloudRecording.listUserRecordings = function (options) {
   const params = {
     page_size: pageSize || 300,
     trash: !!searchTrash,
+    from: utils.sanitizeDate(date),
   };
 
   if (startDate) {
