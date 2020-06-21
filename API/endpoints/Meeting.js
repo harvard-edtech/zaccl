@@ -58,6 +58,7 @@ Meeting.get = function (options) {
 };
 Meeting.get.action = 'get info on a meeting';
 Meeting.get.requiredParams = ['meetingId'];
+Meeting.get.propTypes = [{ meetingId: 'number' }];
 Meeting.get.scopes = [
   'meeting:read:admin',
   'meeting:read',

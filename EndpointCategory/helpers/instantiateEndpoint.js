@@ -22,6 +22,7 @@ module.exports = (config) => {
     endpointCoreFunction,
     api,
     requiredParams,
+    propTypes,
   } = config;
 
   return async (opts = {}) => {
@@ -39,6 +40,15 @@ module.exports = (config) => {
       });
     }
 
+    if (propTypes) {
+      for (const [key, value] of Object.entries(propTypes)) {
+        if (typeof opts[key] !== value) {
+          throw Error(`${key} should be of the type ${value}`);
+        }
+      }
+    }
+
+    // Check prop types of
     // Create the visitEndpoint function by wrapping the api.visitEndpoint
     // function and adding in the postProcessor
 
