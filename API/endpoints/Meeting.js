@@ -37,7 +37,7 @@ Meeting.get = function (options) {
 
   // Add optional param if exists
   if (options.occurrenceId) {
-    params.occurrence_id = options.occurrenceId.toString();
+    params.occurrence_id = String(options.occurrenceId);
   }
 
   return this.visitEndpoint({
@@ -158,7 +158,7 @@ Meeting.delete = function (options) {
 
   // Add optional param if exists
   if (options.occurrenceId) {
-    params.occurrence_id = options.occurrenceId.toString();
+    params.occurrence_id = String(options.occurrenceId);
   }
   return this.visitEndpoint({
     path: `/meetings/${options.meetingId}`,

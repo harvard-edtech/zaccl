@@ -38,7 +38,7 @@ CloudRecording.listMeetingRecordings = function (options) {
   }
 
   // Cast meeting ID to a string so we can run string operations
-  const meetingIdStr = options.meetingId.toString();
+  const meetingIdStr = String(options.meetingId);
 
   return this.visitEndpoint({
     // Call function on meetingId to handle double encoding if necessary
@@ -140,12 +140,12 @@ CloudRecording.listUserRecordings = function (options) {
   }
 
   if (trashType) {
-    trashType = trashType.toString();
+    trashType = String(trashType);
     params.trash_type = trashType;
   }
 
   if (nextPageToken) {
-    nextPageToken = nextPageToken.toString();
+    nextPageToken = String(nextPageToken);
     params.next_page_token = nextPageToken;
   }
 
