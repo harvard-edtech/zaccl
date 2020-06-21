@@ -35,7 +35,7 @@ module.exports = {
    *   that needs to be validated
    * @returns {string} formatted date string
    */
-  sanitizeDate: (date) => {
+  formatDate: (date) => {
     // Check if date instance passed
     if (date instanceof Date) {
       // return formatted date string

@@ -131,16 +131,16 @@ CloudRecording.listUserRecordings = function (options) {
   const params = {
     page_size: pageSize || 300,
     trash: !!searchTrash,
-    from: utils.sanitizeDate(date),
+    from: utils.formatDate(date),
   };
 
   if (startDate) {
-    startDate = utils.sanitizeDate(startDate);
+    startDate = utils.formatDate(startDate);
     params.from = startDate;
   }
 
   if (endDate) {
-    endDate = utils.sanitizeDate(endDate);
+    endDate = utils.formatDate(endDate);
     params.to = endDate;
   }
 
