@@ -118,6 +118,6 @@ describe('Cloud Recording Endpoints', async function () {
 
   // TODO : Test without post processor altering response object
   it('lists User Recordings', async function () {
-    const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize:'s3', startDate: '12/22/22' });
+    const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize:'3', startDate: '12/22/22' });
   });
 });
