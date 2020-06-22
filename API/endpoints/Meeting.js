@@ -37,7 +37,7 @@ Meeting.get = function (options) {
 
   // Add optional param if exists
   if (options.occurrenceId) {
-    params.occurrence_id = String(options.occurrenceId);
+    params.occurrence_id = options.occurrenceId;
   }
 
   return this.visitEndpoint({
@@ -58,7 +58,7 @@ Meeting.get = function (options) {
 };
 Meeting.get.action = 'get info on a meeting';
 Meeting.get.requiredParams = ['meetingId'];
-Meeting.get.propTypes = [{ meetingId: 'number' }];
+Meeting.get.paramTypes = { occurrenceId: 'string', showAllOccurrences: 'boolean' };
 Meeting.get.scopes = [
   'meeting:read:admin',
   'meeting:read',
@@ -159,7 +159,7 @@ Meeting.delete = function (options) {
 
   // Add optional param if exists
   if (options.occurrenceId) {
-    params.occurrence_id = String(options.occurrenceId);
+    params.occurrence_id = options.occurrenceId;
   }
   return this.visitEndpoint({
     path: `/meetings/${options.meetingId}`,
@@ -184,6 +184,7 @@ Meeting.delete = function (options) {
 };
 Meeting.delete.action = 'delete a meeting';
 Meeting.delete.requiredParams = ['meetingId'];
+Meeting.delete.paramTypes = { occurrenceId: 'string', notifyHosts: 'boolean' };
 Meeting.delete.scopes = [
   'meeting:write:admin',
   'meeting:write',
