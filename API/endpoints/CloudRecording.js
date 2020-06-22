@@ -75,24 +75,23 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   returned from a single API call
  * @param {string} [options.nextPageToken] - token used to pageinate
  *   through large result sets
- * @param {boolean} [options.searchTrash=false] - if truthy,
- *   include recordings from trash
- * @param {string} [options.trashType='meeting_recordings'] - Indicate type of
+ * @param {string} [options.searchTrashFor] - Indicate type of
  *   cloud recording to retreive from the trash.
  *   options - {'meeting_recordings', 'recording_file'}
- * @param {string|Date} [options.startDate] - query start date in
- *   'yyyy-mm-dd' format within last 6 months
- * @param {string|Date} [options.endDate] - query end date in
- *   'yyyy-mm-dd' format within last 6 months
+ * @param {string|Date} [options.startDate] - string accepted by JS Date
+ *   constructor or instance of Date object.
+ *   Date needs to be within past 6 months
+ * @param {string|Date} [options.endDate] - string accepted by JS Date
+ *   constructor or instance of Date object.
+ *   Date needs to be within past 6 months
  * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {
   // Destructure arguments
   const {
     userId,
-    searchTrash,
+    searchTrashFor,
     nextPageToken,
-    trashType,
     startDate,
     endDate,
     pageSize,
@@ -106,42 +105,37 @@ CloudRecording.listUserRecordings = function (options) {
   // optional params if they are defined
   const params = {
     page_size: 300,
-    trash: !!searchTrash,
-    from: utils.formatDate(defaultDate),
+    trash: !!searchTrashFor,
+    from: utils.formatDate(defaultDate, 'startDate'),
   };
 
-  // If pageSize included, sanitize the value
   if (pageSize) {
-    try {
-      // sanitizeInt throws standard Error if number invalid
-      params.page_size = utils.sanitizeInt(pageSize);
-    } catch (err) {
-      // Throw specific ZACCL Error
-      throw new ZACCLError({
-        message: 'We encountered an error with the page size value while trying to retrieve user recordings',
-        code: ERROR_CODES.INVALID_PAGE_SIZE,
-      });
-    }
     // Throw error if pageSize is over max val of 300
     if (pageSize >= 300) {
       throw new ZACCLError({
         message: `We requested ${pageSize} recordings from Zoom but it can only give us 300 at a time`,
-        code: ERROR_CODES.INVALID_PAGE_SIZE,
+        code: ERROR_CODES.INVALID_PAGESIZE,
       });
     }
+    params.page_size = pageSize;
   }
 
   if (startDate) {
-    params.from = utils.formatDate(startDate, 'Start');
+    params.from = startDate;
   }
 
   if (endDate) {
-    params.to = utils.formatDate(endDate, 'End');
+    params.to = endDate;
   }
 
-  if (trashType) {
-    // TODO: check if one of two values
-    params.trash_type = trashType;
+  if (searchTrashFor) {
+    if (searchTrashFor !== 'meeting_recordings' || searchTrashFor !== 'recording_file') {
+      throw new ZACCLError({
+        message: 'We could not search trash for the type of recording you requested',
+        code: ERROR_CODES.INVALID_SEARCH_TRASH_FOR,
+      });
+    }
+    params.trash_type = searchTrashFor;
   }
 
   if (nextPageToken) {
@@ -170,8 +164,7 @@ CloudRecording.listUserRecordings.requiredParams = ['userId'];
 CloudRecording.listUserRecordings.paramTypes = {
   pageSize: 'number',
   nextPageToken: 'string',
-  searchTrash: 'boolean',
-  trashType: 'string',
+  searchTrashFor: 'string',
   startDate: 'date',
   endDate: 'date',
 };
