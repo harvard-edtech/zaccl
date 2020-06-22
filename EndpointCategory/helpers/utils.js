@@ -92,13 +92,12 @@ module.exports = {
    * @returns {any} value of param in the correct type
    */
   fixParamType: (param, value, type) => {
-
     if (type === 'string') {
       return String(value);
     }
 
     if (type === 'number') {
-      module.exports.sanitizeNum(value, param);
+      return module.exports.sanitizeNum(value, param);
     }
 
     if (type === 'boolean') {
@@ -106,7 +105,7 @@ module.exports = {
     }
 
     if (type === 'date') {
-      module.exports.formatDate(value, param);
+      return module.exports.formatDate(value, param);
     }
   },
 };
