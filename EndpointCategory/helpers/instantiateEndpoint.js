@@ -4,6 +4,7 @@
 
 const ZACCLError = require('../../ZACCLError');
 const ERROR_CODES = require('../../ERROR_CODES');
+const utils = require('./utils');
 
 /**
  * Initialize an endpoint instance function
@@ -13,6 +14,8 @@ const ERROR_CODES = require('../../ERROR_CODES');
  *   custom context
  * @param {API} api - the top-level api instance
  * @param {string[]} [requiredParams] - list of required parameters
+ * @param {object} [paramTypes] - object containing param name as key and
+ *   expected type as value
  * @return {function} usable instance endpoint
  */
 module.exports = (config) => {
@@ -22,7 +25,7 @@ module.exports = (config) => {
     endpointCoreFunction,
     api,
     requiredParams,
-    propTypes,
+    paramTypes,
   } = config;
 
   return async (opts = {}) => {
@@ -40,15 +43,19 @@ module.exports = (config) => {
       });
     }
 
-    if (propTypes) {
-      for (const [key, value] of Object.entries(propTypes)) {
-        if (typeof opts[key] !== value) {
-          throw Error(`${key} should be of the type ${value}`);
+    // Check if paramTypes map was passed for this endpoint
+    if (paramTypes) {
+      Object.keys(paramTypes).forEach((param) => {
+        // Check if specific param was passed in as an option
+        if (opts[param] && typeof opts[param] !== paramTypes[param]) {
+          // If type of param doesn't match desired type, try fixing
+          opts[param] = utils.fixParamType(param, opts[param],
+            paramTypes[param]);
+          // If type is not fixable, ZACCL Error is thrown
         }
-      }
+      });
     }
 
-    // Check prop types of
     // Create the visitEndpoint function by wrapping the api.visitEndpoint
     // function and adding in the postProcessor
 
