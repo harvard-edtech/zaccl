@@ -4,11 +4,18 @@ const assert = require('assert');
 const API = require('../../../API');
 const genStubAPIRequest = require('../helpers/stubAPIRequest');
 
+// import helper classes
+const utils = require('../../../EndpointCategory/helpers/utils');
+
 const testAPI = new API({
   key: 'fakeKey',
   secret: 'fakeSecret',
   sendZoomRequest: genStubAPIRequest(),
 });
+
+let defaultDate = new Date();
+defaultDate.setMonth(defaultDate.getMonth() - 6);
+defaultDate = utils.formatDate(defaultDate);
 
 describe('Meeting Endpoints', async function () {
   it('gets Meeting with only required params', async function () {
@@ -117,7 +124,26 @@ describe('Cloud Recording Endpoints', async function () {
   });
 
   // TODO : Test without post processor altering response object
-  it('lists User Recordings', async function () {
-    const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize:'3', startDate: '12/22/22' });
-  });
+  // it('lists User Recordings with only required params', async function () {
+  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345' });
+  //   assert.deepEqual(ret.path, '/users/12345/recordings');
+  //   assert.deepEqual(ret.method, 'GET');
+  //   assert.deepEqual(ret.params, { page_size: 300, trash: false, from: defaultDate });
+  // });
+
+  // it('lists User Recordings with pagesize', async function () {
+  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize: '39' });
+  //   assert.deepEqual(ret.path, '/users/12345/recordings');
+  //   assert.deepEqual(ret.method, 'GET');
+  //   assert.deepEqual(ret.params, { page_size: 39, trash: false, from: defaultDate });
+  // });
+
+  // it('lists User Recordings with start and end dates', async function () {
+  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', startDate: '2020/08/20', endDate: '2020/10/5' });
+  //   assert.deepEqual(ret.path, '/users/12345/recordings');
+  //   assert.deepEqual(ret.method, 'GET');
+  //   assert.deepEqual(ret.params, {
+  //     page_size: 300, trash: false, from: '2020-08-20', to: '2020-10-05',
+  //   });
+  // });
 });
