@@ -118,14 +118,14 @@ CloudRecording.listUserRecordings = function (options) {
     } catch (err) {
       // Throw specific ZACCL Error
       throw new ZACCLError({
-        message: 'Page size parameter should be a valid number',
+        message: 'We encountered an error with the page size value while trying to retrieve user recordings',
         code: ERROR_CODES.INVALID_PAGE_SIZE,
       });
     }
     // Throw error if pageSize is over max val of 300
     if (pageSize >= 300) {
       throw new ZACCLError({
-        message: 'Page size cannot be higher than 300',
+        message: `We requested ${pageSize} recordings from Zoom but it can only give us 300 at a time`,
         code: ERROR_CODES.INVALID_PAGE_SIZE,
       });
     }
@@ -140,11 +140,12 @@ CloudRecording.listUserRecordings = function (options) {
   }
 
   if (trashType) {
-    params.trash_type = String(trashType);
+    // TODO: check if one of two values
+    params.trash_type = trashType;
   }
 
   if (nextPageToken) {
-    params.next_page_token = String(nextPageToken);
+    params.next_page_token = nextPageToken;
   }
 
   return this.visitEndpoint({
@@ -159,13 +160,21 @@ CloudRecording.listUserRecordings = function (options) {
     },
     errorMap: {
       404: {
-        1001: 'We could not find that user on this account',
+        1001: `We could not find the user ${options.userId} on this account`,
       },
     },
   });
 };
 CloudRecording.listUserRecordings.action = 'list all cloud recordings of a user';
 CloudRecording.listUserRecordings.requiredParams = ['userId'];
+CloudRecording.listUserRecordings.paramTypes = {
+  pageSize: 'number',
+  nextPageToken: 'string',
+  searchTrash: 'boolean',
+  trashType: 'string',
+  startDate: 'date',
+  endDate: 'date',
+};
 CloudRecording.listUserRecordings.scopes = [
   'recording:read:admin',
   'recording:read',

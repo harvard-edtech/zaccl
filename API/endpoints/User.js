@@ -34,7 +34,7 @@ User.getZAKToken = function (options) {
     },
     errorMap: {
       404: {
-        1001: `User ${options.userId} does not exist`,
+        1001: `We could not retrieve a token for user ${options.userId} since this user does not exist`,
       },
     },
     postProcessor: (response) => {
