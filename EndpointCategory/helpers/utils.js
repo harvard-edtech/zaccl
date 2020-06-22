@@ -33,11 +33,11 @@ module.exports = {
    * @author Aryan Pandey
    * @param {string|Date} date - string accepted by JS Date constructor
    *   or instance of Date object
-   * @param {string} type - date type to include in error message for
+   * @param {string} dateType - date type to include in error message for
    *   specificity
    * @returns {string} formatted date string
    */
-  formatDate: (date, type) => {
+  formatDate: (date, dateType) => {
     // Check if date instance passed
     if (date instanceof Date) {
       // return formatted date string
@@ -50,7 +50,7 @@ module.exports = {
     if (Number.isNaN(timestamp)) {
       // Param cannot be converted to a Date object so throw an error
       throw new ZACCLError({
-        message: `${type} date needs to be a JS Date instance or a string accepted by the Date constructor`,
+        message: `${dateType} needs to be a JS Date instance or a string accepted by the Date constructor`,
         code: ERROR_CODES.INVALID_DATE_FORMAT,
       });
     }
@@ -61,18 +61,52 @@ module.exports = {
   },
 
   /**
-   * Returns parsed int if arg is a valid number,
-   *   throws error otherwise
+   * Returns parsed number if arg is a valid number,
+   *   throws ZACCL Error otherwise
    * @author Aryan Pandey
    * @param {number} num - number that needs to be sanitized
+   * @param {string} param - string to identify param
    * @returns {number} parsed number
    */
-  sanitizeInt: (num) => {
-    const parsedNum = Number.parseInt(num);
-    // If not a number throw a standard error
+  sanitizeNum: (num, param) => {
+    const parsedNum = Number(num);
+    // If not a number throw a ZACCL Error
     if (Number.isNaN(parsedNum)) {
-      throw new Error('Not a number');
+      const code = `INVALID_${param.toUpperCase()}`;
+      throw new ZACCLError({
+        message: `${param} is not a valid number`,
+        code: ERROR_CODES[code],
+      });
     }
     return parsedNum;
+  },
+
+  /**
+   * Returns param with corrected type if possible,
+   *   throws ZACCL Error otherwise
+   * @author Aryan Pandey
+   * @param {string} param - string to identify param
+   * @param {any} value - value of param that needs to be converted to
+   *   correct type
+   * @param {string} type - string to identify expected param type
+   * @returns {any} value of param in the correct type
+   */
+  fixParamType: (param, value, type) => {
+
+    if (type === 'string') {
+      return String(value);
+    }
+
+    if (type === 'number') {
+      module.exports.sanitizeNum(value, param);
+    }
+
+    if (type === 'boolean') {
+      return !!value;
+    }
+
+    if (type === 'date') {
+      module.exports.formatDate(value, param);
+    }
   },
 };
