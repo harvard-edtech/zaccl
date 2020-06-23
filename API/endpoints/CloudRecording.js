@@ -78,12 +78,12 @@ CloudRecording.listMeetingRecordings.scopes = [
  * @param {string} [options.searchTrashFor] - Indicate type of
  *   cloud recording to retreive from the trash.
  *   options - {'meeting_recordings', 'recording_file'}
- * @param {string|Date} [options.startDate] - string accepted by JS Date
- *   constructor or instance of Date object.
- *   Date needs to be within past 6 months
+ * @param {string|Date} [options.startDate=6 months before today]
+ *   - string accepted by JS Date constructor or instance of Date object.
+ *   Date needs to be within past 6 months. Time data is discarded
  * @param {string|Date} [options.endDate] - string accepted by JS Date
  *   constructor or instance of Date object.
- *   Date needs to be within past 6 months
+ *   Date needs to be within past 6 months. Time data is discarded
  * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {

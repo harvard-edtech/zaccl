@@ -56,8 +56,11 @@ module.exports = {
     }
 
     // Param can be converted to a Date instance so return formatted date
-    return new Date(timestamp).toISOString()
-      .split('T')[0];
+    return (
+      (new Date(timestamp))
+        .toISOString()
+        .split('T')[0]
+    );
   },
 
   /**
@@ -86,10 +89,10 @@ module.exports = {
    *   throws ZACCL Error otherwise
    * @author Aryan Pandey
    * @param {string} param - string to identify param
-   * @param {any} value - value of param that needs to be converted to
-   *   correct type
+   * @param {string|number|boolean|date} value - value of param
+   *   that needs to be converted to correct type
    * @param {string} type - string to identify expected param type
-   * @returns {any} value of param in the correct type
+   * @returns {string|number|boolean|date} value of param in the correct type
    */
   fixParamType: (param, value, type) => {
     if (type === 'string') {
@@ -107,5 +110,11 @@ module.exports = {
     if (type === 'date') {
       return module.exports.formatDate(value, param);
     }
+
+    // TODO: add appropriate error message
+    throw new ZACCLError({
+      message: '',
+      code: '',
+    });
   },
 };

@@ -125,7 +125,7 @@ Meeting.update = function (options) {
         3003: `You cannot update the meeting ${options.meetingId} since you are not the meeting host`,
       },
       404: {
-        1001: 'We could not update te meeting because the user does not exist',
+        1001: 'We could not update the meeting because the user does not exist',
         3001: `A meeting with the ID ${options.meetingId} could not be found or has expired`,
       },
     },
