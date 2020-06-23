@@ -7,12 +7,14 @@ const genStubAPIRequest = require('../helpers/stubAPIRequest');
 // import helper classes
 const utils = require('../../../EndpointCategory/helpers/utils');
 
+// Create API instance
 const testAPI = new API({
   key: 'fakeKey',
   secret: 'fakeSecret',
   sendZoomRequest: genStubAPIRequest(),
 });
 
+// Set up the default date value to use for comparision later
 let defaultDate = new Date();
 defaultDate.setMonth(defaultDate.getMonth() - 6);
 defaultDate = utils.formatDate(defaultDate);
@@ -92,18 +94,19 @@ describe('Meeting Endpoints', async function () {
 });
 
 // TODO: Test without post-processor altering response object
-describe('User Endpoints', async function () {
-  it('gets ZAKToken', async function () {
-    const ret = await testAPI.user.getZAKToken({ userId: 12345 });
-    // Post processor makes response object just the token which would
-    // be undefined for the fake user
-    assert.strictEqual(ret, undefined);
-  });
-});
+// describe('User Endpoints', async function () {
+//   it('gets ZAKToken', async function () {
+//     const ret = await testAPI.user.getZAKToken({ userId: 12345 });
+//     assert.deepEqual(ret.path, '/users/12345/token');
+//     assert.deepEqual(ret.method, 'GET');
+//     assert.deepEqual(ret.params, {type: 'zak'});
+//   });
+// });
 
 describe('Cloud Recording Endpoints', async function () {
   it('lists Meeting Recordings', async function () {
-    const ret = await testAPI.cloudRecording.listMeetingRecordings({ meetingId: 12345 });
+    const ret = await testAPI.cloudRecording
+      .listMeetingRecordings({ meetingId: 12345 });
     assert.deepEqual(ret.path, '/meetings/12345/recordings');
     assert.deepEqual(ret.method, 'GET');
     assert.deepEqual(ret.params, undefined);
@@ -125,25 +128,51 @@ describe('Cloud Recording Endpoints', async function () {
 
   // TODO : Test without post processor altering response object
   // it('lists User Recordings with only required params', async function () {
-  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345' });
+  //   const ret = await testAPI.cloudRecording
+  //     .listUserRecordings({ userId: '12345' });
   //   assert.deepEqual(ret.path, '/users/12345/recordings');
   //   assert.deepEqual(ret.method, 'GET');
   //   assert.deepEqual(ret.params, { page_size: 300, trash: false, from: defaultDate });
   // });
 
   // it('lists User Recordings with pagesize', async function () {
-  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize: '39' });
+  //   const ret = await testAPI.cloudRecording
+  //     .listUserRecordings({ userId: '12345', pageSize: '39' });
   //   assert.deepEqual(ret.path, '/users/12345/recordings');
   //   assert.deepEqual(ret.method, 'GET');
   //   assert.deepEqual(ret.params, { page_size: 39, trash: false, from: defaultDate });
   // });
 
   // it('lists User Recordings with start and end dates', async function () {
-  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', startDate: '2020/08/20', endDate: '2020/10/5' });
+  //   const ret = await testAPI.cloudRecording.listUserRecordings({ userId: '12345', startDate: '2020/08/20', endDate: '2020-10/5' });
   //   assert.deepEqual(ret.path, '/users/12345/recordings');
   //   assert.deepEqual(ret.method, 'GET');
   //   assert.deepEqual(ret.params, {
   //     page_size: 300, trash: false, from: '2020-08-20', to: '2020-10-05',
   //   });
+  // });
+
+  // it('lists User Recordings with invalid date', async function () {
+  //   try {
+  //     await testAPI.cloudRecording.listUserRecordings({ userId: '12345', startDate: 'invalid' });
+  //   } catch (err) {
+  //     assert.deepEqual(
+  //       err.message,
+  //       'startDate needs to be a JS Date instance or a string accepted by the Date constructor',
+  //       'Wrong error message thrown'
+  //     );
+  //   }
+  // });
+
+  // it('lists User Recordings with invalid pageSize', async function () {
+  //   try {
+  //     await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize: 'invalid' });
+  //   } catch (err) {
+  //     assert.deepEqual(
+  //       err.message,
+  //       'pageSize is not a valid number',
+  //       'Wrong error message thrown'
+  //     );
+  //   }
   // });
 });
