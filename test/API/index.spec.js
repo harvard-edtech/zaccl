@@ -371,11 +371,11 @@ describe('API', async function () {
     const finish = new Date().getTime();
     // Check that finish is ~100 milliseconds after start
     assert(
-      (finish - start) > 98,
+      (finish - start) > 96,
       `Calls completed too quickly: ${finish - start}ms`
     );
     assert(
-      (finish - start) < 110,
+      (finish - start) < 112,
       `Calls completed too slowly: ${finish - start}ms`
     );
   });
@@ -474,6 +474,6 @@ describe('API', async function () {
     const finish = new Date().getTime();
 
     // Ensure calls happened in parallel
-    assert((finish - start) < 100, 'Requests not sent in parallel');
+    assert((finish - start) < 300, 'Requests not sent in parallel');
   });
 });

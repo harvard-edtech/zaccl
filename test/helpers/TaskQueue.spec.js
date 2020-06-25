@@ -65,6 +65,18 @@ describe('helpers > TaskQueue', async function () {
   });
 
   it('Does not introduce unnecessary delay', async function () {
-    this.skip();
+    // Create queue
+    const queue = new TaskQueue(40);
+    // Wait 1 ms
+    await new Promise((r) => { setTimeout(r, 1); });
+
+    const start = new Date().getTime();
+    // Add task to queue
+    const result = await queue.add({ task: () => { return 42; } });
+    const finish = new Date().getTime();
+
+    // Ensure we did not wait to complete task
+    assert(finish - start < 5, 'Queue introduced unnecessary delay');
+    assert.equal(result, 42, 'Task did not complete properly');
   });
 });

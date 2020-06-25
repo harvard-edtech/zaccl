@@ -10,7 +10,7 @@ class TaskQueue {
    *   between dequeue operations
    */
   constructor(dequeueIntervalMS) {
-    // Create a mutex that must be locked to edit prioritizedTasks
+    // Create a mutex that must be locked to edit prioritizedTasks and timestamp
     this.mutex = new Mutex();
 
     // Start with an empty task list
@@ -66,27 +66,19 @@ class TaskQueue {
    * @param {object} time - DateTime object of timestamp at which to resume
    */
   async pauseUntil(time) {
-    // Lock mutex while altering this.isPaused
-    const unlock = await this.mutex.lock();
-
     // If queue is already paused, do nothing
     if (this.isPaused) {
-      unlock();
       return;
     }
 
     // Pause execution
     this.isPaused = true;
-    unlock();
-
     if (time > Date.now()) {
       await new Promise((r) => { setTimeout(r, time - Date.now()); });
     }
 
     // Resume execution.
-    const unlockAgain = await this.mutex.lock();
     this.isPaused = false;
-    unlockAgain();
 
     // Skip potential unnecessary delay
     this._skipIntervalDelayIfApplicable();
