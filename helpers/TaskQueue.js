@@ -1,4 +1,5 @@
 const Mutex = require('./Mutex');
+const IntervalCaller = require('./IntervalCaller');
 
 class TaskQueue {
   /**
@@ -19,24 +20,43 @@ class TaskQueue {
     this.dequeueIntervalMS = dequeueIntervalMS;
 
     // Store whether the queue is paused
-    this.isPaused = true;
+    this.isPaused = false;
+
+    // Timestamp when previous task execution began
+    this.timeOfLastDequeue = null;
+
+    // Create caller instance that will dequeue every dequeueIntervalMS ms,
+    //  unless queue is paused
+    this.caller = new IntervalCaller(
+      () => { this._attemptTask(); },
+      this.dequeueIntervalMS
+    );
 
     // Start execution
-    this._start();
+    this.caller.beginInterval();
   }
 
   /**
-   * Start regular execution of tasks
-   * @author Gabe Abrams
+   * If a full interval has passed since the previous dequeue, skip the interval
+   *   delay by resetting the interval
+   * @author Grace Whitney
    */
-  _start() {
-    this.isPaused = false;
-    // Run one task
-    this._attemptTask();
-    // Start a task that continuously performs tasks on the interval
-    this.intervalId = setInterval(() => {
-      this._attemptTask();
-    }, this.dequeueIntervalMS);
+  async _skipIntervalDelayIfApplicable() {
+    // Lock mutex to prevent multiple conflicting updates
+    const unlock = await this.mutex.lock();
+    const now = new Date().getTime();
+    if (
+      // If the queue is paused or previous deque is recent, no action required
+      this.isPaused || (now < this.timeOfLastDequeue + this.dequeueIntervalMS)
+    ) {
+      // Unlock the mutex
+      unlock();
+      return;
+    }
+
+    // Otherwise, reset interval to start without delay, passing mutex through
+    // Call to attempt task will unlock mutex after updating the timestamp
+    await this.caller.beginInterval(() => { this._attemptTask(unlock); });
   }
 
   /**
@@ -51,34 +71,44 @@ class TaskQueue {
 
     // If queue is already paused, do nothing
     if (this.isPaused) {
+      unlock();
       return;
     }
 
-    clearInterval(this.intervalId);
+    // Pause execution
     this.isPaused = true;
-
     unlock();
 
     if (time > Date.now()) {
       await new Promise((r) => { setTimeout(r, time - Date.now()); });
     }
-    // Begin new execution interval.
-    this._start();
+
+    // Resume execution.
+    const unlockAgain = await this.mutex.lock();
+    this.isPaused = false;
+    unlockAgain();
+
+    // Skip potential unnecessary delay
+    this._skipIntervalDelayIfApplicable();
   }
 
   /**
    * Attempt to dequeue and execute a task
    * @author Gabe Abrams
+   * @author Grace Whitney
    * @async
+   * @param {function} [callerUnlock] - function to unlock a locked mutex.
+   *   Will be called to unlock the mutex before a task is executed.
    */
-  async _attemptTask() {
-    // If no tasks, just return
-    if (this.prioritizedTasks.length === 0) {
+  async _attemptTask(callerUnlock) {
+    // Lock
+    const unlock = callerUnlock || await this.mutex.lock();
+
+    // If no tasks or if the queue is paused, just return
+    if (this.prioritizedTasks.length === 0 || this.isPaused === true) {
+      unlock();
       return;
     }
-
-    // Lock
-    const unlock = await this.mutex.lock();
 
     let nextTask;
     try {
@@ -104,6 +134,8 @@ class TaskQueue {
       console.log('Encountered an error while dequeuing the next task:', err);
       return;
     } finally {
+      // Update dequeue timestamp
+      this.timeOfLastDequeue = new Date().getTime();
       unlock();
     }
 
@@ -165,6 +197,7 @@ class TaskQueue {
       // Create a meta-task that performs the task then calls handlers
       const metaTask = async () => {
         try {
+          // Perform task
           const results = await task();
 
           // Done! Call handler
@@ -196,6 +229,7 @@ class TaskQueue {
 
         // Unlock the mutex
         unlock();
+        this._skipIntervalDelayIfApplicable();
       })();
     });
 
