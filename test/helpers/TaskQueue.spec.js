@@ -63,4 +63,8 @@ describe('helpers > TaskQueue', async function () {
       assert.equal(count, 5, 'Wrong number of tasks completed');
     }
   });
+
+  it('Does not introduce unnecessary delay', async function () {
+    this.skip();
+  });
 });

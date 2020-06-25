@@ -474,6 +474,6 @@ describe('API', async function () {
     const finish = new Date().getTime();
 
     // Ensure calls happened in parallel
-    assert((finish - start) < 75, 'Requests not sent in parallel');
+    assert((finish - start) < 100, 'Requests not sent in parallel');
   });
 });
