@@ -65,9 +65,9 @@ describe('helpers > TaskQueue', async function () {
   });
 
   it('Does not introduce unnecessary delay', async function () {
-    // Create queue
+    // Create queue with long delay interval
     const queue = new TaskQueue(40);
-    // Wait 1 ms
+    // Wait 1 ms, so that we are definitely after beginning of first interval
     await new Promise((r) => { setTimeout(r, 1); });
 
     const start = new Date().getTime();
@@ -78,5 +78,36 @@ describe('helpers > TaskQueue', async function () {
     // Ensure we did not wait to complete task
     assert(finish - start < 5, 'Queue introduced unnecessary delay');
     assert.equal(result, 42, 'Task did not complete properly');
+  });
+
+  it('Pauses the queue until a certain time', async function () {
+    // Create queue to test, with short interval
+    const queue = new TaskQueue(1);
+    // Pause queue for 10 ms
+    const start = new Date().getTime();
+    const pauseEnds = new Date(start + 10);
+    queue.pauseUntil(pauseEnds);
+    // Add a task that returns current time to queue
+    const executionTime = await queue.add({
+      task: () => { return Date.now(); },
+    });
+    // Ensure that task is executed after pause completes
+    assert(executionTime >= pauseEnds, 'Queue did not pause for full time.');
+  });
+
+  it('Doesn\'t add delay after pause', async function () {
+    this.skip();
+  });
+
+  it('Maintains interval when multiple requests are added', async function () {
+    this.skip();
+  });
+
+  it('Never dequeues multiple tasks at once', async function () {
+    this.skip();
+  });
+
+  it('Handles multiple tasks added during pause', async function () {
+    this.skip();
   });
 });
