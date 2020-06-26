@@ -371,11 +371,11 @@ describe('API', async function () {
     const finish = new Date().getTime();
     // Check that finish is ~100 milliseconds after start
     assert(
-      (finish - start) > 96,
+      (finish - start) > 95,
       `Calls completed too quickly: ${finish - start}ms`
     );
     assert(
-      (finish - start) < 112,
+      (finish - start) < 115,
       `Calls completed too slowly: ${finish - start}ms`
     );
   });
