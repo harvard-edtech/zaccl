@@ -112,10 +112,9 @@ module.exports = {
       return module.exports.formatDate(paramValue, paramName);
     }
 
-    // TODO: add appropriate error message
     throw new ZACCLError({
-      message: '',
-      code: '',
+      message: 'We\'ve encountered an internal error while trying to handle your request. Please contact an admin.',
+      code: ERROR_CODES.PROGRAMMER_ERROR,
     });
   },
 };

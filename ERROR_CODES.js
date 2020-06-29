@@ -23,4 +23,5 @@ module.exports = {
 
   // Other errors
   UNKNOWN_ERROR: 'ZAC6',
+  PROGRAMMER_ERROR: 'ZAC14',
 };
