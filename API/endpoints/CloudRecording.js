@@ -75,9 +75,8 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   returned from a single API call
  * @param {string} [options.nextPageToken] - token used to pageinate
  *   through large result sets
- * @param {string} [options.searchTrashFor] - Indicate type of
- *   cloud recording to retreive from the trash.
- *   options - {'meeting_recordings', 'recording_file'}
+ * @param {string} [options.searchTrash=false] - set to true to retrieve
+ *   meeting recordings from the trash.
  * @param {string|Date} [options.startDate=6 months before today]
  *   - string accepted by JS Date constructor or instance of Date object.
  *   Date needs to be within past 6 months. Time data is discarded
@@ -90,7 +89,7 @@ CloudRecording.listUserRecordings = function (options) {
   // Destructure arguments
   const {
     userId,
-    searchTrashFor,
+    searchTrash,
     nextPageToken,
     startDate,
     endDate,
@@ -105,7 +104,7 @@ CloudRecording.listUserRecordings = function (options) {
   // optional params if they are defined
   const params = {
     page_size: 300,
-    trash: !!searchTrashFor,
+    trash: !!searchTrash,
     from: utils.formatDate(defaultDate, 'startDate'),
   };
 
@@ -126,16 +125,6 @@ CloudRecording.listUserRecordings = function (options) {
 
   if (endDate) {
     params.to = endDate;
-  }
-
-  if (searchTrashFor) {
-    if (searchTrashFor !== 'meeting_recordings' || searchTrashFor !== 'recording_file') {
-      throw new ZACCLError({
-        message: 'We could not search trash for the type of recording you requested',
-        code: ERROR_CODES.INVALID_SEARCH_TRASH_FOR,
-      });
-    }
-    params.trash_type = searchTrashFor;
   }
 
   if (nextPageToken) {
@@ -164,7 +153,7 @@ CloudRecording.listUserRecordings.requiredParams = ['userId'];
 CloudRecording.listUserRecordings.paramTypes = {
   pageSize: 'number',
   nextPageToken: 'string',
-  searchTrashFor: 'string',
+  searchTrash: 'boolean',
   startDate: 'date',
   endDate: 'date',
 };
