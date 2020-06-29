@@ -37,12 +37,9 @@ CloudRecording.listMeetingRecordings = function (options) {
     });
   }
 
-  // Cast meeting ID to a string so we can run string operations
-  const meetingIdStr = String(options.meetingId);
-
   return this.visitEndpoint({
     // Call function on meetingId to handle double encoding if necessary
-    path: `/meetings/${utils.doubleEncodeIfNeeded(meetingIdStr)}/recordings`,
+    path: `/meetings/${utils.doubleEncodeIfNeeded(options.meetingId)}/recordings`,
     method: 'GET',
     errorMap: {
       400: {
@@ -57,6 +54,7 @@ CloudRecording.listMeetingRecordings = function (options) {
 };
 CloudRecording.listMeetingRecordings.action = 'get all recordings of a meeting';
 CloudRecording.listMeetingRecordings.requiredParams = ['meetingId'];
+CloudRecording.listMeetingRecordings.paramTypes = { meetingId: 'string' };
 CloudRecording.listMeetingRecordings.scopes = [
   'recording:read:admin',
   'recording:read',
