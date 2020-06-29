@@ -75,10 +75,9 @@ module.exports = {
     const parsedNum = Number(num);
     // If not a number throw a ZACCL Error
     if (Number.isNaN(parsedNum)) {
-      const code = `INVALID_${param.toUpperCase()}`;
       throw new ZACCLError({
-        message: `${param} is not a valid number`,
-        code: ERROR_CODES[code],
+        message: `A request to Zoom wasn't formatted properly: ${param} should be a number.`,
+        code: ERROR_CODES.INVALID_QUERY_PARAM,
       });
     }
     return parsedNum;
