@@ -85,30 +85,31 @@ module.exports = {
   },
 
   /**
-   * Returns param with corrected type if possible,
-   *   throws ZACCL Error otherwise
+   * Checks if param type matches desired type and
+   * returns param with the correct type if possible.
+   *   Throws ZACCL Error otherwise
    * @author Aryan Pandey
-   * @param {string} param - string to identify param
-   * @param {string|number|boolean|date} value - value of param
+   * @param {string} paramName - string to identify param
+   * @param {string|number|boolean|date} paramValue - value of param
    *   that needs to be converted to correct type
-   * @param {string} type - string to identify expected param type
+   * @param {string} desiredType - string to identify expected param type
    * @returns {string|number|boolean|date} value of param in the correct type
    */
-  fixParamType: (param, value, type) => {
-    if (type === 'string') {
-      return String(value);
+  enforceParamType: (paramName, paramValue, desiredType) => {
+    if (desiredType === 'string') {
+      return String(paramValue);
     }
 
-    if (type === 'number') {
-      return module.exports.sanitizeNum(value, param);
+    if (desiredType === 'number') {
+      return module.exports.sanitizeNum(paramValue, paramName);
     }
 
-    if (type === 'boolean') {
-      return !!value;
+    if (desiredType === 'boolean') {
+      return !!paramValue;
     }
 
-    if (type === 'date') {
-      return module.exports.formatDate(value, param);
+    if (desiredType === 'date') {
+      return module.exports.formatDate(paramValue, paramName);
     }
 
     // TODO: add appropriate error message

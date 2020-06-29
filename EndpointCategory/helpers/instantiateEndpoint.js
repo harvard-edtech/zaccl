@@ -47,9 +47,9 @@ module.exports = (config) => {
     if (paramTypes) {
       Object.keys(paramTypes).forEach((param) => {
         // Check if specific param was passed in as an option
-        if (opts[param] && typeof opts[param] !== paramTypes[param]) {
-          // If type of param doesn't match desired type, try fixing
-          opts[param] = utils.fixParamType(param, opts[param],
+        if (opts[param]) {
+          // Ensure actual type of param matches desired type
+          opts[param] = utils.enforceParamType(param, opts[param],
             paramTypes[param]);
           // If type is not fixable, ZACCL Error is thrown
         }
