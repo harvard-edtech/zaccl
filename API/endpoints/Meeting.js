@@ -5,7 +5,6 @@
  */
 
 const EndpointCategory = require('../../EndpointCategory');
-const utils = require('../../EndpointCategory/helpers/utils');
 
 class Meeting extends EndpointCategory {
   constructor(config) {
