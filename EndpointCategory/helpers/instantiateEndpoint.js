@@ -87,84 +87,114 @@ module.exports = (config) => {
         ...endpointOptions
       } = options;
 
-      let response;
       // Initialize with generic error message
       let zoomErrorMessage = 'An unknown error occurred';
 
-      try {
-        // Call method with only necessary arguments
-        response = await api._visitEndpoint(endpointOptions);
-      } catch (err) {
-        // We encountered an error while sending the request
-        throw new ZACCLError({
-          message: (
-            err.message
-            || 'An unknown error occurred while sending a request to Zoom.'
-          ),
-          code: err.code || ERROR_CODES.UNKNOWN_NETWORK_ERROR,
-        });
-      }
+      // Declare pages array that will hold concatenated responses
+      const pages = [];
 
-      // Error check
-      const { status, body } = response;
-      if (status < 200 || status >= 300) {
+      const fetchPage = async () => {
+        let response;
+        try {
+        // Call method with only necessary arguments
+          response = await api._visitEndpoint(endpointOptions);
+        } catch (err) {
+        // We encountered an error while sending the request
+          throw new ZACCLError({
+            message: (
+              err.message
+            || 'An unknown error occurred while sending a request to Zoom.'
+            ),
+            code: err.code || ERROR_CODES.UNKNOWN_NETWORK_ERROR,
+          });
+        }
+
+        // Error check
+        const { status, body } = response;
+        if (status < 200 || status >= 300) {
         // A Zoom error occurred
 
-        // Check status to see if its in the error map
-        if (errorMap[status]) {
-          if (typeof errorMap[status] === 'string') {
+          // Check status to see if its in the error map
+          if (errorMap[status]) {
+            if (typeof errorMap[status] === 'string') {
             // Found the error message
-            zoomErrorMessage = errorMap[status];
-          } else if (body.code) {
+              zoomErrorMessage = errorMap[status];
+            } else if (body.code) {
             // Check for nested error message
-            if (typeof errorMap[status][body.code] === 'string') {
+              if (typeof errorMap[status][body.code] === 'string') {
               // Found nested error message
-              zoomErrorMessage = errorMap[status][body.code];
-            } else if (body.message) {
+                zoomErrorMessage = errorMap[status][body.code];
+              } else if (body.message) {
               // errorMap[status][code] did not return err message
               // so we check body
-              if (typeof body.message === 'string') {
-                zoomErrorMessage = body.message;
+                if (typeof body.message === 'string') {
+                  zoomErrorMessage = body.message;
+                }
               }
             }
-          }
-        } else if (body.message) {
+          } else if (body.message) {
           // Error message not in the error map so check body
-          if (typeof body.message === 'string') {
-            zoomErrorMessage = body.message;
+            if (typeof body.message === 'string') {
+              zoomErrorMessage = body.message;
+            }
           }
+          // Note: if none of the conditionals hit,
+          // zoomErrorMessage defaults to generic error message
+
+          const errorMessage = `We couldn't ${action} because an error occurred: ${zoomErrorMessage}`;
+          const errorCode = `ZOOM${status}${body.code ? `-${body.code}` : ''}`;
+
+          throw new ZACCLError({
+            message: errorMessage,
+            code: errorCode,
+          });
         }
-        // Note: if none of the conditionals hit,
-        // zoomErrorMessage defaults to generic error message
 
-        const errorMessage = `We couldn't ${action} because an error occurred: ${zoomErrorMessage}`;
-        const errorCode = `ZOOM${status}${body.code ? `-${body.code}` : ''}`;
-
-        throw new ZACCLError({
-          message: errorMessage,
-          code: errorCode,
-        });
-      }
-
-      // Run the post-processor, throwing any errors it produces
-      // and convert non-ZACCLError errors into ZACCLErrors with better text
-      let modifiedResponse = response;
-      if (postProcessor) {
-        try {
-          modifiedResponse = postProcessor(response);
-        } catch (err) {
+        // Run the post-processor, throwing any errors it produces
+        // and convert non-ZACCLError errors into ZACCLErrors with better text
+        let modifiedResponse = response;
+        if (postProcessor) {
+          try {
+            modifiedResponse = postProcessor(response);
+          } catch (err) {
           // Turn into ZACCLError if not already
-          let newError = err;
-          if (!err.isZACCLError) {
-            newError = new ZACCLError(err);
-            newError.message = 'An error occurred while post-processing the response from Zoom.';
-            newError.code = ERROR_CODES.POST_PROCESSING_ERROR;
+            let newError = err;
+            if (!err.isZACCLError) {
+              newError = new ZACCLError(err);
+              newError.message = 'An error occurred while post-processing the response from Zoom.';
+              newError.code = ERROR_CODES.POST_PROCESSING_ERROR;
+            }
+            throw newError;
           }
-          throw newError;
         }
-      }
-      // Return the body of the zoom response
-      return modifiedResponse;
+
+        // Response is valid. Add response to pages
+        pages.push(modifiedResponse);
+
+        // Check for next page
+        if (modifiedResponse.body.next_page_token) {
+          // Add next page token to the params
+          endpointOptions.params
+            .next_page_token = modifiedResponse.body.next_page_token;
+
+          // Fetch next page recursively
+          return fetchPage();
+        }
+
+        // We don't need to fetch any more pages.
+        // Concatenate pages if necessary
+        const allData = (
+          pages.length === 1
+            ? pages[0]
+            : [].concat(...pages)
+        );
+
+        // Return all responses
+        return allData;
+      };
+
+      // Fetch first page to start a chain
+      return fetchPage();
     };
 
     // Make sure endpointCoreFunction can be bound
