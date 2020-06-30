@@ -90,7 +90,7 @@ module.exports = (config) => {
       // Initialize with generic error message
       let zoomErrorMessage = 'An unknown error occurred';
 
-      // Declare pages array that will hold concatenated responses
+      // Declare pages array that will hold the bodies of each paged request
       const pages = [];
 
       const fetchPage = async () => {
@@ -150,6 +150,9 @@ module.exports = (config) => {
           });
         }
 
+        // Get the next page token
+        const nextPageToken = body.next_page_token;
+
         // Run the post-processor, throwing any errors it produces
         // and convert non-ZACCLError errors into ZACCLErrors with better text
         let modifiedResponse = response;
@@ -168,15 +171,13 @@ module.exports = (config) => {
           }
         }
 
-        // Response is valid. Add response to pages
-        pages.push(modifiedResponse);
+        // Response is valid. Add body to pages
+        pages.push(modifiedResponse.body);
 
         // Check for next page
-        if (modifiedResponse.body.next_page_token) {
+        if (nextPageToken) {
           // Add next page token to the params
-          endpointOptions.params.next_page_token = (
-            modifiedResponse.body.next_page_token
-          );
+          endpointOptions.params.next_page_token = nextPageToken;
 
           // Fetch next page recursively
           return fetchPage();
@@ -218,7 +219,7 @@ module.exports = (config) => {
 
     // call the core function, catching errors
     try {
-      const { body } = await runCoreFunction(opts);
+      const body = await runCoreFunction(opts);
       return body;
     } catch (err) {
       let newError = err;
