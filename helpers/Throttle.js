@@ -27,6 +27,8 @@ class Throttle {
     this._maxRequestsPerDay = maxRequestsPerDay;
     // Initialize remaining allowed calls to total allowed calls
     this._dailyTokensRemaining = maxRequestsPerDay;
+    // Flag set to true when Zoom daily limit error is encountered
+    this.hitDailyLimit = false;
 
     // instantiate Datetime object and set to next UTC (GMT) midnight
     const midnight = new Date();
@@ -40,6 +42,7 @@ class Throttle {
 
   /**
    * Increments daily token reservoir by one if limited, unless at maximum value
+   *   or if hitDailyLimit is true
    * @author Grace Whitney
    */
   async incrementDailyTokens() {
@@ -47,6 +50,7 @@ class Throttle {
     const unlock = await this._mutex.lock();
     if (
       this.hasDailyLimit
+      && !this.hitDailyLimit
       && this._dailyTokensRemaining < this._maxRequestsPerDay
     ) {
       this._dailyTokensRemaining += 1;
@@ -68,13 +72,14 @@ class Throttle {
   }
 
   /**
-   * Sets daily token reservoir to empty, if limited
+   * Sets daily token reservoir to empty, if limited, and set hitDailyLimit flag
    * @author Grace Whitney
    */
   async emptyTokenReservoir() {
     const unlock = await this._mutex.lock();
     if (this.hasDailyLimit) {
       this._dailyTokensRemaining = 0;
+      this.hitDailyLimit = true;
     }
     unlock();
   }
@@ -100,6 +105,7 @@ class Throttle {
     // Perform daily counter arithmetic if necessary
     if (this.hasDailyLimit && this._resetAfter < Date.now()) {
       this._dailyTokensRemaining = this._maxRequestsPerDay;
+      this.hitDailyLimit = false;
       // Add 24 hours until resetAfter is in the future
       while (this._resetAfter < Date.now()) {
         this._resetAfter.setTime(
