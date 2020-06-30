@@ -98,7 +98,7 @@ describe('helpers > TaskQueue', async function () {
   it('Doesn\'t add delay after pause', async function () {
     // Create queue to test, with long delay interval
     const queue = new TaskQueue(40);
-    // Pause queue for 5 ms
+    // Pause queue for 10 milliseconds
     const start = Date.now();
     const pauseEnds = new Date(start + 10);
     queue.pauseUntil(pauseEnds);
