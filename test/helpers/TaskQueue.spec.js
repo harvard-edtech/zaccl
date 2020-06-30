@@ -44,6 +44,7 @@ describe('helpers > TaskQueue', async function () {
     let count = 0;
     const tasks = [];
 
+    // Task rejects queue once counter hits 5, so remaining 5 tasks will reject
     const task = () => {
       count += 1;
       if (count === 5) {
@@ -114,12 +115,12 @@ describe('helpers > TaskQueue', async function () {
     );
   });
 
-  it('Maintains interval when multiple requests are added', async function () {
+  it('Maintains interval when many requests are added', async function () {
     const queue = new TaskQueue(5);
     const calls = [];
     const callTimes = [];
     // Each task pushes execution time to callTimes
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 100; i++) {
       calls.push(queue.add({
         task: () => {
           callTimes.push(Date.now());
@@ -127,19 +128,16 @@ describe('helpers > TaskQueue', async function () {
       }));
     }
     await Promise.all(calls);
-    for (let i = 1; i < 10; i++) {
+    // Provide some room for error
+    for (let i = 1; i < 100; i++) {
       assert(
-        callTimes[i] - callTimes[i - 1] >= 5,
+        callTimes[i] - callTimes[i - 1] >= 4,
         `Delay interval between calls too short: ${callTimes[i] - callTimes[i - 1]}ms`
       );
       assert(
-        callTimes[i] - callTimes[i - 1] <= 8,
+        callTimes[i] - callTimes[i - 1] <= 10,
         `Delay interval between calls too long: ${callTimes[i] - callTimes[i - 1]}ms`
       );
     }
-  });
-
-  it('Never dequeues multiple tasks at once', async function () {
-    this.skip();
   });
 });

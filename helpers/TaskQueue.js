@@ -71,8 +71,17 @@ class TaskQueue {
       return;
     }
 
+    const unlock = await this.mutex.lock();
+    // If queue is already paused, do nothing
+    if (this.isPaused) {
+      unlock();
+      return;
+    }
+
     // Pause execution
     this.isPaused = true;
+    unlock();
+
     if (time > Date.now()) {
       await new Promise((r) => { setTimeout(r, time - Date.now()); });
     }
