@@ -78,12 +78,9 @@ CloudRecording.listMeetingRecordings = function (options) {
     });
   }
 
-  // Cast meeting ID to a string so we can run string operations
-  const meetingIdStr = options.meetingId.toString();
-
   return this.visitEndpoint({
     // Call function on meetingId to handle double encoding if necessary
-    path: `/meetings/${utils.doubleEncodeIfNeeded(meetingIdStr)}/recordings`,
+    path: `/meetings/${utils.doubleEncode(options.meetingId)}/recordings`,
     method: 'GET',
     errorMap: {
       400: {
@@ -98,6 +95,7 @@ CloudRecording.listMeetingRecordings = function (options) {
 };
 CloudRecording.listMeetingRecordings.action = 'get all recordings of a meeting';
 CloudRecording.listMeetingRecordings.requiredParams = ['meetingId'];
+CloudRecording.listMeetingRecordings.paramTypes = { meetingId: 'string' };
 CloudRecording.listMeetingRecordings.scopes = [
   'recording:read:admin',
   'recording:read',
@@ -114,61 +112,92 @@ CloudRecording.listMeetingRecordings.scopes = [
  * @param {string} options.userId - the user ID or email address of the user
  * @param {number} [options.pageSize=300] - number of records
  *   returned from a single API call
- * @param {string} [options.nextPageToken=null] - token used to pageinate
+ * @param {string} [options.nextPageToken] - token used to pageinate
  *   through large result sets
- * @param {boolean} [options.searchTrash=false] - if truthy,
- *   include recordings from trash
- * @param {string} [options.trashType='meeting_recordings'] - Indicate type of
- *   cloud recording to retreive from the trash.
- *   options - {'meeting_recordings', 'recording_file'}
- * @param {string} [options.startDate=null] - query start date in
- *   'yyyy-mm-dd' format within last 6 months
- * @param {string} [options.endDate=null] - query end date in
- *   'yyyy-mm-dd' format within last 6 months
+ * @param {string} [options.searchTrash=false] - set to true to retrieve
+ *   meeting recordings from the trash.
+ * @param {string|Date} [options.startDate=6 months before today]
+ *   - string accepted by JS Date constructor or instance of Date object.
+ *   Date needs to be within past 6 months. Time data (hours and seconds)
+ *   is discarded
+ * @param {string|Date} [options.endDate] - string accepted by JS Date
+ *   constructor or instance of Date object.
+ *   Date needs to be within past 6 months. Time data (hours and seconds)
+ *   is discarded
  * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {
-  // Validate date strings if passed in
-  if (options.startDate &amp;&amp; !utils.validateDate(options.startDate)) {
-    throw new ZACCLError({
-      message: 'Date needs to be in the format yyyy-mm-dd',
-      code: ERROR_CODES.INVALID_DATE_FORMAT,
-    });
+  // Destructure arguments
+  const {
+    userId,
+    searchTrash,
+    nextPageToken,
+    startDate,
+    endDate,
+    pageSize,
+  } = options;
+
+  // Declare default start Date to 6 months before
+  const defaultDate = new Date();
+  defaultDate.setMonth(defaultDate.getMonth() - 6);
+
+  // Initialize params object with default values and only add
+  // optional params if they are defined
+  const params = {
+    page_size: 300,
+    trash: !!searchTrash,
+    from: utils.formatDate(defaultDate, 'startDate'),
+  };
+
+  if (pageSize) {
+    // Throw error if pageSize is over max val of 300
+    if (pageSize >= 300) {
+      throw new ZACCLError({
+        message: `We requested ${pageSize} recordings from Zoom but it can only give us 300 at a time`,
+        code: ERROR_CODES.INVALID_PAGESIZE,
+      });
+    }
+    params.page_size = pageSize;
   }
 
-  if (options.endDate &amp;&amp; !utils.validateDate(options.endDate)) {
-    throw new ZACCLError({
-      message: 'Date needs to be in the format yyyy-mm-dd',
-      code: ERROR_CODES.INVALID_DATE_FORMAT,
-    });
+  if (startDate) {
+    params.from = startDate;
+  }
+
+  if (endDate) {
+    params.to = endDate;
+  }
+
+  if (nextPageToken) {
+    params.next_page_token = nextPageToken;
   }
 
   return this.visitEndpoint({
-    path: `/users/${options.userId}/recordings`,
+    path: `/users/${userId}/recordings`,
     method: 'GET',
-    params: {
-      // Note: The max page size allowed by zoom is 300
-      page_size: options.pageSize || 300,
-      next_page_token: options.nextPageToken || '',
-      trash: !!options.searchTrash,
-      trash_type: options.trashType || 'meeting_recordings',
-      from: options.startDate || '',
-      to: options.endDate || '',
-    },
+    params,
     postProcessor: (response) => {
       // Extract the recordings from the body
-      const { body } = response;
-      return body.meetings; // No idea why they're not called "recordings"
+      const newResponse = response;
+      newResponse.body = response.body.meetings;
+      return newResponse;
     },
     errorMap: {
       404: {
-        1001: 'We could not find that user on this account',
+        1001: `We could not find the user ${options.userId} on this account`,
       },
     },
   });
 };
 CloudRecording.listUserRecordings.action = 'list all cloud recordings of a user';
 CloudRecording.listUserRecordings.requiredParams = ['userId'];
+CloudRecording.listUserRecordings.paramTypes = {
+  pageSize: 'number',
+  nextPageToken: 'string',
+  searchTrash: 'boolean',
+  startDate: 'date',
+  endDate: 'date',
+};
 CloudRecording.listUserRecordings.scopes = [
   'recording:read:admin',
   'recording:read',

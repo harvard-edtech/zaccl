@@ -364,7 +364,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CloudRecording.js.html">CloudRecording.js</a>, <a href="CloudRecording.js.html#line65">line 65</a>
+        <a href="CloudRecording.js.html">CloudRecording.js</a>, <a href="CloudRecording.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -597,8 +597,6 @@
             
                 <td class="default">
                 
-                    <code>null</code>
-                
                 </td>
             
 
@@ -616,7 +614,7 @@
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type">string</span>
 
 
             
@@ -642,49 +640,8 @@
                 </td>
             
 
-            <td class="description last">if truthy,
-  include recordings from trash</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trashType</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>'meeting_recordings'</code>
-                
-                </td>
-            
-
-            <td class="description last">Indicate type of
-  cloud recording to retreive from the trash.
-  options - {'meeting_recordings', 'recording_file'}</td>
+            <td class="description last">set to true to retrieve
+  meeting recordings from the trash.</td>
         </tr>
 
     
@@ -698,6 +655,9 @@
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Date</span>
 
 
             
@@ -718,13 +678,14 @@
             
                 <td class="default">
                 
-                    <code>null</code>
+                    <code>6 months before today</code>
                 
                 </td>
             
 
-            <td class="description last">query start date in
-  'yyyy-mm-dd' format within last 6 months</td>
+            <td class="description last">- string accepted by JS Date constructor or instance of Date object.
+  Date needs to be within past 6 months. Time data (hours and seconds)
+  is discarded</td>
         </tr>
 
     
@@ -738,6 +699,9 @@
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Date</span>
 
 
             
@@ -758,13 +722,13 @@
             
                 <td class="default">
                 
-                    <code>null</code>
-                
                 </td>
             
 
-            <td class="description last">query end date in
-  'yyyy-mm-dd' format within last 6 months</td>
+            <td class="description last">string accepted by JS Date
+  constructor or instance of Date object.
+  Date needs to be within past 6 months. Time data (hours and seconds)
+  is discarded</td>
         </tr>
 
     
