@@ -44,7 +44,7 @@ class TaskQueue {
   async _skipIntervalDelayIfApplicable() {
     // Lock mutex to prevent multiple conflicting updates
     const unlock = await this.mutex.lock();
-    const now = new Date().getTime();
+    const now = Date.now();
     if (
       // If the queue is paused or previous deque is recent, no action required
       this.isPaused || (now < this.timeOfLastDequeue + this.dequeueIntervalMS)
@@ -127,7 +127,7 @@ class TaskQueue {
       return;
     } finally {
       // Update dequeue timestamp
-      this.timeOfLastDequeue = new Date().getTime();
+      this.timeOfLastDequeue = Date.now();
       unlock();
     }
 

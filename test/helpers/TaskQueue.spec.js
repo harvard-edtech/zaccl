@@ -70,10 +70,10 @@ describe('helpers > TaskQueue', async function () {
     // Wait 1 ms, so that we are definitely after beginning of first interval
     await new Promise((r) => { setTimeout(r, 1); });
 
-    const start = new Date().getTime();
+    const start = Date.now();
     // Add task to queue
     const result = await queue.add({ task: () => { return 42; } });
-    const finish = new Date().getTime();
+    const finish = Date.now();
 
     // Ensure we did not wait to complete task
     assert(finish - start < 5, 'Queue introduced unnecessary delay');
@@ -84,7 +84,7 @@ describe('helpers > TaskQueue', async function () {
     // Create queue to test, with short interval
     const queue = new TaskQueue(1);
     // Pause queue for 10 ms
-    const start = new Date().getTime();
+    const start = Date.now();
     const pauseEnds = new Date(start + 10);
     queue.pauseUntil(pauseEnds);
     // Add a task that returns current time to queue
@@ -99,7 +99,7 @@ describe('helpers > TaskQueue', async function () {
     // Create queue to test, with long delay interval
     const queue = new TaskQueue(40);
     // Pause queue for 5 ms
-    const start = new Date().getTime();
+    const start = Date.now();
     const pauseEnds = new Date(start + 10);
     queue.pauseUntil(pauseEnds);
     // Add a task that returns current time to queue
@@ -122,7 +122,7 @@ describe('helpers > TaskQueue', async function () {
     for (let i = 0; i < 10; i++) {
       calls.push(queue.add({
         task: () => {
-          callTimes.push(new Date().getTime());
+          callTimes.push(Date.now());
         },
       }));
     }

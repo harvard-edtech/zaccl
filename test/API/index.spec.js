@@ -357,7 +357,7 @@ describe('API', async function () {
 
     const calls = [];
 
-    const start = new Date().getTime();
+    const start = Date.now();
     // Make 10 calls
     for (let i = 0; i < 10; i++) {
       calls.push(
@@ -368,7 +368,7 @@ describe('API', async function () {
       );
     }
     await Promise.all(calls);
-    const finish = new Date().getTime();
+    const finish = Date.now();
     // Check that finish is ~100 milliseconds after start
     assert(
       (finish - start) > 95,
@@ -395,7 +395,7 @@ describe('API', async function () {
       maxRequestsPerSecond: 1000,
     });
 
-    const start = new Date().getTime();
+    const start = Date.now();
 
     // First call will receive a rate limit error
     const result1 = rateLimitTestAPI._visitEndpoint({
@@ -408,7 +408,7 @@ describe('API', async function () {
     });
     await Promise.all([result1, result2]);
 
-    const finish = new Date().getTime();
+    const finish = Date.now();
 
     assert(
       (finish - start) > (THROTTLE_CONSTANTS.BACKOFF_MS + 2),
@@ -457,7 +457,7 @@ describe('API', async function () {
       maxRequestsPerSecond: 1000,
     });
 
-    const start = new Date().getTime();
+    const start = Date.now();
 
     // Make 10 endpoint calls
     const calls = [];
@@ -471,7 +471,7 @@ describe('API', async function () {
     }
     await Promise.all(calls);
 
-    const finish = new Date().getTime();
+    const finish = Date.now();
 
     // Ensure calls happened in parallel
     assert((finish - start) < 300, 'Requests not sent in parallel');

@@ -203,7 +203,7 @@ class API {
           await throttle.incrementDailyTokens();
 
           // Pause the queue and resume after delay, if not already paused
-          const now = new Date().getTime();
+          const now = Date.now();
           const resume = new Date(now + THROTTLE_CONSTANTS.BACKOFF_MS);
           throttle.pauseQueueUntil(resume);
           await throttle.addTaskToQueue({
