@@ -93,6 +93,15 @@ module.exports = (config) => {
       // Declare pages array that will hold the bodies of each paged request
       const pages = [];
 
+      /**
+       * Visits endpoint appropriate amount of times and
+       * returns array of response bodies if responses are paged,
+       *   single body of response otherwise.
+       * @author Aryan Pandey
+       * @async
+       * @return {object} - array of response bodies if responses are paged,
+       *   single body of response otherwise.
+       */
       const fetchPage = async () => {
         let response;
         try {
