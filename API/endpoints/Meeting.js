@@ -5,7 +5,6 @@
  */
 
 const EndpointCategory = require('../../EndpointCategory');
-const utils = require('../../EndpointCategory/helpers/utils');
 
 class Meeting extends EndpointCategory {
   constructor(config) {
@@ -37,7 +36,7 @@ Meeting.get = function (options) {
 
   // Add optional param if exists
   if (options.occurrenceId) {
-    params.occurrence_id = options.occurrenceId.toString();
+    params.occurrence_id = options.occurrenceId;
   }
 
   return this.visitEndpoint({
@@ -58,6 +57,7 @@ Meeting.get = function (options) {
 };
 Meeting.get.action = 'get info on a meeting';
 Meeting.get.requiredParams = ['meetingId'];
+Meeting.get.paramTypes = { occurrenceId: 'string', showAllOccurrences: 'boolean' };
 Meeting.get.scopes = [
   'meeting:read:admin',
   'meeting:read',
@@ -117,14 +117,14 @@ Meeting.update = function (options) {
     method: 'PATCH',
     params: options.meetingObj,
     errorMap: {
-      300: 'User has reached max user limit for creating/updating meetings',
+      300: 'We cannot create or update any more meetings today. Please try again tomorrow',
       400: {
-        1010: 'User could not be found on this account',
+        1010: 'We could not find the user on this account',
         3000: 'We could not access meeting information',
-        3003: 'You are not the meeting host',
+        3003: `You cannot update the meeting ${options.meetingId} since you are not the meeting host`,
       },
       404: {
-        1001: 'The user does not exist',
+        1001: 'We could not update the meeting because the user does not exist',
         3001: `A meeting with the ID ${options.meetingId} could not be found or has expired`,
       },
     },
@@ -158,7 +158,7 @@ Meeting.delete = function (options) {
 
   // Add optional param if exists
   if (options.occurrenceId) {
-    params.occurrence_id = options.occurrenceId.toString();
+    params.occurrence_id = options.occurrenceId;
   }
   return this.visitEndpoint({
     path: `/meetings/${options.meetingId}`,
@@ -166,16 +166,16 @@ Meeting.delete = function (options) {
     params,
     errorMap: {
       400: {
-        1010: 'The user does not belong to this account',
+        1010: `We could not delete meeting ${options.meetingId} because the user does not belong to this account`,
         3000: `We could not access meeting information for meeting ${options.meetingId}`,
-        3002: 'We could not delete the meeting since it is still in progress',
-        3003: 'You are not the meeting host',
-        3007: 'You cannot delete this meeting since it has already ended',
+        3002: `We could not delete the meeting ${options.meetingId} since it is still in progress`,
+        3003: `You cannot delete the meeting ${options.meetingId} since you are not the meeting host`,
+        3007: `You cannot delete the meeting ${options.meetingId} since it has already ended`,
         3018: 'You are not allowed to delete your Personal Meeting ID',
         3037: 'You are not allowed to delete a Personal Meeting Conference',
       },
       404: {
-        1001: 'The user does not exist',
+        1001: `We could not delete the meeting ${options.meetingId} because the user does not exist`,
         3001: `A meeting with the ID ${options.meetingId} could not be found or has expired`,
       },
     },
@@ -183,6 +183,7 @@ Meeting.delete = function (options) {
 };
 Meeting.delete.action = 'delete a meeting';
 Meeting.delete.requiredParams = ['meetingId'];
+Meeting.delete.paramTypes = { occurrenceId: 'string', notifyHosts: 'boolean' };
 Meeting.delete.scopes = [
   'meeting:write:admin',
   'meeting:write',

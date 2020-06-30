@@ -37,6 +37,7 @@ class EndpointCategory {
         this[prop] = instantiateEndpoint({
           action,
           requiredParams: endpointCoreFunction.requiredParams,
+          paramTypes: endpointCoreFunction.paramTypes,
           endpointCoreFunction: Subclass[prop],
           api: config.api,
           errorMap: Subclass[prop].errorMap,

@@ -37,12 +37,9 @@ CloudRecording.listMeetingRecordings = function (options) {
     });
   }
 
-  // Cast meeting ID to a string so we can run string operations
-  const meetingIdStr = options.meetingId.toString();
-
   return this.visitEndpoint({
     // Call function on meetingId to handle double encoding if necessary
-    path: `/meetings/${utils.doubleEncodeIfNeeded(meetingIdStr)}/recordings`,
+    path: `/meetings/${utils.doubleEncode(options.meetingId)}/recordings`,
     method: 'GET',
     errorMap: {
       400: {
@@ -57,6 +54,7 @@ CloudRecording.listMeetingRecordings = function (options) {
 };
 CloudRecording.listMeetingRecordings.action = 'get all recordings of a meeting';
 CloudRecording.listMeetingRecordings.requiredParams = ['meetingId'];
+CloudRecording.listMeetingRecordings.paramTypes = { meetingId: 'string' };
 CloudRecording.listMeetingRecordings.scopes = [
   'recording:read:admin',
   'recording:read',
@@ -75,15 +73,16 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   returned from a single API call
  * @param {string} [options.nextPageToken] - token used to pageinate
  *   through large result sets
- * @param {boolean} [options.searchTrash=false] - if truthy,
- *   include recordings from trash
- * @param {string} [options.trashType='meeting_recordings'] - Indicate type of
- *   cloud recording to retreive from the trash.
- *   options - {'meeting_recordings', 'recording_file'}
- * @param {string|Date} [options.startDate] - query start date in
- *   'yyyy-mm-dd' format within last 6 months
- * @param {string|Date} [options.endDate] - query end date in
- *   'yyyy-mm-dd' format within last 6 months
+ * @param {string} [options.searchTrash=false] - set to true to retrieve
+ *   meeting recordings from the trash.
+ * @param {string|Date} [options.startDate=6 months before today]
+ *   - string accepted by JS Date constructor or instance of Date object.
+ *   Date needs to be within past 6 months. Time data (hours and seconds)
+ *   is discarded
+ * @param {string|Date} [options.endDate] - string accepted by JS Date
+ *   constructor or instance of Date object.
+ *   Date needs to be within past 6 months. Time data (hours and seconds)
+ *   is discarded
  * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {
@@ -91,61 +90,44 @@ CloudRecording.listUserRecordings = function (options) {
   const {
     userId,
     searchTrash,
-  } = options;
-
-  let {
-    pageSize,
     nextPageToken,
-    trashType,
     startDate,
     endDate,
+    pageSize,
   } = options;
 
-  // If pageSize included, sanitize the value
-  if (pageSize) {
-    try {
-      // sanitizeInt throws standard Error if number invalid
-      pageSize = utils.sanitizeInt(pageSize);
-    } catch (err) {
-      // Throw specific ZACCL Error
-      throw new ZACCLError({
-        message: 'Page size parameter should be a valid number',
-        code: ERROR_CODES.INVALID_PAGE_SIZE,
-      });
-    }
-    // Throw error if pageSize is over max val of 300
-    if (pageSize >= 300) {
-      throw new ZACCLError({
-        message: 'Page size cannot be higher than 300',
-        code: ERROR_CODES.INVALID_PAGE_SIZE,
-      });
-    }
-  }
+  // Declare default start Date to 6 months before
+  const defaultDate = new Date();
+  defaultDate.setMonth(defaultDate.getMonth() - 6);
 
   // Initialize params object with default values and only add
   // optional params if they are defined
   const params = {
-    page_size: pageSize || 300,
+    page_size: 300,
     trash: !!searchTrash,
+    from: utils.formatDate(defaultDate, 'startDate'),
   };
 
+  if (pageSize) {
+    // Throw error if pageSize is over max val of 300
+    if (pageSize >= 300) {
+      throw new ZACCLError({
+        message: `We requested ${pageSize} recordings from Zoom but it can only give us 300 at a time`,
+        code: ERROR_CODES.INVALID_PAGESIZE,
+      });
+    }
+    params.page_size = pageSize;
+  }
+
   if (startDate) {
-    startDate = utils.sanitizeDate(startDate);
     params.from = startDate;
   }
 
   if (endDate) {
-    endDate = utils.sanitizeDate(endDate);
     params.to = endDate;
   }
 
-  if (trashType) {
-    trashType = trashType.toString();
-    params.trash_type = trashType;
-  }
-
   if (nextPageToken) {
-    nextPageToken = nextPageToken.toString();
     params.next_page_token = nextPageToken;
   }
 
@@ -161,13 +143,20 @@ CloudRecording.listUserRecordings = function (options) {
     },
     errorMap: {
       404: {
-        1001: 'We could not find that user on this account',
+        1001: `We could not find the user ${options.userId} on this account`,
       },
     },
   });
 };
 CloudRecording.listUserRecordings.action = 'list all cloud recordings of a user';
 CloudRecording.listUserRecordings.requiredParams = ['userId'];
+CloudRecording.listUserRecordings.paramTypes = {
+  pageSize: 'number',
+  nextPageToken: 'string',
+  searchTrash: 'boolean',
+  startDate: 'date',
+  endDate: 'date',
+};
 CloudRecording.listUserRecordings.scopes = [
   'recording:read:admin',
   'recording:read',
