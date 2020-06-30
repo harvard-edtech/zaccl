@@ -174,8 +174,9 @@ module.exports = (config) => {
         // Check for next page
         if (modifiedResponse.body.next_page_token) {
           // Add next page token to the params
-          endpointOptions.params
-            .next_page_token = modifiedResponse.body.next_page_token;
+          endpointOptions.params.next_page_token = (
+            modifiedResponse.body.next_page_token
+          );
 
           // Fetch next page recursively
           return fetchPage();

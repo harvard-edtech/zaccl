@@ -14,20 +14,15 @@ const testAPI = new API({
   sendZoomRequest: genStubAPIRequest(),
 });
 
-// Set up the default date value to use for comparision later
-let defaultDate = new Date();
-defaultDate.setMonth(defaultDate.getMonth() - 6);
-defaultDate = utils.formatDate(defaultDate);
-
 describe('Meeting Endpoints', async function () {
   it('gets Meeting with only required params', async function () {
     const ret = await testAPI.meeting.get({ meetingId: 12345 });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'GET',
       'method does not match'
@@ -41,12 +36,12 @@ describe('Meeting Endpoints', async function () {
 
   it('gets Meeting with showAllOccurrences as string', async function () {
     const ret = await testAPI.meeting.get({ meetingId: '12345', showAllOccurrences: 'true' });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'GET',
       'method does not match'
@@ -61,12 +56,12 @@ describe('Meeting Endpoints', async function () {
 
   it('gets Meeting with only occurrenceId as string', async function () {
     const ret = await testAPI.meeting.get({ meetingId: '12345', occurrenceId: '5555' });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'GET',
       'method does not match'
@@ -80,12 +75,12 @@ describe('Meeting Endpoints', async function () {
 
   it('gets Meeting with only occurrenceId as number', async function () {
     const ret = await testAPI.meeting.get({ meetingId: '12345', occurrenceId: 9841 });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'GET',
       'method does not match'
@@ -100,12 +95,12 @@ describe('Meeting Endpoints', async function () {
 
   it('updates Meeting', async function () {
     const ret = await testAPI.meeting.update({ meetingId: 12345, meetingObj: { stubParam: '1' } });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'PATCH',
       'method does not match'
@@ -119,7 +114,7 @@ describe('Meeting Endpoints', async function () {
 
   it('updates Meeting with occurrenceId present', async function () {
     const ret = await testAPI.meeting.update({ meetingId: 12345, meetingObj: {}, occurrenceId: 'present' });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345?occurrence_id=present',
       'path does not match'
@@ -133,12 +128,12 @@ describe('Meeting Endpoints', async function () {
 
   it('deletes Meeting', async function () {
     const ret = await testAPI.meeting.delete({ meetingId: 12345 });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345',
       'Path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'DELETE',
       'Method does not match'
@@ -161,12 +156,12 @@ describe('Meeting Endpoints', async function () {
 
   it('lists Past Meeting Instances', async function () {
     const ret = await testAPI.meeting.listPastInstances({ meetingId: 12345 });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/past_meetings/12345/instances',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'GET',
       'method does not match'
@@ -183,12 +178,12 @@ describe('Meeting Endpoints', async function () {
 // describe('User Endpoints', async function () {
 //   it('gets ZAKToken', async function () {
 //     const ret = await testAPI.user.getZAKToken({ userId: 12345 });
-//     assert.deepEqual(
+//     assert.equal(
 //       ret.path,
 //       '/users/12345/token',
 //       'path does not match'
 //     );
-//     assert.deepEqual(
+//     assert.equal(
 //       ret.method,
 //       'GET',
 //       'method does not match'
@@ -202,15 +197,20 @@ describe('Meeting Endpoints', async function () {
 // });
 
 describe('Cloud Recording Endpoints', async function () {
+  // Set up the default date value to use for comparision later
+  let defaultDate = new Date();
+  defaultDate.setMonth(defaultDate.getMonth() - 6);
+  defaultDate = utils.formatDate(defaultDate);
+
   it('lists Meeting Recordings', async function () {
     const ret = await testAPI.cloudRecording
       .listMeetingRecordings({ meetingId: 12345 });
-    assert.deepEqual(
+    assert.equal(
       ret.path,
       '/meetings/12345/recordings',
       'path does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.method,
       'GET',
       'method does not match'
@@ -223,19 +223,19 @@ describe('Cloud Recording Endpoints', async function () {
   });
 
   it('lists Meeting Recordings with double encoding needed (Test 1)', async function () {
-    const ret = await testAPI.cloudRecording.listMeetingRecordings({ meetingId: '/12345' });
-    assert.deepEqual(
+    const ret = await testAPI.cloudRecording.listMeetingRecordings({ meetingId: '/xUPpM3lTxqFSV4bVBrzDQ==' });
+    assert.equal(
       ret.path,
-      '/meetings/%252F12345/recordings',
+      '/meetings/%252FxUPpM3lTxqFSV4bVBrzDQ%253D%253D/recordings',
       'double encoding failed'
     );
   });
 
   it('lists Meeting Recordings with double encoding needed (Test 2)', async function () {
-    const ret = await testAPI.cloudRecording.listMeetingRecordings({ meetingId: '123//45' });
-    assert.deepEqual(
+    const ret = await testAPI.cloudRecording.listMeetingRecordings({ meetingId: 'XA+DOiHeR8+Cs/5vf2eJGQ==' });
+    assert.equal(
       ret.path,
-      '/meetings/123%252F%252F45/recordings',
+      '/meetings/XA%252BDOiHeR8%252BCs%252F5vf2eJGQ%253D%253D/recordings',
       'double encoding failed'
     );
   });
@@ -244,12 +244,12 @@ describe('Cloud Recording Endpoints', async function () {
   // it('lists User Recordings with only required params', async function () {
   //   const ret = await testAPI.cloudRecording
   //     .listUserRecordings({ userId: '12345' });
-  //   assert.deepEqual(
+  //   assert.equal(
   //     ret.path,
   //     '/users/12345/recordings',
   //     'path does not match'
   //   );
-  //   assert.deepEqual(
+  //   assert.equal(
   //     ret.method,
   //     'GET',
   //     'method does not match'
@@ -290,7 +290,7 @@ describe('Cloud Recording Endpoints', async function () {
   //   try {
   //     await testAPI.cloudRecording.listUserRecordings({ userId: '12345', startDate: 'invalid' });
   //   } catch (err) {
-  //     assert.deepEqual(
+  //     assert.equal(
   //       err.message,
   //       'startDate needs to be a JS Date instance or a string accepted by the Date constructor',
   //       'Wrong error message thrown'
@@ -302,7 +302,7 @@ describe('Cloud Recording Endpoints', async function () {
   //   try {
   //     await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize: 'invalid' });
   //   } catch (err) {
-  //     assert.deepEqual(
+  //     assert.equal(
   //       err.message,
   //       'A request to Zoom wasn\'t formatted properly: pageSize should be a number.',
   //       'Wrong error message thrown'

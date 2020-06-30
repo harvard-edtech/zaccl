@@ -39,7 +39,7 @@ CloudRecording.listMeetingRecordings = function (options) {
 
   return this.visitEndpoint({
     // Call function on meetingId to handle double encoding if necessary
-    path: `/meetings/${utils.doubleEncodeIfNeeded(options.meetingId)}/recordings`,
+    path: `/meetings/${utils.doubleEncode(options.meetingId)}/recordings`,
     method: 'GET',
     errorMap: {
       400: {
@@ -77,10 +77,12 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   meeting recordings from the trash.
  * @param {string|Date} [options.startDate=6 months before today]
  *   - string accepted by JS Date constructor or instance of Date object.
- *   Date needs to be within past 6 months. Time data is discarded
+ *   Date needs to be within past 6 months. Time data (hours and seconds)
+ *   is discarded
  * @param {string|Date} [options.endDate] - string accepted by JS Date
  *   constructor or instance of Date object.
- *   Date needs to be within past 6 months. Time data is discarded
+ *   Date needs to be within past 6 months. Time data (hours and seconds)
+ *   is discarded
  * @return {Recording[]} List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
  */
 CloudRecording.listUserRecordings = function (options) {

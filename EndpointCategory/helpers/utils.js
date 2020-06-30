@@ -8,23 +8,14 @@ const ZACCLError = require('../../ZACCLError');
 module.exports = {
 
   /**
-   * Checks argument string to see if it needs to be encoded
-   *   Double encodes and returns if needed
-   *   Otherwise returns original string
+   * Double encodes and returns argument string.
    *   Function assumes valid string is passed
    * @author Aryan Pandey
-   * @param {string} str - String that might need to be double encoded
+   * @param {string} str - String that needs to be double encoded
    * @returns {string} processed string
    */
-  doubleEncodeIfNeeded: (str) => {
-    // Variable to decide whether to double encode str
-    const encodingRequired = str.startsWith('/') || str.includes('//');
-
-    return (
-      encodingRequired
-        ? encodeURIComponent(encodeURIComponent(str))
-        : str
-    );
+  doubleEncode: (str) => {
+    return encodeURIComponent(encodeURIComponent(str));
   },
 
   /**
