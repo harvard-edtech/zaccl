@@ -11,7 +11,6 @@ const THROTTLE_CONSTANTS = require('../../constants/THROTTLE');
 // Import class to test
 const API = require('../../API');
 
-// TODO: Fill in tests
 describe('API', async function () {
   // Functionality tests
   it('Visits the correct endpoint', async function () {
@@ -84,13 +83,13 @@ describe('API', async function () {
       assert.equal(
         err.message,
         'A throttle rule for this path already exists. You may not define duplicate rules.',
-        'Unexpected error occurred'
+        `Unexpected error occurred: ${err.message}`
       );
     }
   });
 
   it('Omits default rules when specified', function () {
-    // Set up API instance to test
+    // Set up API instance to test, omitting default rules
     const testAPI = new API({
       key: 'fakeKey',
       secret: 'fakeSecret',
@@ -98,12 +97,22 @@ describe('API', async function () {
       sendZoomRequest: genStubZoomRequest({ failures: [] }),
     });
 
-    // Duplicate rule will throw an error
-    testAPI._addRule({
-      template: '/meetings/{meetingId}/recordings',
-      method: 'GET',
-      maxRequestsPerSecond: 90,
-    });
+    // If the default rules are added, duplication will throw an error
+    try {
+      testAPI._addRule({
+        template: '/meetings/{meetingId}/recordings',
+        method: 'GET',
+        maxRequestsPerSecond: 90,
+      });
+    } catch (err) {
+      if (
+        err.message === 'A throttle rule for this path already exists. You may not define duplicate rules.'
+      ) {
+        throw new Error('Default rules were added inappropriately');
+      } else {
+        throw err;
+      }
+    }
   });
 
   // Daily limit tests
@@ -130,7 +139,12 @@ describe('API', async function () {
         callIters: 5,
       });
     } catch (err) {
-      throw new Error('API canceled queue prematurely');
+      if (
+        err.message === 'Zoom is very busy right now. Please try this operation again tomorrow.'
+      ) {
+        throw new Error('API canceled queue prematurely');
+      }
+      throw err;
     }
 
     try {
@@ -150,7 +164,7 @@ describe('API', async function () {
     }
   });
 
-  it('Doesn\'t throttle unlimited endpoints', async function () {
+  it('Doesn\'t limit unlimited endpoints', async function () {
     // Set up API instance to test
     const testAPI = new API({
       key: 'fakeKey',
@@ -158,46 +172,57 @@ describe('API', async function () {
       sendZoomRequest: genStubZoomRequest({ failures: [] }),
     });
 
-    // Propagates error on failure
-    await testDailyLimit({
-      api: testAPI,
-      path: './unthrottled',
-      method: 'GET',
-      callIters: 100, // This is arbitrary
-    });
-  });
-
-  it('Throws a daily limit error for unthrottled endpoints', async function () {
-    // Set up API instance with enforced daily limit
-    const dailyLimitTestAPI = new API({
-      key: 'fakeKey',
-      secret: 'fakeSecret',
-      sendZoomRequest: genStubZoomRequest({
-        failures: [],
-        totalLimit: 5,
-      }),
-    });
-
     try {
-      const results = [];
-      for (let i = 0; i < 6; i++) {
-        results.push(
-          dailyLimitTestAPI._visitEndpoint({
-            path: '/unthrottled',
-            method: 'GET',
-          })
-        );
-      }
-      await Promise.all(results);
-      throw new Error('Daily limit error was not thrown');
+      await testDailyLimit({
+        api: testAPI,
+        path: './unthrottled',
+        method: 'GET',
+        callIters: 100, // This is arbitrary
+      });
     } catch (err) {
-      assert.equal(
-        err.message,
-        'Zoom is very busy right now. Please try this operation again tomorrow.',
-        `API threw unexpected error: ${err}`
-      );
+      if (
+        err.message === 'Zoom is very busy right now. Please try this operation again tomorrow.'
+      ) {
+        throw new Error('API limited endpoint with no associated rule');
+      } 
+      throw err;
     }
   });
+
+  it(
+    'Throws a received daily limit error for unthrottled endpoints',
+    async function () {
+      // Set up API instance with enforced daily limit
+      const dailyLimitTestAPI = new API({
+        key: 'fakeKey',
+        secret: 'fakeSecret',
+        sendZoomRequest: genStubZoomRequest({
+          failures: [],
+          totalLimit: 5,
+        }),
+      });
+
+      try {
+        const results = [];
+        for (let i = 0; i < 6; i++) {
+          results.push(
+            dailyLimitTestAPI._visitEndpoint({
+              path: '/unthrottled',
+              method: 'GET',
+            })
+          );
+        }
+        await Promise.all(results);
+        throw new Error('Daily limit error was not thrown');
+      } catch (err) {
+        assert.equal(
+          err.message,
+          'Zoom is very busy right now. Please try this operation again tomorrow.',
+          `API threw unexpected error: ${err}`
+        );
+      }
+    }
+  );
 
   it('Throws a daily limit error for throttled endpoints', async function () {
     // Set up API instance with enforced daily limit
@@ -237,7 +262,7 @@ describe('API', async function () {
     }
   });
 
-  it('resets daily counter on next request after resetAfter', async function () {
+  it('Resets daily counter on next request after resetAfter', async function () {
     // Set up API instance to test
     const testAPI = new API({
       key: 'fakeKey',
@@ -270,7 +295,7 @@ describe('API', async function () {
       assert.equal(
         err.message,
         'Zoom is very busy right now. Please try this operation again tomorrow.',
-        'API threw unexpected error'
+        `API threw unexpected error: ${err.message}`
       );
     }
 
@@ -286,7 +311,12 @@ describe('API', async function () {
         method: 'GET',
       });
     } catch (err) {
-      throw new Error(`API call failed with error ${err.message}`);
+      if (
+        err.message === 'Zoom is very busy right now. Please try this operation again tomorrow.'
+      ) {
+        throw new Error('API did not reset daily limit');
+      }
+      throw err;
     } finally {
       timekeeper.reset();
     }
@@ -434,10 +464,20 @@ describe('API', async function () {
     });
 
     // If the call is double-counted, this will fail
-    await rateLimitTestAPI._visitEndpoint({
-      path: '/endpoint',
-      method: 'POST',
-    });
+    try {
+      await rateLimitTestAPI._visitEndpoint({
+        path: '/endpoint',
+        method: 'POST',
+      });
+    } catch (err) {
+      if (
+        err.message === 'Zoom is very busy right now. Please try this operation again tomorrow.'
+      ) {
+        throw new Error('API double counted a rate-limited request');
+      } else {
+        throw err;
+      }
+    }
   });
 
   it('Sends multiple parallel requests', async function () {
