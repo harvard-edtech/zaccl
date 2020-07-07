@@ -184,7 +184,7 @@ describe('API', async function () {
         err.message === 'Zoom is very busy right now. Please try this operation again tomorrow.'
       ) {
         throw new Error('API limited endpoint with no associated rule');
-      } 
+      }
       throw err;
     }
   });
