@@ -10,7 +10,7 @@ class TaskQueue {
    *   between dequeue operations
    */
   constructor(dequeueIntervalMS) {
-    // Create a mutex that must be locked to edit prioritizedTasks and timestamp
+    // Create mutex that must be locked to edit prioritizedTasks and timestamp
     this.mutex = new Mutex();
 
     // Start with an empty task list
