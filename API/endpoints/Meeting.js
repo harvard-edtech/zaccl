@@ -144,7 +144,7 @@ Meeting.update.scopes = [
  * @instance
  * @memberof api.meeting
  * @method delete
- * @param {object} options - object contining all arguments
+ * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @param {string} [options.occurrenceId] - ID for the meeting occurrence
  * @param {boolean} [options.notifyHosts=false] - if truthy,
@@ -196,7 +196,7 @@ Meeting.delete.scopes = [
  * @instance
  * @memberof api.meeting
  * @method listPastInstances
- * @param {object} options - object contining all arguments
+ * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @returns {Meeting[]} list of ended meeting instances {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/pastmeetings#responses}
  */
@@ -214,6 +214,71 @@ Meeting.listPastInstances.requiredParams = ['meetingId'];
 Meeting.listPastInstances.scopes = [
   'meeting:read:admin',
   'meeting:read',
+];
+
+/**
+ * Add a list of alt-hosts if not already in the list
+ * @author Aryan Pandey
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method addAltHosts
+ * @param {object} options - object containing all arguments
+ * @param {number} options.meetingId - the id for the meeting to add hosts to
+ * @param {string[]} options.altHosts - the emails or ids for the alt hosts to
+ *   add
+ * @returns {string[]} list of statuses for each altHost where allowed values
+ *   are: 'success' (added or already in list), 'no_user' (user was not found)
+ *   other errors are thrown as ZACCLErrors
+ */
+Meeting.addAltHosts = function (options) {
+  // 1. Get the meeting
+  // 2. Edit the alt-hosts list, only adding hosts if they're not in the list
+  // 3. Create status array and return it
+};
+Meeting.addAltHosts.action = 'add one or more alt-hosts to a meeting';
+Meeting.addAltHosts.requiredParams = ['meetingId', 'altHosts'];
+Meeting.addAltHosts.paramTypes = {
+  meetingId: 'number',
+  altHosts: 'string[]', // TODO: make this a type that can be checked
+};
+Meeting.addAltHosts.scopes = [
+  'meeting:read:admin',
+  'meeting:read',
+  'meeting:write:admin',
+  'meeting:write',
+];
+
+/**
+ * Add one alt-host if not already in the list
+ * @author Aryan Pandey
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method addAltHost
+ * @param {object} options - object containing all arguments
+ * @param {number} options.meetingId - the id for the meeting to add hosts to
+ * @param {string} options.altHost - the emails or ids for the alt hosts to
+ *   add
+ * @returns {string} status where allowed values
+ *   are: 'success' (added or already in list), 'no_user' (user was not found)
+ *   other errors are thrown as ZACCLErrors
+ */
+Meeting.addAltHost = function (options) {
+  // 1. Call addAltHosts with an array of length 1
+  // 2. Extract the status and return that
+};
+Meeting.addAltHost.action = 'add an alt-hosts to a meeting';
+Meeting.addAltHost.requiredParams = ['meetingId', 'altHost'];
+Meeting.addAltHost.paramTypes = {
+  meetingId: 'number',
+  altHost: 'string',
+};
+Meeting.addAltHost.scopes = [
+  'meeting:read:admin',
+  'meeting:read',
+  'meeting:write:admin',
+  'meeting:write',
 ];
 
 /*------------------------------------------------------------------------*/
