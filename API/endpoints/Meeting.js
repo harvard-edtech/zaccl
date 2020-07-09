@@ -231,40 +231,44 @@ Meeting.listPastInstances.scopes = [
  *   updated. Meeting ID is not used to fetch meeting if this object is passed
  * @returns {Meeting} updated meeting object after adding alternative host
  */
-Meeting.addAltHost = async function (options) {
-  // Destructure arguments
-  const {
-    meetingId,
-    altHost,
-  } = options;
+Meeting.addAltHost = function (options) {
+  const helper = async () => {
+    // Destructure arguments
+    const {
+      meetingId,
+      altHost,
+    } = options;
 
-  let { meetingObj } = options;
+    let { meetingObj } = options;
 
-  // Only call Meeting.get if no meetingObj passed
-  if (!meetingObj) {
-    meetingObj = await this.api.meeting.get({ meetingId });
-  }
+    // Only call Meeting.get if no meetingObj passed
+    if (!meetingObj) {
+      meetingObj = await this.api.meeting.get({ meetingId });
+    }
 
-  // extract altHosts into an array
-  const altHosts = (
-    meetingObj.settings.alternative_hosts
-      // Split into individual hosts
-      .split(',')
-      // Remove whitespace around hosts
-      .map((host) => {
-        return host.trim();
-      })
-  );
+    // extract altHosts into an array
+    const altHosts = (
+      meetingObj.settings.alternative_hosts
+        // Split into individual hosts
+        .split(',')
+        // Remove whitespace around hosts
+        .map((host) => {
+          return host.trim();
+        })
+    );
 
-  // add as altHost only if not already present
-  if (altHosts.indexOf(altHost) < 0) {
-    altHosts.push(altHost);
-    meetingObj.settings.alternative_hosts = altHosts.join(',');
-    await this.api.meeting.update({ meetingId, meetingObj });
-  }
+    // add as altHost only if not already present
+    if (altHosts.indexOf(altHost) < 0) {
+      altHosts.push(altHost);
+      meetingObj.settings.alternative_hosts = altHosts.join(',');
+      await this.api.meeting.update({ meetingId, meetingObj });
+    }
 
-  // return updated meeting object
-  return meetingObj;
+    // return updated meeting object
+    return meetingObj;
+  };
+
+  return helper();
 };
 Meeting.addAltHost.action = 'add an alt-host to a meeting';
 Meeting.addAltHost.requiredParams = ['meetingId', 'altHost'];
