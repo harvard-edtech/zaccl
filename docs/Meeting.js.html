@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#addAltHosts">addAltHosts</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -185,7 +185,7 @@ Meeting.update.scopes = [
  * @instance
  * @memberof api.meeting
  * @method delete
- * @param {object} options - object contining all arguments
+ * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @param {string} [options.occurrenceId] - ID for the meeting occurrence
  * @param {boolean} [options.notifyHosts=false] - if truthy,
@@ -237,7 +237,7 @@ Meeting.delete.scopes = [
  * @instance
  * @memberof api.meeting
  * @method listPastInstances
- * @param {object} options - object contining all arguments
+ * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the Zoom ID of the meeting
  * @returns {Meeting[]} list of ended meeting instances {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/pastmeetings#responses}
  */
@@ -255,6 +255,102 @@ Meeting.listPastInstances.requiredParams = ['meetingId'];
 Meeting.listPastInstances.scopes = [
   'meeting:read:admin',
   'meeting:read',
+];
+
+/**
+ * Add a list of alt-hosts if not already in the list
+ * @author Aryan Pandey
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method addAltHosts
+ * @param {object} options - object containing all arguments
+ * @param {number} options.meetingId - the id for the meeting to add hosts to
+ * @param {string[]} options.altHosts - the emails or ids for the alt hosts to
+ *   add
+ * @returns {string[]} list of statuses for each altHost where allowed values
+ *   are: 'success' (added or already in list), 'no_user' (user was not found)
+ *   other errors are thrown as ZACCLErrors
+ */
+Meeting.addAltHosts = function (options) {
+  // 1. Get the meeting
+  // 2. Edit the alt-hosts list, only adding hosts if they're not in the list
+  // 3. Create status array and return it
+};
+Meeting.addAltHosts.action = 'add one or more alt-hosts to a meeting';
+Meeting.addAltHosts.requiredParams = ['meetingId', 'altHosts'];
+Meeting.addAltHosts.paramTypes = {
+  meetingId: 'number',
+  altHosts: 'string[]', // TODO: make this a type that can be checked
+};
+Meeting.addAltHosts.scopes = [
+  'meeting:read:admin',
+  'meeting:read',
+  'meeting:write:admin',
+  'meeting:write',
+];
+
+/**
+ * Add one alt-host if not already in the list
+ * @author Aryan Pandey
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method addAltHost
+ * @param {object} options - object containing all arguments
+ * @param {number} options.meetingId - the id for the meeting to add hosts to
+ * @param {string} options.altHost - the email or id of the alt host to
+ *   be added
+ * @param {object} [options.meetingObj] - Zoom meeting object that needs to be
+ *   updated. Meeting ID is not used to fetch meeting if this object is passed
+ * @returns {Meeting} updated meeting object after adding alternative host
+ */
+Meeting.addAltHost = async function (options) {
+  // Destructure arguments
+  const {
+    meetingId,
+    altHost,
+  } = options;
+
+  let { meetingObj } = options;
+
+  // Only call Meeting.get if no meetingObj passed
+  if (!meetingObj) {
+    meetingObj = await this.api.meeting.get({ meetingId });
+  }
+
+  // extract altHosts into an array
+  const altHosts = (
+    meetingObj.settings.alternative_hosts
+      // Split into individual hosts
+      .split(',')
+      // Remove whitespace around hosts
+      .map((host) => {
+        return host.trim();
+      })
+  );
+
+  // add as altHost only if not already present
+  if (altHosts.indexOf(altHost) &lt; 0) {
+    altHosts.push(altHost);
+    meetingObj.settings.alternative_hosts = altHosts.join(',');
+    await this.api.meeting.update({ meetingId, meetingObj });
+  }
+
+  // return updated meeting object
+  return meetingObj;
+};
+Meeting.addAltHost.action = 'add an alt-host to a meeting';
+Meeting.addAltHost.requiredParams = ['meetingId', 'altHost'];
+Meeting.addAltHost.paramTypes = {
+  meetingId: 'number',
+  altHost: 'string',
+};
+Meeting.addAltHost.scopes = [
+  'meeting:read:admin',
+  'meeting:read',
+  'meeting:write:admin',
+  'meeting:write',
 ];
 
 /*------------------------------------------------------------------------*/
