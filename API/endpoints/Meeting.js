@@ -258,17 +258,48 @@ Meeting.addAltHosts.scopes = [
  * @method addAltHost
  * @param {object} options - object containing all arguments
  * @param {number} options.meetingId - the id for the meeting to add hosts to
- * @param {string} options.altHost - the emails or ids for the alt hosts to
- *   add
- * @returns {string} status where allowed values
- *   are: 'success' (added or already in list), 'no_user' (user was not found)
- *   other errors are thrown as ZACCLErrors
+ * @param {string} options.altHost - the email or id of the alt host to
+ *   be added
+ * @param {object} [options.meetingObj] - Zoom meeting object that needs to be
+ *   updated. Meeting ID is not used to fetch meeting if this object is passed
+ * @returns {Meeting} updated meeting object after adding alternative host
  */
-Meeting.addAltHost = function (options) {
-  // 1. Call addAltHosts with an array of length 1
-  // 2. Extract the status and return that
+Meeting.addAltHost = async function (options) {
+  // Destructure arguments
+  const {
+    meetingId,
+    altHost,
+  } = options;
+
+  let { meetingObj } = options;
+
+  // Only call Meeting.get if no meetingObj passed
+  if (!meetingObj) {
+    meetingObj = await this.api.meeting.get({ meetingId });
+  }
+
+  // extract altHosts into an array
+  const altHosts = (
+    meetingObj.settings.alternative_hosts
+      // Split into individual hosts
+      .split(',')
+      // Remove whitespace around hosts
+      .map((host) => {
+        return host.trim();
+      })
+  );
+
+  // add as altHost only if not already present
+  if (altHosts.indexOf(altHost) < 0) {
+    altHosts.push(altHost);
+    meetingObj.settings.alternative_hosts = altHosts.join(',');
+    await this.api.meeting.update({ meetingId, meetingObj });
+  }
+
+  // return updated meeting object
+  return meetingObj;
 };
-Meeting.addAltHost.action = 'add an alt-hosts to a meeting';
+Meeting.addAltHost.action = 'add an alt-host to a meeting';
 Meeting.addAltHost.requiredParams = ['meetingId', 'altHost'];
 Meeting.addAltHost.paramTypes = {
   meetingId: 'number',
