@@ -264,7 +264,7 @@ Meeting.addAltHosts.scopes = [
  *   updated. Meeting ID is not used to fetch meeting if this object is passed
  * @returns {Meeting} updated meeting object after adding alternative host
  */
-Meeting.addAltHost = function (options) {
+Meeting.addAltHost = async function (options) {
   // Destructure arguments
   const {
     meetingId,
@@ -275,18 +275,25 @@ Meeting.addAltHost = function (options) {
 
   // Only call Meeting.get if no meetingObj passed
   if (!meetingObj) {
-    meetingObj = this.api.meeting.get({ meetingId });
+    meetingObj = await this.api.meeting.get({ meetingId });
   }
 
   // extract altHosts into an array
-  const altHosts = meetingObj.settings.alternative_hosts.split(',');
+  const altHosts = (
+    meetingObj.settings.alternative_hosts
+      // Split into individual hosts
+      .split(',')
+      // Remove whitespace around hosts
+      .map((host) => {
+        return host.trim();
+      })
+  );
 
   // add as altHost only if not already present
-  if (!altHosts.includes(altHost)) {
-    meetingObj.settings.alternative_hosts = (
-      `${meetingObj.settings.alternative_hosts}, ${altHost}`
-    );
-    this.api.meeting.update({ meetingId, meetingObj });
+  if (altHosts.indexOf(altHost) < 0) {
+    altHosts.push(altHost);
+    meetingObj.settings.alternative_hosts = altHosts.join(',');
+    await this.api.meeting.update({ meetingId, meetingObj });
   }
 
   // return updated meeting object
