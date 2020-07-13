@@ -2,6 +2,8 @@ const assert = require('assert');
 
 // import classes to test
 const API = require('../../../API');
+
+// import stub API
 const genStubAPIRequest = require('../helpers/stubAPIRequest');
 
 describe('User Endpoints', async function () {

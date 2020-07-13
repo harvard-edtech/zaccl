@@ -1,7 +1,8 @@
 /**
  * Function that generates testing stub for sendZoomRequest
  * @author Aryan Pandey
- * @param {number} numTokensToGenerate - number of nextPageTokens to iterate to
+ * @param {number} numTokensToGenerate - number of nextPageTokens to iterate to.
+ *   API stops sending a nextPageToken when this limit is reached
  * @returns {function} stub for sendZoomRequest
  */
 const genStubAPIRequest = (numTokensToGenerate) => {
@@ -60,7 +61,7 @@ const genStubAPIRequest = (numTokensToGenerate) => {
         method,
         params,
         next_page_token: nextPageToken,
-        // Also send response object in meetings and token so that respective
+        // Send response object in meetings and token so that respective
         // postprocessors will extract automatically to body
         meetings,
         token,
