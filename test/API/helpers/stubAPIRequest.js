@@ -39,7 +39,7 @@ const genStubAPIRequest = (numTokensToGenerate) => {
       );
     }
 
-    // Extract request to send back from opts
+    // Extract request to send back from initial opts
     const {
       key,
       secret,
