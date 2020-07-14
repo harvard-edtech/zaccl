@@ -175,14 +175,16 @@ describe('Meeting Endpoints', async function () {
     );
   });
 
-  it('gets Meeting without required params', async function () {
+  it('fails gracefully when getting Meeting without required params', async function () {
     try {
       await testAPI.meeting.get({ occurrenceId: 'test' });
+      // Throw error if above function call doesn't
+      throw new Error('No Error message was thrown');
     } catch (err) {
       assert.equal(
         err.message,
         'We could not get info on a meeting because the meetingId parameter is required but was excluded.',
-        'Invalid error thrown'
+        'Error not thrown or wrong error thrown'
       );
     }
   });

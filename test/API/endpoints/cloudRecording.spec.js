@@ -20,8 +20,9 @@ describe('Cloud Recording Endpoints', async function () {
       sendZoomRequest: genStubAPIRequest(),
     });
 
-    // Set up the default date value to use for comparision later
+    // Set up the default date value to use for comparison later
     defaultDate = new Date();
+
     defaultDate.setMonth(defaultDate.getMonth() - 6);
     defaultDate = utils.formatDate(defaultDate);
   });
@@ -39,7 +40,7 @@ describe('Cloud Recording Endpoints', async function () {
       'GET',
       'method does not match'
     );
-    assert.deepEqual(
+    assert.equal(
       ret.params,
       undefined,
       'params should be empty'
@@ -112,6 +113,7 @@ describe('Cloud Recording Endpoints', async function () {
         endDate: '2020-10/5',
       }
     );
+
     assert.deepEqual(
       ret.params,
       {
@@ -124,26 +126,30 @@ describe('Cloud Recording Endpoints', async function () {
     );
   });
 
-  it('lists User Recordings with invalid date', async function () {
+  it('fails gracefully when listing User Recordings with invalid date', async function () {
     try {
       await testAPI.cloudRecording.listUserRecordings({ userId: '12345', startDate: 'invalid' });
+      // Throw error if above function call doesn't
+      throw new Error('No Error message was thrown');
     } catch (err) {
       assert.equal(
         err.message,
         'startDate needs to be a JS Date instance or a string accepted by the Date constructor',
-        'Wrong error message thrown'
+        'Error not thrown or wrong error thrown'
       );
     }
   });
 
-  it('lists User Recordings with invalid pageSize', async function () {
+  it('fails gracefully when listing User Recordings with invalid pageSize', async function () {
     try {
       await testAPI.cloudRecording.listUserRecordings({ userId: '12345', pageSize: 'invalid' });
+      // Throw error if above function call doesn't
+      throw new Error('No Error message was thrown');
     } catch (err) {
       assert.equal(
         err.message,
         'A request to Zoom wasn\'t formatted properly: pageSize should be a number.',
-        'Wrong error message thrown'
+        'Error not thrown or wrong error thrown'
       );
     }
   });
@@ -165,7 +171,7 @@ describe('Cloud Recording Endpoints', async function () {
         {
           page_size: 300,
           trash: false,
-          from: '2020-01-13',
+          from: defaultDate,
           next_page_token: 1,
         },
       },
@@ -176,7 +182,7 @@ describe('Cloud Recording Endpoints', async function () {
         {
           page_size: 300,
           trash: false,
-          from: '2020-01-13',
+          from: defaultDate,
           next_page_token: 2,
         },
       },
@@ -187,7 +193,7 @@ describe('Cloud Recording Endpoints', async function () {
         {
           page_size: 300,
           trash: false,
-          from: '2020-01-13',
+          from: defaultDate,
           next_page_token: 3,
         },
       },
@@ -198,7 +204,7 @@ describe('Cloud Recording Endpoints', async function () {
         {
           page_size: 300,
           trash: false,
-          from: '2020-01-13',
+          from: defaultDate,
           next_page_token: 4,
         },
       },
@@ -209,11 +215,11 @@ describe('Cloud Recording Endpoints', async function () {
         {
           page_size: 300,
           trash: false,
-          from: '2020-01-13',
+          from: defaultDate,
           next_page_token: 5,
         },
       }],
-      'Return object does not match'
+      'Response object was not paged properly'
     );
   });
 });
