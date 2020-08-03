@@ -110,7 +110,7 @@ CloudRecording.listUserRecordings = function (options) {
 
   if (pageSize) {
     // Throw error if pageSize is over max val of 300
-    if (pageSize >= 300) {
+    if (pageSize > 300) {
       throw new ZACCLError({
         message: `We requested ${pageSize} recordings from Zoom but it can only give us 300 at a time`,
         code: ERROR_CODES.INVALID_PAGESIZE,
