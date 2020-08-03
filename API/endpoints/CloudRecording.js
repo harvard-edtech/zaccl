@@ -75,7 +75,7 @@ CloudRecording.listMeetingRecordings.scopes = [
  *   through large result sets
  * @param {string} [options.searchTrash=false] - set to true to retrieve
  *   meeting recordings from the trash.
- * @param {string|Date} [options.startDate=6 months before today]
+ * @param {string|Date} [options.startDate=1 month before today]
  *   - string accepted by JS Date constructor or instance of Date object.
  *   Date needs to be within past 6 months. Time data (hours and seconds)
  *   is discarded
@@ -96,9 +96,9 @@ CloudRecording.listUserRecordings = function (options) {
     pageSize,
   } = options;
 
-  // Declare default start Date to 6 months before
+  // Declare default start Date to 1 month before
   const defaultDate = new Date();
-  defaultDate.setMonth(defaultDate.getMonth() - 6);
+  defaultDate.setMonth(defaultDate.getMonth() - 1);
 
   // Initialize params object with default values and only add
   // optional params if they are defined
