@@ -28,7 +28,9 @@ module.exports = (config) => {
     paramTypes,
   } = config;
 
-  return async (opts = {}) => {
+  return async (originalOpts = {}) => {
+    const opts = originalOpts;
+
     // Make sure all required parameters are included
     if (requiredParams) {
       // Check that all required parameters are not undefined
@@ -49,8 +51,11 @@ module.exports = (config) => {
         // Check if specific param was passed in as an option
         if (opts[param]) {
           // Ensure actual type of param matches desired type
-          opts[param] = utils.enforceParamType(param, opts[param],
-            paramTypes[param]);
+          opts[param] = utils.enforceParamType(
+            param,
+            opts[param],
+            paramTypes[param]
+          );
           // If type is not fixable, ZACCL Error is thrown
         }
       });

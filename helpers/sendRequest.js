@@ -1,6 +1,8 @@
 const axios = require('axios');
 const qs = require('qs');
 
+const ZACCLError = require('../ZACCLError');
+
 const ERROR_CODES = require('../ERROR_CODES');
 
 /**
