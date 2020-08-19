@@ -1,4 +1,4 @@
-// Highest error: ZAC13
+// Highest error: ZAC14
 
 module.exports = {
   // Network errors
@@ -9,6 +9,7 @@ module.exports = {
   ENDPOINT_CALL_EXCLUDED_REQUIRED_PARAM: 'ZAC3',
   ENDPOINT_BIND_ERROR: 'ZAC4',
   DAILY_LIMIT_ERROR: 'ZAC7',
+  UNKNOWN_LIMIT_ERROR: 'ZAC14',
 
   // Processing errors
   POST_PROCESSING_ERROR: 'ZAC5',

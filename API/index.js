@@ -173,8 +173,12 @@ class API {
       /* -------------------------- Error Handling ---------------------------*/
       if (status === 429) {
         // On daily limit error, reject request, purge queue, and pause endpoint
+        const [rateLimitTypeHeader] = Object.keys(headers).filter(
+          (key) => { return (key.toLowerCase() === 'x-ratelimit-type'); }
+        );
+
         if (
-          headers['X-RateLimit-Type'] === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
+          headers[rateLimitTypeHeader] === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
         ) {
           // Empty token reservoir
           await throttle.emptyTokenReservoir();
@@ -197,7 +201,7 @@ class API {
           });
         // On rate limit error, pause queue and resubmit request
         } else if (
-          headers['X-RateLimit-Type'] === THROTTLE_CONSTANTS.RATE_LIMIT_HEADER
+          headers[rateLimitTypeHeader] === THROTTLE_CONSTANTS.RATE_LIMIT_HEADER
         ) {
           // Increment daily tokens on failed request
           await throttle.incrementDailyTokens();
@@ -210,6 +214,12 @@ class API {
             task: zoomRequestTask,
             highPriority,
             addToFrontOfLine: true,
+          });
+        } else {
+          // Unexpected or missing rate limit type header
+          throw new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again later.',
+            code: ERROR_CODES.UNKNOWN_LIMIT_ERROR,
           });
         }
       }
