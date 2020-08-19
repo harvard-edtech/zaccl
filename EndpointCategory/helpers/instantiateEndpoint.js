@@ -121,7 +121,15 @@ module.exports = (config) => {
         // Error check
         const { status, body } = response;
         if (status < 200 || status >= 300) {
-        // A Zoom error occurred
+          // A Zoom error occurred
+
+          // Handle rate limit errors
+          if (status === 429) {
+            throw new ZACCLError({
+              message: 'Zoom is very busy right now. Please try again later.',
+              code: 'ZOOM429',
+            });
+          }
 
           // Check status to see if its in the error map
           if (errorMap[status]) {
