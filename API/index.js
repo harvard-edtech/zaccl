@@ -176,8 +176,14 @@ class API {
         const [rateLimitTypeHeader] = Object.keys(headers).filter(
           (key) => { return (key.toLowerCase() === 'x-ratelimit-type'); }
         );
+        if (!headers[rateLimitTypeHeader]) {
+          // Missing rate limit type header
+          throw new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again later.',
+            code: ERROR_CODES.UNKNOWN_LIMIT_ERROR,
+          });
         // On daily limit error, reject request, purge queue, and pause endpoint
-        if (
+        } else if (
           headers[rateLimitTypeHeader].toLowerCase()
           === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
         ) {
@@ -218,7 +224,7 @@ class API {
             addToFrontOfLine: true,
           });
         } else {
-          // Unexpected or missing rate limit type header
+          // Unexpected rate limit type header
           throw new ZACCLError({
             message: 'Zoom is very busy right now. Please try this operation again later.',
             code: ERROR_CODES.UNKNOWN_LIMIT_ERROR,
