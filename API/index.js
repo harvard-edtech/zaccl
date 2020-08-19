@@ -178,7 +178,8 @@ class API {
         );
 
         if (
-          headers[rateLimitTypeHeader] === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
+          headers[rateLimitTypeHeader].toLowerCase()
+          === THROTTLE_CONSTANTS.DAILY_LIMIT_HEADER
         ) {
           // Empty token reservoir
           await throttle.emptyTokenReservoir();
@@ -201,7 +202,8 @@ class API {
           });
         // On rate limit error, pause queue and resubmit request
         } else if (
-          headers[rateLimitTypeHeader] === THROTTLE_CONSTANTS.RATE_LIMIT_HEADER
+          headers[rateLimitTypeHeader].toLowerCase()
+          === THROTTLE_CONSTANTS.RATE_LIMIT_HEADER
         ) {
           // Increment daily tokens on failed request
           await throttle.incrementDailyTokens();
