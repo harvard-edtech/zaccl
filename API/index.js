@@ -217,6 +217,12 @@ class API {
             highPriority,
             addToFrontOfLine: true,
           });
+        } else {
+          // Unexpected or missing rate limit type header
+          throw new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again later.',
+            code: ERROR_CODES.UNKNOWN_LIMIT_ERROR,
+          });
         }
       }
     };
