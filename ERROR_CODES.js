@@ -1,4 +1,4 @@
-// Highest error: ZAC13
+// Highest error: ZAC14
 
 module.exports = {
   // Network errors
@@ -23,4 +23,7 @@ module.exports = {
   // Other errors
   UNKNOWN_ERROR: 'ZAC6',
   PROGRAMMER_ERROR: 'ZAC13',
+
+  // Account errors
+  NOT_ADDED_BECAUSE_DEACTIVATED: 'ZAC14',
 };

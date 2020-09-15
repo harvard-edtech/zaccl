@@ -5,6 +5,8 @@
  */
 
 const EndpointCategory = require('../../EndpointCategory');
+const ZACCLError = require('../../ZACCLError');
+const ERROR_CODES = require('../../ERROR_CODES');
 
 class Meeting extends EndpointCategory {
   constructor(config) {
@@ -217,8 +219,11 @@ Meeting.listPastInstances.scopes = [
 ];
 
 /**
- * Add one alt-host if not already in the list
+ * Add one alt-host if not already in the list. If another user in the alt-host
+ *   list has been deactivated, all alt-hosts are removed and the requested
+ *   user is added as the only alt-host
  * @author Aryan Pandey
+ * @author Gabe Abrams
  * @async
  * @instance
  * @memberof api.meeting
@@ -261,7 +266,30 @@ Meeting.addAltHost = function (options) {
     if (altHosts.indexOf(altHost) < 0) {
       altHosts.push(altHost);
       meetingObj.settings.alternative_hosts = altHosts.join(',');
-      await this.api.meeting.update({ meetingId, meetingObj });
+
+      try {
+        await this.api.meeting.update({ meetingId, meetingObj });
+      } catch (err) {
+        // Handle deactivated user case
+        const someUserHasBeenDeactivated = (err.code === 'ZOOM400-1115');
+        const deactivatedUserIsCurrentUser = (
+          err.message.toLowerCase().includes(altHost.toLowerCase())
+        );
+        if (someUserHasBeenDeactivated) {
+          if (deactivatedUserIsCurrentUser) {
+            // Cannot add as alt host because the user is deactivated
+            throw new ZACCLError({
+              message: `We could not add "${altHost}" to the list of alt-hosts for this meeting because that account has been deactivated.`,
+              code: ERROR_CODES.NOT_ADDED_BECAUSE_DEACTIVATED,
+            });
+          }
+
+          // Someone else on the list has been deactivated
+          // Wipe the list and try again
+          meetingObj.settings.alternative_hosts = altHost;
+          await this.api.meeting.update({ meetingId, meetingObj });
+        }
+      }
     }
 
     // return updated meeting object
