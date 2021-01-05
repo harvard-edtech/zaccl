@@ -28,8 +28,17 @@ class API {
   /**
    * Create a new API instance
    * @author Grace Whitney
-   * @param {string} key - the Zoom API key to use to generate credentials
-   * @param {string} secret - the Zoom API secret to use to generate credentials
+   * @author Gabe Abrams
+   * @param {string} [key] - the Zoom API key to use to generate credentials.
+   *   If excluded, a token must be included
+   * @param {string} [secret] - the Zoom API secret to use to generate
+   *   credentials. If excluded, a token must be included
+   * @param {string} [token=generated from key+secret] - token to use for
+   *   request authentication. If host points to Zoom, this token is used
+   *   instead of generating a token with the key and secret. If host points to
+   *   the Harvard Zoom API gateway, the token is included in the X-Api-Key
+   *   header. If excluded, a token must be included
+   * @param {string} [zoomHost=api.zoom.us] - the hostname of Zoom
    * @param {boolean} [dontUseDefaultThrottleRules=false] - if true, does not
    *   use default throttle rules,
    *   as defined in constants/ZOOM_THROTTLE_LIMIT_RULES.js
@@ -41,14 +50,18 @@ class API {
     const {
       key,
       secret,
+      token,
+      zoomHost,
       dontUseDefaultThrottleRules,
       sendZoomRequest,
     } = opts;
 
-    // Store a copy of the api, key, and secret
+    // Store a copy of the api, key, secret, token, zoomHost
     this.sendZoomRequest = sendZoomRequest || defaultSendZoomRequest;
     this.key = key;
     this.secret = secret;
+    this.token = token;
+    this.zoomHost = zoomHost;
 
     this.throttleMap = new ThrottleMap();
 
@@ -165,8 +178,10 @@ class API {
         path,
         method,
         params,
+        host: this.zoomHost,
         key: this.key,
         secret: this.secret,
+        token: this.token,
       });
       const { status, headers } = response;
 
