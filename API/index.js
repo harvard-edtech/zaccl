@@ -38,7 +38,8 @@ class API {
    *   instead of generating a token with the key and secret. If host points to
    *   the Harvard Zoom API gateway, the token is included in the X-Api-Key
    *   header. If excluded, a token must be included
-   * @param {string} [zoomHost=api.zoom.us] - the hostname of Zoom
+   * @param {string} [zoomHost=api.zoom.us] - the hostname of Zoom or a gateway
+   *   that leads to Zoom (i.e. Apigee)
    * @param {boolean} [dontUseDefaultThrottleRules=false] - if true, does not
    *   use default throttle rules,
    *   as defined in constants/ZOOM_THROTTLE_LIMIT_RULES.js
