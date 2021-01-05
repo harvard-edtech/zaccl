@@ -23,7 +23,7 @@
 	"homepage": "https://github.com/harvard-edtech/zaccl#readme",
 	"dependencies": {
 		"async-mutex": "^0.2.4",
-		"axios": "^0.19.2",
+		"axios": "^0.21.1",
 		"bottleneck": "^2.19.5",
 		"jsonwebtoken": "^8.5.1",
 		"p-queue": "^6.6.1",
