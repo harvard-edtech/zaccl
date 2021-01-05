@@ -1,7 +1,13 @@
+// Import libraries
 const path = require('path');
 const jwt = require('jsonwebtoken');
 
+// Import local modules
 const sendRequest = require('../helpers/sendRequest');
+
+// Import constants
+const HARVARD_APIGEE_HOSTNAME_SUFFIX = require('../constants/HARVARD_APIGEE_HOSTNAME_SUFFIX');
+const ZOOM_HOSTNAME = require('../constants/ZOOM_HOSTNAME');
 
 /* -------------------------- Constants ------------------------- */
 
@@ -39,7 +45,7 @@ module.exports = async (opts) => {
   // Check if our host is the Harvard HUIT Apigee system
   const usingHarvardApigee = (
     host
-    && host.indexOf('apis.huit.harvard.edu') >= 0
+    && host.indexOf(HARVARD_APIGEE_HOSTNAME_SUFFIX) >= 0
   );
 
   /* ------------------ Make sure we have a token ----------------- */
@@ -86,6 +92,6 @@ module.exports = async (opts) => {
     method,
     headers,
     path: fullPath,
-    host: (host || 'api.zoom.us'),
+    host: (host || ZOOM_HOSTNAME),
   });
 };
