@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -94,6 +94,122 @@ User.getZAKToken.requiredParams = ['userId'];
 User.getZAKToken.scopes = [
   'user:read:admin',
   'user:read',
+];
+
+/**
+ * (Re)activate a user and promote them to a "licensed" user (unless
+ *   dontPromoteToLicensed is true)
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.user
+ * @method activate
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ * @param {boolean} [options.dontPromoteToLicensed] - if true, the user will not
+ *   be promoted to a "licensed" user just after activation
+ */
+User.activate = function (options) {
+  // Activate the user
+  const activatePromise = this.visitEndpoint({
+    path: `/users/${options.userId}/status`,
+    method: 'PUT',
+    params: {
+      action: 'activate',
+    },
+    errorMap: {
+      400: {
+        200: 'That user could not be activated.',
+        3412: 'The Zoom account has reached its max allowed active accounts.',
+        2033: 'The Zoom account reached its basic user limit.',
+      },
+      404: {
+        1001: 'That user could not be found.',
+      },
+    },
+  });
+
+  // Optionally promote to "licensed"
+  if (!options.dontPromoteToLicensed) {
+    return activatePromise.then(() => {
+      // Promote user to "licensed"
+      return this.api.user.promoteToLicensed({
+        userId: options.userId,
+      });
+    });
+  }
+
+  // Just activate and resolve
+  return activatePromise;
+};
+User.activate.action = 'activate or reactivate a user';
+User.activate.requiredParams = ['userId'];
+User.activate.scopes = [
+  'user:write:admin',
+  'user:write',
+];
+
+/**
+ * Get a user
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.user
+ * @method get
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ */
+User.get = function (options) {
+  return this.visitEndpoint({
+    path: `/users/${options.userId}`,
+    method: 'GET',
+    errorMap: {
+      404: {
+        1001: 'That user could not be found.',
+      },
+    },
+  });
+};
+User.get.action = 'get a user';
+User.get.requiredParams = ['userId'];
+User.get.scopes = [
+  'user:read:admin',
+  'user:read',
+];
+
+/**
+ * Promote a user to "licensed" type
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.user
+ * @method promoteToLicensed
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ */
+User.promoteToLicensed = function (options) {
+  return this.visitEndpoint({
+    path: `/users/${options.userId}`,
+    method: 'PATCH',
+    params: {
+      type: 2, // Licensed
+    },
+    errorMap: {
+      400: {
+        2034: 'The Zoom account has reached its max allowed active accounts.',
+        2033: 'The Zoom account reached its basic user limit.',
+      },
+      404: {
+        1001: 'That user could not be found.',
+      },
+    },
+  });
+};
+User.promoteToLicensed.action = 'promote a user to "licensed" type';
+User.promoteToLicensed.requiredParams = ['userId'];
+User.promoteToLicensed.scopes = [
+  'user:write:admin',
+  'user:write',
 ];
 
 /*------------------------------------------------------------------------*/
