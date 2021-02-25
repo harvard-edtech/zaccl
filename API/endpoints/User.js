@@ -34,7 +34,7 @@ User.getZAKToken = function (options) {
     },
     errorMap: {
       404: {
-        1001: `We could not retrieve a token for user ${options.userId} since this user does not exist`,
+        1001: `We could not retrieve a token for Zoom user ${options.userId} since this user does not exist`,
       },
     },
     postProcessor: (response) => {
@@ -78,12 +78,12 @@ User.activate = function (options) {
     },
     errorMap: {
       400: {
-        200: 'That user could not be activated.',
+        200: 'That Zoom user could not be activated.',
         3412: 'The Zoom account has reached its max allowed active accounts.',
         2033: 'The Zoom account reached its basic user limit.',
       },
       404: {
-        1001: 'That user could not be found.',
+        1001: 'That Zoom user could not be found.',
       },
     },
   });
@@ -124,7 +124,7 @@ User.get = function (options) {
     method: 'GET',
     errorMap: {
       404: {
-        1001: 'That user could not be found.',
+        1001: 'That Zoom user could not be found.',
       },
     },
   });
@@ -159,7 +159,7 @@ User.promoteToLicensed = function (options) {
         2033: 'The Zoom account reached its basic user limit.',
       },
       404: {
-        1001: 'That user could not be found.',
+        1001: 'That Zoom user could not be found.',
       },
     },
   });
