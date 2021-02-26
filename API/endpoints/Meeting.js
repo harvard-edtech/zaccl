@@ -47,11 +47,11 @@ Meeting.get = function (options) {
     params,
     errorMap: {
       400: {
-        1010: 'The user could not be found on this account',
+        1010: 'The Zoom user could not be found on this account',
         3000: 'We could not access webinar info',
       },
       404: {
-        1001: 'We could not find the meeting because the user does not exist',
+        1001: 'We could not find the meeting because the Zoom user does not exist',
         3001: `Meeting ${options.meetingId} could not be found or has expired`,
       },
     },
@@ -121,7 +121,7 @@ Meeting.update = function (options) {
     errorMap: {
       300: 'We cannot create or update any more meetings today. Please try again tomorrow',
       400: {
-        1010: 'We could not find the user on this account',
+        1010: 'We could not find the Zoom user on this account',
         3000: 'We could not access meeting information',
         3003: `You cannot update the meeting ${options.meetingId} since you are not the meeting host`,
       },

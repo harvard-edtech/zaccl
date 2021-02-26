@@ -143,7 +143,7 @@ CloudRecording.listUserRecordings = function (options) {
     },
     errorMap: {
       404: {
-        1001: `We could not find the user ${options.userId} on this account`,
+        1001: `We could not find the Zoom user ${options.userId} on this account`,
       },
     },
   });
