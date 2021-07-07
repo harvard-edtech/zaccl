@@ -22,6 +22,7 @@ const THROTTLE_LIMIT_RULES = require('../constants/ZOOM_THROTTLE_LIMIT_RULES');
 const CloudRecording = require('./endpoints/CloudRecording');
 const Meeting = require('./endpoints/Meeting');
 const User = require('./endpoints/User');
+const Webinar = require('./endpoints/Webinar');
 
 /* -------------------------- API Class ------------------------- */
 class API {
@@ -69,6 +70,7 @@ class API {
     // Initialize endpoint categories
     this.cloudRecording = new CloudRecording({ api: this });
     this.meeting = new Meeting({ api: this });
+    this.webinar = new Webinar({ api: this });
     this.user = new User({ api: this });
 
     // Unless specified, use throttle rules from ZOOM_THROTTLE_LIMIT_RULES.js

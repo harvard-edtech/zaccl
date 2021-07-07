@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>cloudRecording - Documentation</title>
+    <title>webinar - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -42,7 +42,7 @@
 <header>
     
         <h2>
-        cloudRecording
+        webinar
         </h2>
         
     
@@ -59,7 +59,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CloudRecording.js.html">CloudRecording.js</a>, <a href="CloudRecording.js.html#line1">line 1</a>
+        <a href="Webinar.js.html">Webinar.js</a>, <a href="Webinar.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -83,7 +83,7 @@
     <dt class="tag-author">Author:</dt>
     <dd class="tag-author">
         <ul>
-            <li>Aryan Pandey</li>
+            <li>Gabe Abrams</li>
         </ul>
     </dd>
     
@@ -105,7 +105,7 @@
 
 
             
-                <div class="description usertext">Category of endpoints for Zoom meetings</div>
+                <div class="description usertext">Category of endpoints for Zoom webinars</div>
             
 
             
@@ -135,7 +135,7 @@
 
     
 
-    <h4 class="name" id="listMeetingRecordings"><span class="type-signature">(async) </span>listMeetingRecordings<span class="signature">(options)</span><span class="type-signature"> &rarr; {Array.&lt;Recording>}</span></h4>
+    <h4 class="name" id="get"><span class="type-signature">(async) </span>get<span class="signature">(options)</span><span class="type-signature"> &rarr; {Webinar}</span></h4>
 
     
 
@@ -147,7 +147,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CloudRecording.js.html">CloudRecording.js</a>, <a href="CloudRecording.js.html#line20">line 20</a>
+        <a href="Webinar.js.html">Webinar.js</a>, <a href="Webinar.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -171,7 +171,7 @@
     <dt class="tag-author">Author:</dt>
     <dd class="tag-author">
         <ul>
-            <li>Aryan Pandey</li>
+            <li>Gabe Abrams</li>
         </ul>
     </dd>
     
@@ -194,224 +194,7 @@
 
 
 <div class="description usertext">
-    Get all recordings of a meeting
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">object containing all arguments
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>meetingId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the Zoom meeting ID or UUID</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    list of Zoom meeting recording objects <a href="https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses">https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses</a>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array.&lt;Recording></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="listUserRecordings"><span class="type-signature">(async) </span>listUserRecordings<span class="signature">(options)</span><span class="type-signature"> &rarr; {Array.&lt;Recording>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CloudRecording.js.html">CloudRecording.js</a>, <a href="CloudRecording.js.html#line63">line 63</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-author">Author:</dt>
-    <dd class="tag-author">
-        <ul>
-            <li>Aryan Pandey</li>
-        </ul>
-    </dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    List all cloud recordings of a user
+    Get info on a Webinar
 </div>
 
 
@@ -495,42 +278,7 @@
 
         <tr>
             
-                <td class="name"><code>userId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">the user ID or email address of the user</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>pageSize</code></td>
+                <td class="name"><code>webinarId</code></td>
             
 
             <td class="type">
@@ -545,8 +293,6 @@
             
                 <td class="attributes">
                 
-                    &lt;optional><br>
-                
 
                 
 
@@ -557,20 +303,17 @@
             
                 <td class="default">
                 
-                    <code>300</code>
-                
                 </td>
             
 
-            <td class="description last">number of records
-  returned from a single API call</td>
+            <td class="description last">the Zoom ID of the Webinar</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>nextPageToken</code></td>
+                <td class="name"><code>occurrenceId</code></td>
             
 
             <td class="type">
@@ -600,21 +343,20 @@
                 </td>
             
 
-            <td class="description last">token used to pageinate
-  through large result sets</td>
+            <td class="description last">ID for the Webinar occurrence</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>searchTrash</code></td>
+                <td class="name"><code>showAllOccurrences</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -640,95 +382,8 @@
                 </td>
             
 
-            <td class="description last">set to true to retrieve
-  meeting recordings from the trash.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>startDate</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Date</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>1 month before today</code>
-                
-                </td>
-            
-
-            <td class="description last">- string accepted by JS Date constructor or instance of Date object.
-  Date needs to be within past 6 months. Time data (hours and seconds)
-  is discarded</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>endDate</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Date</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">string accepted by JS Date
-  constructor or instance of Date object.
-  Date needs to be within past 6 months. Time data (hours and seconds)
-  is discarded</td>
+            <td class="description last">if truthy,
+  retrieves all past occurrences</td>
         </tr>
 
     
@@ -761,7 +416,7 @@
 
         
 <div class="param-desc">
-    List of Zoom Recordings <a href="https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses">https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses</a>
+    Zoom Webinar object <a href="https://marketplace.zoom.us/docs/api-reference/zoom-api/webinars/webinar">https://marketplace.zoom.us/docs/api-reference/zoom-api/webinars/webinar</a>
 </div>
 
 
@@ -772,7 +427,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;Recording></span>
+<span class="param-type">Webinar</span>
 
 
     </dd>

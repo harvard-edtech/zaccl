@@ -7,6 +7,7 @@
 const EndpointCategory = require('../../EndpointCategory');
 const ZACCLError = require('../../ZACCLError');
 const ERROR_CODES = require('../../ERROR_CODES');
+const utils = require('../../EndpointCategory/helpers/utils');
 
 class Meeting extends EndpointCategory {
   constructor(config) {
@@ -309,6 +310,40 @@ Meeting.addAltHost.scopes = [
   'meeting:read',
   'meeting:write:admin',
   'meeting:write',
+];
+
+/**
+ * Get info on a meeting instance's participants
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method listParticipants
+ * @param {object} options - object containing all arguments
+ * @param {string} options.instanceId - meeting instance ID
+ * @returns {object[]} list of participants
+ */
+Meeting.listParticipants = function (options) {
+  return this.visitEndpoint({
+    path: `/metrics/meetings/${utils.doubleEncode(options.instanceId)}/participants`,
+    method: 'GET',
+    params: {
+      type: 'past',
+      page_size: 300,
+    },
+    errorMap: {
+      300: 'We could not access that meeting\'s participant information',
+      404: `We could not find a meeting with the ID ${options.instanceId} or that meeting has not ended yet`,
+    },
+  });
+};
+Meeting.listParticipants.action = 'get the list of participants for a meeting instance';
+Meeting.listParticipants.requiredParams = ['instanceId'];
+Meeting.listParticipants.paramTypes = {
+  instanceId: 'string',
+};
+Meeting.listParticipants.scopes = [
+  'dashboard_meetings:read:admin',
 ];
 
 /*------------------------------------------------------------------------*/

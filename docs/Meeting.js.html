@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listParticipants">listParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#get">get</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -48,6 +48,7 @@
 const EndpointCategory = require('../../EndpointCategory');
 const ZACCLError = require('../../ZACCLError');
 const ERROR_CODES = require('../../ERROR_CODES');
+const utils = require('../../EndpointCategory/helpers/utils');
 
 class Meeting extends EndpointCategory {
   constructor(config) {
@@ -88,11 +89,11 @@ Meeting.get = function (options) {
     params,
     errorMap: {
       400: {
-        1010: 'The user could not be found on this account',
+        1010: 'The Zoom user could not be found on this account',
         3000: 'We could not access webinar info',
       },
       404: {
-        1001: 'We could not find the meeting because the user does not exist',
+        1001: 'We could not find the meeting because the Zoom user does not exist',
         3001: `Meeting ${options.meetingId} could not be found or has expired`,
       },
     },
@@ -162,7 +163,7 @@ Meeting.update = function (options) {
     errorMap: {
       300: 'We cannot create or update any more meetings today. Please try again tomorrow',
       400: {
-        1010: 'We could not find the user on this account',
+        1010: 'We could not find the Zoom user on this account',
         3000: 'We could not access meeting information',
         3003: `You cannot update the meeting ${options.meetingId} since you are not the meeting host`,
       },
@@ -350,6 +351,40 @@ Meeting.addAltHost.scopes = [
   'meeting:read',
   'meeting:write:admin',
   'meeting:write',
+];
+
+/**
+ * Get info on a meeting instance's participants
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.meeting
+ * @method listParticipants
+ * @param {object} options - object containing all arguments
+ * @param {string} options.instanceId - meeting instance ID
+ * @returns {object[]} list of participants
+ */
+Meeting.listParticipants = function (options) {
+  return this.visitEndpoint({
+    path: `/metrics/meetings/${utils.doubleEncode(options.instanceId)}/participants`,
+    method: 'GET',
+    params: {
+      type: 'past',
+      page_size: 300,
+    },
+    errorMap: {
+      300: 'We could not access that meeting\'s participant information',
+      404: `We could not find a meeting with the ID ${options.instanceId} or that meeting has not ended yet`,
+    },
+  });
+};
+Meeting.listParticipants.action = 'get the list of participants for a meeting instance';
+Meeting.listParticipants.requiredParams = ['instanceId'];
+Meeting.listParticipants.paramTypes = {
+  instanceId: 'string',
+};
+Meeting.listParticipants.scopes = [
+  'dashboard_meetings:read:admin',
 ];
 
 /*------------------------------------------------------------------------*/
