@@ -135,7 +135,10 @@ Webinar.listPanelists = function (options) {
         3001: `Webinar ${options.webinarId} could not be found or has expired`,
       },
     },
-  });
+  })
+    .then((response) => {
+      return response.panelists;
+    });
 };
 Webinar.listPanelists.action = 'get the list of panelist for a webinar';
 Webinar.listPanelists.requiredParams = ['webinarId'];
