@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listParticipants">listParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#get">get</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listParticipants">listParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -102,6 +102,53 @@ Webinar.get.paramTypes = { occurrenceId: 'string', showAllOccurrences: 'boolean'
 Webinar.get.scopes = [
   'webinar:read:admin',
   'webinar:read',
+];
+
+/**
+ * Add one panlist if not already in the list
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.webinar
+ * @method addPanelist
+ * @param {object} options - object containing all arguments
+ * @param {number} options.webinarId - the id for the webinar to add a
+ *   panelist to
+ * @param {string} options.panelistName - the name of the panelist
+ * @param {string} options.panelistId - the email or id of the panelist
+ */
+Webinar.addPanelist = function (options) {
+  return this.visitEndpoint({
+    path: `/webinars/${options.webinarId}/panelists`,
+    method: 'POST',
+    params: {
+      panelists: [
+        {
+          name: options.panelistName,
+          email: options.panelistId,
+        },
+      ],
+    },
+    errorMap: {
+      400: {
+        1010: 'The Zoom user could not be found on this account',
+      },
+      404: {
+        1001: 'We could not find the webinar because the Zoom user does not exist',
+        3001: `Webinar ${options.webinarId} could not be found or has expired`,
+      },
+    },
+  });
+};
+Webinar.addPanelist.action = 'add a panelist to a webinar';
+Webinar.addPanelist.requiredParams = ['webinarId', 'panelistId'];
+Webinar.addPanelist.paramTypes = {
+  webinarId: 'number',
+  participantId: 'string',
+};
+Webinar.addPanelist.scopes = [
+  'webinar:write:admin',
+  'webinar:write',
 ];
 
 /*------------------------------------------------------------------------*/
