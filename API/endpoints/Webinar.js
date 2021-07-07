@@ -64,7 +64,7 @@ Webinar.get.scopes = [
 ];
 
 /**
- * Add one panlist if not already in the list
+ * Add one panelist if not already in the list
  * @author Gabe Abrams
  * @async
  * @instance
@@ -108,6 +108,43 @@ Webinar.addPanelist.paramTypes = {
 Webinar.addPanelist.scopes = [
   'webinar:write:admin',
   'webinar:write',
+];
+
+/**
+ * Get a list of panelists for a webinar
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.webinar
+ * @method addPanelist
+ * @param {object} options - object containing all arguments
+ * @param {number} options.webinarId - the id for the webinar to query
+ * @return {object[]} list of participants in the form
+ *   { id, name, email, join_url }
+ */
+Webinar.listPanelists = function (options) {
+  return this.visitEndpoint({
+    path: `/webinars/${options.webinarId}/panelists`,
+    method: 'GET',
+    errorMap: {
+      400: {
+        1010: 'The Zoom user could not be found on this account',
+      },
+      404: {
+        1001: 'We could not find the webinar because the Zoom user does not exist',
+        3001: `Webinar ${options.webinarId} could not be found or has expired`,
+      },
+    },
+  });
+};
+Webinar.listPanelists.action = 'get the list of panelist for a webinar';
+Webinar.listPanelists.requiredParams = ['webinarId'];
+Webinar.listPanelists.paramTypes = {
+  webinarId: 'number',
+};
+Webinar.listPanelists.scopes = [
+  'webinar:read:admin',
+  'webinar:read',
 ];
 
 /*------------------------------------------------------------------------*/
