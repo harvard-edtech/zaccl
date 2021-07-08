@@ -109,6 +109,45 @@ User.activate.scopes = [
 ];
 
 /**
+ * Add a webinar license to the user of interest
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.user
+ * @method addWebinarLicense
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ * @param {number} [options.webinarCapacity=500] - the max capacity for this
+ *   user's webinars. Allowed values: 100, 500, 1000, 3000, 5000, 10000
+ */
+User.addWebinarLicense = function (options) {
+  return this.visitEndpoint({
+    path: `/users/${options.userId}/settings`,
+    method: 'PATCH',
+    params: {
+      feature: {
+        webinar: true,
+        webinar_capacity: (options.webinarCapacity || 500),
+      },
+    },
+    errorMap: {
+      400: {
+        1122: 'Webinar feature can only be enabled for Licensed or On-prem users.',
+      },
+      404: {
+        1001: 'That Zoom user could not be found.',
+      },
+    },
+  });
+};
+User.addWebinarLicense.action = 'add a webinar license to a user';
+User.addWebinarLicense.requiredParams = ['userId'];
+User.addWebinarLicense.scopes = [
+  'user:write:admin',
+  'user:write',
+];
+
+/**
  * Get a user
  * @author Gabe Abrams
  * @async

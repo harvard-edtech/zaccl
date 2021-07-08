@@ -64,6 +64,47 @@ Webinar.get.scopes = [
 ];
 
 /**
+ * Create a webinar
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.webinar
+ * @method create
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ *   who will own the webinar
+ * @param {Meeting} options.webinarObj - Zoom webinar object with webinar
+ *   details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/webinars/webinarcreate#request-body}
+ * @return {Webinar} Zoom Webinar object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/webinars/webinarcreate#responses}
+ */
+Webinar.create = function (options) {
+  return this.visitEndpoint({
+    path: `/users/${options.userId}/webinars`,
+    method: 'GET',
+    params: options.webinarObj,
+    errorMap: {
+      300: 'Invalid Webinar ID',
+      400: {
+        1010: 'The Zoom user could not be found on this account',
+      },
+      404: {
+        1001: 'We could not find the webinar because the Zoom user does not exist',
+        3001: `Webinar ${options.webinarId} could not be found or has expired`,
+      },
+    },
+  });
+};
+Webinar.create.action = 'create a webinar';
+Webinar.create.requiredParams = ['userId', 'webinarObj'];
+Webinar.create.paramTypes = {
+  userId: 'string',
+};
+Webinar.create.scopes = [
+  'webinar:write:admin',
+  'webinar:write',
+];
+
+/**
  * Add one panelist if not already in the list
  * @author Gabe Abrams
  * @async

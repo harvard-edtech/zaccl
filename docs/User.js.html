@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listParticipants">listParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listParticipants">listParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -145,6 +145,45 @@ User.activate = function (options) {
 User.activate.action = 'activate or reactivate a user';
 User.activate.requiredParams = ['userId'];
 User.activate.scopes = [
+  'user:write:admin',
+  'user:write',
+];
+
+/**
+ * Add a webinar license to the user of interest
+ * @author Gabe Abrams
+ * @async
+ * @instance
+ * @memberof api.user
+ * @method addWebinarLicense
+ * @param {object} options - object containing all arguments
+ * @param {string} options.userId - the user ID or email address of the user
+ * @param {number} [options.webinarCapacity=500] - the max capacity for this
+ *   user's webinars. Allowed values: 100, 500, 1000, 3000, 5000, 10000
+ */
+User.addWebinarLicense = function (options) {
+  return this.visitEndpoint({
+    path: `/users/${options.userId}/settings`,
+    method: 'PATCH',
+    params: {
+      feature: {
+        webinar: true,
+        webinar_capacity: (options.webinarCapacity || 500),
+      },
+    },
+    errorMap: {
+      400: {
+        1122: 'Webinar feature can only be enabled for Licensed or On-prem users.',
+      },
+      404: {
+        1001: 'That Zoom user could not be found.',
+      },
+    },
+  });
+};
+User.addWebinarLicense.action = 'add a webinar license to a user';
+User.addWebinarLicense.requiredParams = ['userId'];
+User.addWebinarLicense.scopes = [
   'user:write:admin',
   'user:write',
 ];
