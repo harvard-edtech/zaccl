@@ -80,7 +80,7 @@ Webinar.get.scopes = [
 Webinar.create = function (options) {
   return this.visitEndpoint({
     path: `/users/${options.userId}/webinars`,
-    method: 'GET',
+    method: 'POST',
     params: options.webinarObj,
     errorMap: {
       300: 'Invalid Webinar ID',
