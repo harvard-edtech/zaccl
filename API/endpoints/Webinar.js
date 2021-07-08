@@ -157,7 +157,7 @@ Webinar.addPanelist.scopes = [
  * @async
  * @instance
  * @memberof api.webinar
- * @method addPanelist
+ * @method listPanelists
  * @param {object} options - object containing all arguments
  * @param {number} options.webinarId - the id for the webinar to query
  * @return {object[]} list of participants in the form
