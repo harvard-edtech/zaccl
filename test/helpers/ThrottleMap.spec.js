@@ -6,11 +6,12 @@ const templateToRegExp = require('../../helpers/templateToRegExp');
 // import class to test
 const ThrottleMap = require('../../helpers/ThrottleMap');
 
+let throttleMap;
+
 describe('helpers > ThrottleMap', function () {
   // initialize ThrottleMap for testing, and add initial Throttles
-  const throttleMap = new ThrottleMap();
-
-  it('returns a matching throttle', async function () {
+  beforeEach(function () {
+    throttleMap = new ThrottleMap();
     const templates = [
       '/test/meeting/{meetingid}',
       '/test/{user}',
@@ -36,7 +37,9 @@ describe('helpers > ThrottleMap', function () {
         }
       });
     });
+  });
 
+  it('returns a matching throttle', async function () {
     // look up test endpoints
     const endpoints = [
       '/test/meeting/m1',
@@ -128,6 +131,8 @@ describe('helpers > ThrottleMap', function () {
   });
 
   it('does not allow duplicate rules', function () {
+    let err;
+
     try {
       throttleMap.addThrottle({
         regexp: templateToRegExp('/test/operation/{user}'),
@@ -141,13 +146,15 @@ describe('helpers > ThrottleMap', function () {
         maxRequestsPerInterval: 15,
         maxRequestsPerDay: 30,
       });
-      assert(false);
-    } catch (err) {
-      assert.equal(
+    } catch (thrownErr) {
+      err = thrownErr;
+    }
+
+    assert(err, 'no error was thrown when adding duplicate rules');
+    assert.equal(
         err.message,
         'A throttle rule for this path already exists. You may not define duplicate rules.',
         'unexpected error thrown when adding duplicate throttle rule'
       );
-    }
   });
 });
