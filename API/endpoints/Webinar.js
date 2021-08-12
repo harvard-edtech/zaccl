@@ -73,7 +73,7 @@ Webinar.get.scopes = [
  * @param {object} options - object containing all arguments
  * @param {string} options.userId - the user ID or email address of the user
  *   who will own the webinar
- * @param {Meeting} options.webinarObj - Zoom webinar object with webinar
+ * @param {Webinar} options.webinarObj - Zoom webinar object with webinar
  *   details {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/webinars/webinarcreate#request-body}
  * @return {Webinar} Zoom Webinar object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/webinars/webinarcreate#responses}
  */
