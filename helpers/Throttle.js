@@ -162,7 +162,7 @@ class Throttle {
    */
   async rejectAllFromQueue(err) {
     if (this.hasRateLimit) {
-      const unlock = await this.mutex.lock();
+      const unlock = await this._mutex.lock();
       await this._queue.rejectAll(err);
       unlock();
     }
