@@ -93,7 +93,7 @@ const sendZoomRequest = async (
     method,
     headers,
     path: fullPath,
-    host: ((opts as any).host || ZOOM_HOSTNAME),
+    host: (zoomAPIConfig.zoomHost ?? ZOOM_HOSTNAME),
   });
 };
 

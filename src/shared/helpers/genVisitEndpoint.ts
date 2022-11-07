@@ -37,7 +37,7 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
       action: string,
       errorMap: {
         [k: number]: (
-          string
+          | string
           | {
             [k: number]: string
           }
@@ -69,15 +69,14 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
 
     if (status === 429) {
       // Case-insensitive header lookup
-      const [rateLimitTypeHeader] = Object.keys(headers).filter(
-        (key) => { return (key.toLowerCase() === 'x-ratelimit-type'); }
-      );
+      const [rateLimitTypeHeader] = Object.keys(headers).filter((header) => {
+        return (header.toLowerCase() === 'x-ratelimit-type');
+      });
 
       // Case-insensitive limit type lookup
       const rateLimitType = (
         headers[rateLimitTypeHeader]
-          ? headers[rateLimitTypeHeader].toLowerCase()
-          : null
+        && headers[rateLimitTypeHeader].toLowerCase()
       );
 
       if (rateLimitType === ThrottleHeader.DailyLimitHeader) {
@@ -107,7 +106,7 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
       // A Zoom error occurred
 
       // Check status to see if its in the error map
-      let zoomErrorMessage: string = 'An unknown Zoom error occurred.';
+      let zoomErrorMessage = 'An unknown Zoom error occurred.';
       if (errorMap[status]) {
         if (typeof errorMap[status] === 'string') {
           // Found the error message

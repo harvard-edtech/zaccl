@@ -5,9 +5,7 @@
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
 	"scripts": {
-		"build": "tsc --project ./tsconfig.json",
-		"build-docs": "rm -rf ./docBuilder/template;cp -r ./node_modules/docdash ./docBuilder/template; node ./docBuilder/updateBuilder.js;rm -rf ./docs;./node_modules/.bin/jsdoc -c ./docBuilder/jsdocConfig.json",
-		"test": "mocha --exit --recursive --reporter spec"
+		"build": "tsc --project ./tsconfig.json && rm -rf ./docBuilder/template;cp -r ./node_modules/docdash ./docBuilder/template; node ./docBuilder/updateBuilder.js;rm -rf ./docs;./node_modules/.bin/jsdoc -c ./docBuilder/jsdocConfig.json"
 	},
 	"repository": {
 		"type": "git",
@@ -24,13 +22,9 @@
 	},
 	"homepage": "https://github.com/harvard-edtech/zaccl#readme",
 	"dependencies": {
-		"async-mutex": "^0.2.4",
 		"axios": "^0.21.1",
-		"bottleneck": "^2.19.5",
 		"jsonwebtoken": "^8.5.1",
-		"p-queue": "^6.6.1",
-		"qs": "^6.9.4",
-		"timekeeper": "^2.2.0"
+		"qs": "^6.9.4"
 	},
 	"devDependencies": {
 		"@types/jsonwebtoken": "^8.5.9",
@@ -48,7 +42,6 @@
 		"eslint-plugin-react": "^7.31.8",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"jsdoc": "^3.6.5",
-		"mocha": "^7.2.0",
 		"typescript": "^4.8.3"
 	}
 }

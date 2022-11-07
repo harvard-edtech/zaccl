@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>ECatCloudRecording.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
+    
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+/**
+ * Category of endpoints for Zoom meetings
+ * @author Gabe Abrams
+ * @author Aryan Pandey
+ * @namespace api.cloudRecording
+ */
+var __extends = (this &amp;&amp; this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array &amp;&amp; function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" &amp;&amp; b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this &amp;&amp; this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this &amp;&amp; this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] &amp; 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" &amp;&amp; (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y &amp;&amp; (t = op[0] &amp; 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) &amp;&amp; t.call(y), 0) : y.next) &amp;&amp; !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] &amp; 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 &amp;&amp; t[t.length - 1]) &amp;&amp; (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 &amp;&amp; (!t || (op[1] > t[0] &amp;&amp; op[1] &lt; t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 &amp;&amp; _.label &lt; t[1]) { _.label = t[1]; t = op; break; }
+                    if (t &amp;&amp; _.label &lt; t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] &amp; 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __importDefault = (this &amp;&amp; this.__importDefault) || function (mod) {
+    return (mod &amp;&amp; mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// Import shared interfaces
+var EndpointCategory_1 = __importDefault(require("../shared/interfaces/EndpointCategory"));
+// Import shared classes
+var ZACCLError_1 = __importDefault(require("../shared/classes/ZACCLError"));
+var ErrorCode_1 = __importDefault(require("../shared/types/ErrorCode"));
+// Import shared helper
+var utils_1 = require("../shared/helpers/utils");
+var ECatCloudRecording = /** @class */ (function (_super) {
+    __extends(ECatCloudRecording, _super);
+    function ECatCloudRecording() {
+        return _super !== null &amp;&amp; _super.apply(this, arguments) || this;
+    }
+    /**
+     * Get all recordings of a meeting
+     * @author Aryan Pandey
+     * @instance
+     * @memberof api.cloudRecording
+     * @method listMeetingRecordings
+     * @param opts object containing all arguments
+     * @param options.meetingId the Zoom meeting ID or UUID
+     * @returns list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
+     */
+    ECatCloudRecording.prototype.listMeetingRecordings = function (opts) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                // Check if required param is present
+                if (!opts.meetingId) {
+                    throw new ZACCLError_1.default({
+                        message: 'Meeting ID is a required parameter',
+                        code: ErrorCode_1.default.InvalidMeetingId,
+                    });
+                }
+                return [2 /*return*/, this.visitEndpoint({
+                        // Call function on meetingId to handle double encoding if necessary
+                        path: "/meetings/".concat((0, utils_1.doubleEncode)(String(opts.meetingId)), "/recordings"),
+                        method: 'GET',
+                        action: 'get all recordings of a meeting',
+                        errorMap: {
+                            400: {
+                                1010: 'We could not find the user on this account',
+                            },
+                            404: {
+                                1001: 'We could not find that user',
+                                3301: "There are no recordings for the meeting ".concat(opts.meetingId),
+                            },
+                        },
+                    })];
+            });
+        });
+    };
+    /**
+     * List all cloud recordings of a user
+     * @author Aryan Pandey
+     * @instance
+     * @memberof api.cloudRecording
+     * @method listUserRecordings
+     * @param opts object containing all arguments
+     * @param opts.userId the user ID or email address of the user
+     * @param [opts.pageSize=300] number of records
+     *   returned from a single API call
+     * @param [opts.nextPageToken] token used to pageinate
+     *   through large result sets
+     * @param [opts.searchTrash=false] set to true to retrieve
+     *   meeting recordings from the trash.
+     * @param [opts.startDate=1 month before today]
+     *   string accepted by JS Date constructor or instance of Date object.
+     *   Date needs to be within past 6 months. Time data (hours and seconds)
+     *   is discarded
+     * @param [opts.endDate] string accepted by JS Date
+     *   constructor or instance of Date object.
+     *   Date needs to be within past 6 months. Time data (hours and seconds)
+     *   is discarded
+     * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
+     */
+    ECatCloudRecording.prototype.listUserRecordings = function (opts) {
+        return __awaiter(this, void 0, void 0, function () {
+            var userId, searchTrash, nextPageToken, startDate, endDate, pageSize, defaultDate, params;
+            return __generator(this, function (_a) {
+                userId = opts.userId, searchTrash = opts.searchTrash, nextPageToken = opts.nextPageToken, startDate = opts.startDate, endDate = opts.endDate, pageSize = opts.pageSize;
+                defaultDate = new Date();
+                defaultDate.setMonth(defaultDate.getMonth() - 1);
+                params = {
+                    page_size: 300,
+                    trash: !!searchTrash,
+                    from: (0, utils_1.formatDate)(defaultDate, 'startDate'),
+                };
+                if (pageSize) {
+                    // Throw error if pageSize is over max val of 300
+                    if (pageSize > 300) {
+                        throw new ZACCLError_1.default({
+                            message: "We requested ".concat(pageSize, " recordings from Zoom but it can only give us 300 at a time"),
+                            code: ErrorCode_1.default.InvalidPageSize,
+                        });
+                    }
+                    params.page_size = pageSize;
+                }
+                if (startDate) {
+                    params.from = (0, utils_1.formatDate)(startDate, 'startDate');
+                }
+                if (endDate) {
+                    params.to = (0, utils_1.formatDate)(endDate, 'endDate');
+                }
+                if (nextPageToken) {
+                    params.next_page_token = nextPageToken;
+                }
+                return [2 /*return*/, this.visitEndpoint({
+                        path: "/users/".concat(userId, "/recordings"),
+                        action: 'list all cloud recordings of a user',
+                        method: 'GET',
+                        params: params,
+                        postProcessor: function (response) {
+                            // Extract the recordings from the body
+                            var newResponse = response;
+                            newResponse.body = response.body.meetings;
+                            return newResponse;
+                        },
+                        errorMap: {
+                            404: {
+                                1001: "We could not find the Zoom user ".concat(userId, " on this account"),
+                            },
+                        },
+                    })];
+            });
+        });
+    };
+    ;
+    return ECatCloudRecording;
+}(EndpointCategory_1.default));
+/*------------------------------------------------------------------------*/
+/*                                 Export                                 */
+/*------------------------------------------------------------------------*/
+exports.default = ECatCloudRecording;
+//# sourceMappingURL=ECatCloudRecording.js.map</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+We use <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> and the <a href="https://github.com/clenemt/docdash">docdash</a> theme to generate our docs.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

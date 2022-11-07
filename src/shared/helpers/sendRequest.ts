@@ -11,7 +11,6 @@ import ErrorCode from '../types/ErrorCode';
 /**
  * Sends and retries an http request
  * @author Gabe Abrams
- * @async
  * @param {string} host host to send request to
  * @param {string} path path to send request to
  * @param {string} [method=GET] http method to use
@@ -22,7 +21,7 @@ import ErrorCode from '../types/ErrorCode';
  * @returns { body, status, headers } on
  *   success
  */
-const sendRequest = (
+const sendRequest = async (
   opts: {
     host: string,
     path: string,
@@ -69,42 +68,43 @@ const sendRequest = (
   }
 
   // Send request
-  return axios({
-    method,
-    url,
-    headers,
-    data: opts.params,
-  })
-    .catch((err) => {
-      // Axios throws an error if the request status indicates an error
-      // sendRequest is supposed to resolve if the request went through, whether
-      // the status indicates an error or not.
-      if (err.response) {
-        // Resolve with response
-        return Promise.resolve(err.response);
-      }
-      // Request failed! Check if we have more attempts
-      if (numRetries > 0) {
-        // Update options with one less retry
-        return sendRequest({
-          ...opts,
-          numRetries: numRetries - 1,
-        });
-      }
-
-      // No tries left
-      throw new ZACCLError({
-        message: 'We encountered an error when trying to send a network request. If this issue persists, contact an admin.',
-        code: ErrorCode.NetworkError,
-      });
-    })
-    .then((response) => {
-      return {
-        body: response.data,
-        status: response.status,
-        headers: response.headers,
-      };
+  try {
+    const response = await axios({
+      method,
+      url,
+      headers,
+      data: opts.params,
     });
+
+    // Only return part of the axios response
+    return {
+      body: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
+  } catch (err) {
+    // Axios throws an error if the request status indicates an error
+    // sendRequest is supposed to resolve if the request went through, whether
+    // the status indicates an error or not.
+    if (err.response) {
+      // Resolve with response
+      return Promise.resolve(err.response);
+    }
+    // Request failed! Check if we have more attempts
+    if (numRetries > 0) {
+      // Update options with one less retry
+      return sendRequest({
+        ...opts,
+        numRetries: numRetries - 1,
+      });
+    }
+
+    // No tries left
+    throw new ZACCLError({
+      message: 'We encountered an error when trying to send a network request. If this issue persists, contact an admin.',
+      code: ErrorCode.NetworkError,
+    });
+  }
 };
 
 export default sendRequest;

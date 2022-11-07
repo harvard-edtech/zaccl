@@ -151,8 +151,7 @@ class ECatWebinar extends EndpointCategory {
    * @method listPanelists
    * @param opts object containing all arguments
    * @param opts.webinarId the id for the webinar to query
-   * @returns list of participants in the form
-   *   { id, name, email, join_url }
+   * @returns list of panelists
    */
   async listPanelists(
     opts: {

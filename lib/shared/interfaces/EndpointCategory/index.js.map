@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../src/shared/interfaces/EndpointCategory/index.ts"],"names":[],"mappings":";;AAKA,wEAAwE;AACxE,mEAAmE;AAEnE;;;GAGG;AACH;IAIE;;;;OAIG;IACH,0BAAY,QAAkB;QAC5B,IAAI,CAAC,aAAa,GAAG,QAAQ,CAAC,aAAa,CAAC;QAC5C,IAAI,CAAC,GAAG,GAAG,QAAQ,CAAC,GAAG,CAAC;IAC1B,CAAC;IACH,uBAAC;AAAD,CAAC,AAbD,IAaC;AAED,kBAAe,gBAAgB,CAAC"}
