@@ -1,5 +1,5 @@
 import ZoomMeetingOrWebinarType from './ZoomMeetingOrWebinarType';
-import ZoomRecordingFile from './ZoomRecordingFIle';
+import ZoomRecordingFile from './ZoomRecordingFile';
 /**
  * Object containing Zoom meeting recordings
  * @author Gabe Abrams
