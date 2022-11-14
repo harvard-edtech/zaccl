@@ -1,5 +1,5 @@
 /**
- * Category of endpoints for Zoom meetings
+ * Category of endpoints for Zoom users
  * @author Aryan Pandey
  * @namespace api.user
  */

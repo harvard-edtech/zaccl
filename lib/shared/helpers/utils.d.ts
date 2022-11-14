@@ -15,9 +15,9 @@ export declare const doubleEncode: (str: string) => string;
  * Returns formatted date string if possible,
  *   throws ZACCL Error otherwise
  * @author Aryan Pandey
- * @param date - string accepted by JS Date constructor
+ * @param date string accepted by JS Date constructor
  *   or instance of Date object
- * @param dateType - date type to include in error message for
+ * @param dateType date type to include in error message for
  *   specificity
  * @returns formatted date string
  */

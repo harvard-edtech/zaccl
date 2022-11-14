@@ -1,7 +1,6 @@
 /**
  * Sends and retries an http request
  * @author Gabe Abrams
- * @async
  * @param {string} host host to send request to
  * @param {string} path path to send request to
  * @param {string} [method=GET] http method to use
