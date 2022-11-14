@@ -1,5 +1,5 @@
 /**
- * Category of endpoints for Zoom meetings
+ * Category of endpoints for Zoom cloud recordings
  * @author Gabe Abrams
  * @author Aryan Pandey
  * @namespace api.cloudRecording
