@@ -11,6 +11,10 @@ declare class ZACCLError extends Error {
     /**
      * Create a new ZACCLError
      * @param opts object containing all arguments
+     * @param [opts.message=An unknown error occurred.] error message
+     * @param [opts.name=ZACCLError] name of the error
+     * @param [opts.code=NOCODE1] custom error code
+     * @param [opts.stack=current stack] error stack
      */
     constructor(opts?: {
         message?: string;
