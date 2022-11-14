@@ -1,7 +1,7 @@
 import ZoomMeetingOrWebinarType from './ZoomMeetingOrWebinarType';
 import ZoomRecurrenceInfo from './ZoomRecurrenceInfo';
 /**
- * Zoom meeting object
+ * Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/meetings}
  * @author Gabe Abrams
  */
 declare type ZoomMeeting = ({

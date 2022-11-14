@@ -1,6 +1,6 @@
 import ZoomLoginMethod from './ZoomLoginMethod';
 /**
- * Zoom user object
+ * Zoom user object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/users}
  * @author Gabe Abrams
  */
 declare type ZoomUser = {

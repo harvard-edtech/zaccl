@@ -2,7 +2,7 @@
 import ZoomRecurrenceInfo from './ZoomRecurrenceInfo';
 
 /**
- * Zoom webinar object
+ * Zoom webinar object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/webinars}
  * @author Gabe Abrams
  */
 type ZoomWebinar = {
