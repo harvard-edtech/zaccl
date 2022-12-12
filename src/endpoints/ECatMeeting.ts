@@ -232,7 +232,10 @@ class ECatMeeting extends EndpointCategory {
   /**
    * Add one alt-host if not already in the list. If another user in the alt-host
    *   list has been deactivated, all alt-hosts are removed and the requested
-   *   user is added as the only alt-host
+   *   user is added as the only alt-host. This is because Zoom doesn't give us
+   *   enough information to determine which user is deactivated, and thus,
+   *   the only way to resolve the issue is to remove all previously existing
+   *   alt-hosts.
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -253,7 +256,6 @@ class ECatMeeting extends EndpointCategory {
       meetingObj?: ZoomMeeting,
     },
   ): Promise<ZoomMeeting> {
-    
     // Destructure arguments
     const {
       meetingId,
