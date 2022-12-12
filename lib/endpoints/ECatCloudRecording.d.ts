@@ -6,7 +6,7 @@
  */
 import EndpointCategory from '../shared/interfaces/EndpointCategory';
 import ZoomMeetingRecordings from '../types/ZoomMeetingRecordings';
-import ZoomUserRecordings from '../types/ZoomUserRecording';
+import ZoomUserRecordings from '../types/ZoomUserRecordings';
 declare class ECatCloudRecording extends EndpointCategory {
     /**
      * Get all recordings of a meeting

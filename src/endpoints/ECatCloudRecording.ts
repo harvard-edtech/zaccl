@@ -14,7 +14,7 @@ import ErrorCode from '../shared/types/ErrorCode';
 
 // Import shared types
 import ZoomMeetingRecordings from '../types/ZoomMeetingRecordings';
-import ZoomUserRecordings from '../types/ZoomUserRecording';
+import ZoomUserRecordings from '../types/ZoomUserRecordings';
 
 // Import shared helper
 import {
