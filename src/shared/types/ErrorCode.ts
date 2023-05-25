@@ -1,4 +1,4 @@
-// Highest error: ZAC18
+// Highest error: ZAC19
 
 enum ErrorCode {
   // Network errors
@@ -32,6 +32,9 @@ enum ErrorCode {
 
   // Token errors
   FailedToGetAccessToken = 'ZAC18',
+
+  // Initialization error
+  CredentialsNotIncluded = 'ZAC19',
 }
 
 export default ErrorCode;

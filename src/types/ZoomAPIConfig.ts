@@ -2,22 +2,15 @@
  * Configuration description for Zoom API
  * @author Gabe Abrams
  */
-type ZoomAPIConfig = (
-  // Credentials
-  (
-    // Key and secret
-    | {
-      key: string,
-      secret: string
-    }
-    // OR token
-    | {
-      token: string,
-    }
-  ) & {
-    // Hostname of the Zoom host to connect with
-    zoomHost?: string,
-  }
-);
+type ZoomAPIConfig = {
+  // Host to send requests to
+  zoomHost: string,
+  // AccountId for the Server-to-Server OAuth Zoom App
+  accountId: string,
+  // ClientId for the Server-to-Server OAuth Zoom App
+  clientId: string,
+  // ClientSecret for the Server-to-Server OAuth Zoom App
+  clientSecret: string,
+};
 
 export default ZoomAPIConfig;

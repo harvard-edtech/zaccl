@@ -15,6 +15,8 @@ declare enum ErrorCode {
     UnknownError = "ZAC6",
     ProgrammerError = "ZAC13",
     InvalidPageSize = "ZAC17",
-    NotAddedBecauseDeactivated = "ZAC14"
+    NotAddedBecauseDeactivated = "ZAC14",
+    FailedToGetAccessToken = "ZAC18",
+    CredentialsNotIncluded = "ZAC19"
 }
 export default ErrorCode;

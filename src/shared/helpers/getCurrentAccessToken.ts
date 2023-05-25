@@ -7,6 +7,7 @@ import ZACCLError from '../classes/ZACCLError';
 
 // Import shared types
 import ErrorCode from '../types/ErrorCode';
+import ZoomAPIConfig from '../../types/ZoomAPIConfig';
 
 /*------------------------------------------------------------------------*/
 /* ---------------------------- Static State ---------------------------- */
@@ -35,9 +36,10 @@ const BUFFER_TIME_MS = 15 * 60 * 1000;
 /**
  * Get a current Zoom access token
  * @author Gabe Abrams
+ * @param zoomAPIConfig the original config for the Zoom API
  * @returns access token that's currently valid
  */
-const getCurrentAccessToken = async () => {
+const getCurrentAccessToken = async (zoomAPIConfig: ZoomAPIConfig) => {
   // Lock mutex
   const unlock = await accessTokenMutex.lock();
 
@@ -53,10 +55,10 @@ const getCurrentAccessToken = async () => {
       // Token is expired, refresh it
       const res = await axios({
         method: 'POST',
-        url: 'https://zoom.us/oauth/token?grant_type=account_credentials&account_id=VfsiVqQ5SkSTLV_kGX5lcQ',
+        url: `https://${zoomAPIConfig.zoomHost}/oauth/token?grant_type=account_credentials&account_id=${zoomAPIConfig.accountId}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from('qE4JfmDESEaRdDmuQUsggA:28mMsKsetLSepqOx3Cfet7KMQsmFdPvq').toString('base64')}`,
+          Authorization: `Basic ${Buffer.from(`${zoomAPIConfig.clientId}:${zoomAPIConfig.clientSecret}`).toString('base64')}`,
         },
       });
       accessToken = res.data.access_token;
@@ -69,8 +71,14 @@ const getCurrentAccessToken = async () => {
         - (5 * 60 * 1000)
       );
     }
+  } catch (err) {
+    throw new ZACCLError({
+      message: 'Failed to get access token',
+      code: ErrorCode.FailedToGetAccessToken,
+    });
   } finally {
     // Unlock mutex
+    console.log('Unlock');
     unlock();
   }
 

@@ -1,23 +1,20 @@
 import ZoomAPI from './types/ZoomAPI';
-import ZoomAPIConfig from './types/ZoomAPIConfig';
 /**
  * Initialize Zoom api
  * @author Gabe Abrams
- * @param [zoomApiConfig] object containing all arguments
- * @param {string} [zoomApiConfig.key] the Zoom API key to use to generate
- *   credentials. If excluded, a token must be included
- * @param {string} [zoomApiConfig.secret] the Zoom API secret to use to generate
- *   credentials. If excluded, a token must be included
- * @param {string} [zoomApiConfig.token=generated from key+secret] token to use
- *   for request authentication. If host points to Zoom, this token is used
- *   instead of generating a token with the key and secret. If host points to
- *   the Harvard Zoom API gateway, the token is included in the X-Api-Key
- *   header. If excluded, a token must be included
- * @param {string} [zoomApiConfig.zoomHost=api.zoom.us] the hostname of Zoom or
- *   a gateway that leads to Zoom (i.e. Apigee)
- * @param {boolean} [zoomApiConfig.dontUseDefaultThrottleRules=false] if true,
- *   does not use default throttle rules,
- *   as defined in constants/ZOOM_THROTTLE_LIMIT_RULES.js
+ * @param config object containing all arguments
+ * @param config.zoomHost Zoom API hostname
+ * @param [config.clientId=process.env.ZOOM_CLIENT_ID] Zoom OAuth
+ *   Client ID
+ * @param [config.clientSecret=process.env.ZOOM_CLIENT_SECRET] Zoom OAuth
+ *   Client Secret
+ * @param [config.accountId=process.env.ZOOM_ACCOUNT_ID] Zoom OAuth
+ *   Account ID
  */
-declare const initZoomAPI: (zoomApiConfig: ZoomAPIConfig) => ZoomAPI;
+declare const initZoomAPI: (config: {
+    zoomHost: string;
+    clientId?: string;
+    clientSecret?: string;
+    accountId?: string;
+}) => ZoomAPI;
 export default initZoomAPI;
