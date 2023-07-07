@@ -1,4 +1,4 @@
-// Highest error: ZAC17
+// Highest error: ZAC20
 
 enum ErrorCode {
   // Network errors
@@ -29,6 +29,13 @@ enum ErrorCode {
 
   // Account errors
   NotAddedBecauseDeactivated = 'ZAC14',
+
+  // Initialization Errors
+  CredentialsNotIncluded = 'ZAC18',
+
+  // OAuth Errors
+  FailedToGetAccessToken = 'ZAC19',
+  WrongZoomAPIConfig = 'ZAC20',
 }
 
 export default ErrorCode;

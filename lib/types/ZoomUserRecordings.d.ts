@@ -3,7 +3,7 @@ import ZoomMeetingRecordings from './ZoomMeetingRecordings';
  * List of recordings for a user
  * @author Gabe Abrams
  */
-declare type ZoomUserRecordings = {
+type ZoomUserRecordings = {
     from: string;
     to: string;
     next_page_token: string;

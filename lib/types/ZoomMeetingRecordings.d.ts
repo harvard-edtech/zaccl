@@ -4,7 +4,7 @@ import ZoomRecordingFile from './ZoomRecordingFile';
  * Object containing Zoom meeting recordings
  * @author Gabe Abrams
  */
-declare type ZoomMeetingRecordings = {
+type ZoomMeetingRecordings = {
     account_id: string;
     duration: number;
     host_id: string;

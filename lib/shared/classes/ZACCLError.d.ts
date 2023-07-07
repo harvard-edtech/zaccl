@@ -10,6 +10,7 @@ declare class ZACCLError extends Error {
     isZACCLError: boolean;
     /**
      * Create a new ZACCLError
+     * @author Gabe Abrams
      * @param opts object containing all arguments
      * @param [opts.message=An unknown error occurred.] error message
      * @param [opts.name=ZACCLError] name of the error

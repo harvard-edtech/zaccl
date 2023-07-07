@@ -4,7 +4,7 @@ import ZoomRecurrenceInfo from './ZoomRecurrenceInfo';
  * Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/meetings}
  * @author Gabe Abrams
  */
-declare type ZoomMeeting = ({
+type ZoomMeeting = ({
     assistant_id?: string;
     host_email: string;
     host_id: string;

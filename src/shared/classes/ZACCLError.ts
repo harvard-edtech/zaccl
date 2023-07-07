@@ -11,6 +11,7 @@ class ZACCLError extends Error {
 
   /**
    * Create a new ZACCLError
+   * @author Gabe Abrams
    * @param opts object containing all arguments
    * @param [opts.message=An unknown error occurred.] error message
    * @param [opts.name=ZACCLError] name of the error
@@ -29,7 +30,7 @@ class ZACCLError extends Error {
 
     this.message = opts.message ?? 'An unknown error occurred.';
     this.name = opts.name ?? 'ZACCLError';
-    this.code = String(opts.code ?? 'NOCODE1').toUpperCase();
+    this.code = String(opts.code ?? 'ZACCLNOCODE1').toUpperCase();
     this.stack = opts.stack ?? new Error(this.message).stack;
 
     this.isZACCLError = true;
