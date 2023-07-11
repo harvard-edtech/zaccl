@@ -17,7 +17,7 @@ class Mutex {
   }
 
   /**
-   * Lock the mutex (resolves when the mutex is locked)
+   * Lock the mutex (resolves when the mutex has been acquired)
    * @author Gabe Abrams
    * @return function to call to release the lock
    */

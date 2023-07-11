@@ -49,11 +49,12 @@ const getCurrentOAuthAccessToken = async (zoomAPIConfig: ZoomAPIConfig) => {
     });
   }
 
-  // Lock mutex
-  const unlock = await accessTokenMutex.lock();
-
   // Refresh token if necessary
+  let unlock = () => {};
   try {
+    // Lock mutex
+    unlock = await accessTokenMutex.lock();
+
     // Check if we need to refresh the token
     if (
       // Token has never been cached
