@@ -4,7 +4,7 @@ import ZoomRecordingType from './ZoomRecordingType';
  * A Zoom recording file (one view)
  * @author Gabe Abrams
  */
-declare type ZoomRecordingFile = ({
+type ZoomRecordingFile = ({
     deleted_time?: string;
     download_url: string;
     file_extension: ('MP4' | 'M4A' | 'TXT' | 'VTT' | 'CSV' | 'JSON' | 'JPG');

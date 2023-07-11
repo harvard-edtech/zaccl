@@ -3,7 +3,7 @@ import ZoomLoginMethod from './ZoomLoginMethod';
  * Zoom user object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/users}
  * @author Gabe Abrams
  */
-declare type ZoomUser = {
+type ZoomUser = {
     id: string;
     created_at: string;
     dept?: string;

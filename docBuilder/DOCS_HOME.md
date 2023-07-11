@@ -12,14 +12,50 @@ This project is designed _by_ educators _for_ educators.
   </div>
 </h1>
 
-## 1. Create an `api` instance
+## 1. Create an "api" instance
 
-```js
-const API = require('zaccl/API');
+Independently of the type of credentials you're using, you should include a Zoom hostname as env `ZOOM_HOST` or within the initialization function:
 
-const api = new API({
-  key: '348AJ9...',
-  secret: 'NM9UO1..',
+```ts
+import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  zoomHost: 'harvard.zoom.us',
+  ...
+});
+```
+
+If using a valid Zoom token, either include it in env as `ZOOM_TOKEN` or include it when initializing:
+
+```ts
+import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  token: '<tokenHere>',
+});
+```
+
+If using a JWT token, either include the key and secret as env variables `ZOOM_KEY` and `ZOOM_SECRET` or include them when initializing:
+
+```ts
+import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  key: '<keyHere>',
+  secret: '<secretHere>',
+});
+```
+
+If using server-to-server OAuth, either include the clientId, clientSecret, and accountId as env variables `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`, and `ZOOM_ACCOUNT_ID` or include them when initializing:
+
+```ts
+import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  zoomHost: 'harvard.zoom.us',
+  accountId: '<accountId>',
+  clientId: '<clientId>',
+  clientSecret: '<clientSecret>',
 });
 ```
 
@@ -27,7 +63,7 @@ const api = new API({
 
 All endpoint functions are asynchronous, so we recommend using async/await syntax:
 
-```js
+```ts
 const submissions = await api.meeting.create({
   userId: 'someone@example.edu',
   meetingObj: {

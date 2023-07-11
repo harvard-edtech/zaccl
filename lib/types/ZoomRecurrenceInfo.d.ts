@@ -2,7 +2,7 @@
  * Zoom recurrence info for meetings and webinars
  * @author Gabe Abrams
  */
-declare type ZoomRecurrenceInfo = {
+type ZoomRecurrenceInfo = {
     end_date_time?: string;
     end_times?: number;
     monthly_day?: number;

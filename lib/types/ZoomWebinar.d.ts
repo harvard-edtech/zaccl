@@ -3,7 +3,7 @@ import ZoomRecurrenceInfo from './ZoomRecurrenceInfo';
  * Zoom webinar object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/webinars}
  * @author Gabe Abrams
  */
-declare type ZoomWebinar = {
+type ZoomWebinar = {
     host_email: string;
     host_id: string;
     id: number;

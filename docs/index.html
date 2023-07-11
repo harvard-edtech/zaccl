@@ -67,17 +67,43 @@
   <div style="flex-grow: 1; height: 1px; background: #ccc; margin-left: 10px;">
   </div>
 </h1>
-<h2>1. Create an <code>api</code> instance</h2>
-<pre class="prettyprint source lang-js"><code>const API = require('zaccl/API');
+<h2>1. Create an &quot;api&quot; instance</h2>
+<p>Independently of the type of credentials you're using, you should include a Zoom hostname as env <code>ZOOM_HOST</code> or within the initialization function:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
 
-const api = new API({
-  key: '348AJ9...',
-  secret: 'NM9UO1..',
+const api = initZoomAPI({
+  zoomHost: 'harvard.zoom.us',
+  ...
+});
+</code></pre>
+<p>If using a valid Zoom token, either include it in env as <code>ZOOM_TOKEN</code> or include it when initializing:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  token: '&lt;tokenHere>',
+});
+</code></pre>
+<p>If using a JWT token, either include the key and secret as env variables <code>ZOOM_KEY</code> and <code>ZOOM_SECRET</code> or include them when initializing:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  key: '&lt;keyHere>',
+  secret: '&lt;secretHere>',
+});
+</code></pre>
+<p>If using server-to-server OAuth, either include the clientId, clientSecret, and accountId as env variables <code>ZOOM_CLIENT_ID</code>, <code>ZOOM_CLIENT_SECRET</code>, and <code>ZOOM_ACCOUNT_ID</code> or include them when initializing:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  zoomHost: 'harvard.zoom.us',
+  accountId: '&lt;accountId>',
+  clientId: '&lt;clientId>',
+  clientSecret: '&lt;clientSecret>',
 });
 </code></pre>
 <h2>2. Call an endpoint function</h2>
 <p>All endpoint functions are asynchronous, so we recommend using async/await syntax:</p>
-<pre class="prettyprint source lang-js"><code>const submissions = await api.meeting.create({
+<pre class="prettyprint source lang-ts"><code>const submissions = await api.meeting.create({
   userId: 'someone@example.edu',
   meetingObj: {
     ...

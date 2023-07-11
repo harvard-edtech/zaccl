@@ -2,7 +2,7 @@
  * Zoom panelist object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/methods/#operation/webinarPanelists}
  * @author Gabe Abrams
  */
-declare type ZoomPanelist = {
+type ZoomPanelist = {
     id: string;
     email: string;
     name: string;
