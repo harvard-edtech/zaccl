@@ -1,7 +1,7 @@
 {
   "source": {
     "include": [
-      "API/endpoints"
+      "lib/endpoints"
     ]
   },
   "opts": {

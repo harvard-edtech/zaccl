@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listParticipants">listParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -67,17 +67,43 @@
   <div style="flex-grow: 1; height: 1px; background: #ccc; margin-left: 10px;">
   </div>
 </h1>
-<h2>1. Create an <code>api</code> instance</h2>
-<pre class="prettyprint source lang-js"><code>const API = require('zaccl/API');
+<h2>1. Create an &quot;api&quot; instance</h2>
+<p>Independently of the type of credentials you're using, you should include a Zoom hostname as env <code>ZOOM_HOST</code> or within the initialization function:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
 
-const api = new API({
-  key: '348AJ9...',
-  secret: 'NM9UO1..',
+const api = initZoomAPI({
+  zoomHost: 'harvard.zoom.us',
+  ...
+});
+</code></pre>
+<p>If using a valid Zoom token, either include it in env as <code>ZOOM_TOKEN</code> or include it when initializing:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  token: '&lt;tokenHere>',
+});
+</code></pre>
+<p>If using a JWT token, either include the key and secret as env variables <code>ZOOM_KEY</code> and <code>ZOOM_SECRET</code> or include them when initializing:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  key: '&lt;keyHere>',
+  secret: '&lt;secretHere>',
+});
+</code></pre>
+<p>If using server-to-server OAuth, either include the clientId, clientSecret, and accountId as env variables <code>ZOOM_CLIENT_ID</code>, <code>ZOOM_CLIENT_SECRET</code>, and <code>ZOOM_ACCOUNT_ID</code> or include them when initializing:</p>
+<pre class="prettyprint source lang-ts"><code>import initZoomAPI from 'zaccl';
+
+const api = initZoomAPI({
+  zoomHost: 'harvard.zoom.us',
+  accountId: '&lt;accountId>',
+  clientId: '&lt;clientId>',
+  clientSecret: '&lt;clientSecret>',
 });
 </code></pre>
 <h2>2. Call an endpoint function</h2>
 <p>All endpoint functions are asynchronous, so we recommend using async/await syntax:</p>
-<pre class="prettyprint source lang-js"><code>const submissions = await api.meeting.create({
+<pre class="prettyprint source lang-ts"><code>const submissions = await api.meeting.create({
   userId: 'someone@example.edu',
   meetingObj: {
     ...

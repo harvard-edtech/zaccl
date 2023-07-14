@@ -1,11 +1,11 @@
 {
 	"name": "zaccl",
-	"version": "1.2.0",
+	"version": "3.0.0",
 	"description": "The Zoom App Complete Connection Library, a project that handles everything required to build a zoom-integrated app.",
-	"main": "index.js",
+	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"scripts": {
-		"build-docs": "rm -rf ./docBuilder/template;cp -r ./node_modules/docdash ./docBuilder/template; node ./docBuilder/updateBuilder.js;rm -rf ./docs;./node_modules/.bin/jsdoc -c ./docBuilder/jsdocConfig.json",
-		"test": "mocha --exit --recursive --reporter spec"
+		"build": "tsc --project ./tsconfig.json && rm -rf ./docBuilder/template;cp -r ./node_modules/docdash ./docBuilder/template; node ./docBuilder/updateBuilder.js;rm -rf ./docs;./node_modules/.bin/jsdoc -c ./docBuilder/jsdocConfig.json"
 	},
 	"repository": {
 		"type": "git",
@@ -22,24 +22,28 @@
 	},
 	"homepage": "https://github.com/harvard-edtech/zaccl#readme",
 	"dependencies": {
-		"async-mutex": "^0.2.4",
+		"async-mutex": "^0.4.0",
 		"axios": "^0.21.1",
-		"bottleneck": "^2.19.5",
-		"jsonwebtoken": "^8.5.1",
-		"p-queue": "^6.6.1",
-		"qs": "^6.9.4",
-		"timekeeper": "^2.2.0"
+		"jsonwebtoken": "^9.0.1",
+		"qs": "^6.9.4"
 	},
 	"devDependencies": {
+		"@types/jsonwebtoken": "^8.5.9",
+		"@types/qs": "^6.9.7",
+		"@typescript-eslint/eslint-plugin": "^5.37.0",
+		"@typescript-eslint/parser": "^5.37.0",
 		"docdash": "^1.2.0",
 		"doctrine": "^3.0.0",
-		"eslint": "^6.8.0",
-		"eslint-config-airbnb": "^18.2.0",
-		"eslint-plugin-import": "^2.22.0",
+		"eslint": "^8.23.1",
+		"eslint-config-airbnb": "^19.0.4",
+		"eslint-config-airbnb-typescript": "^17.0.0",
+		"eslint-plugin-import": "^2.26.0",
 		"eslint-plugin-jest": "^23.20.0",
-		"eslint-plugin-jsx-a11y": "^6.3.1",
-		"eslint-plugin-react": "^7.20.6",
-		"jsdoc": "^3.6.5",
-		"mocha": "^7.2.0"
+		"eslint-plugin-jsx-a11y": "^6.6.1",
+		"eslint-plugin-react": "^7.31.8",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"jsdoc": "^4.0.2",
+		"taffydb": "^2.7.3",
+		"typescript": "^4.8.3"
 	}
 }
