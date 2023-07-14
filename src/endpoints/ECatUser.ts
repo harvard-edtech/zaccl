@@ -38,14 +38,9 @@ class ECatUser extends EndpointCategory {
           1001: `We could not retrieve a token for Zoom user ${opts.userId} since this user does not exist`,
         },
       },
-      postProcessor: (response) => {
+      postProcessor: (body) => {
         // extract zak token from the response object
-        const { token } = response.body;
-        const newResponse = response;
-
-        // replace body of the response with just the token
-        newResponse.body = token;
-        return newResponse;
+        return body.token;
       },
     });
   }

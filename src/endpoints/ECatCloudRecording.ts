@@ -153,11 +153,9 @@ class ECatCloudRecording extends EndpointCategory {
       action: 'list all cloud recordings of a user',
       method: 'GET',
       params,
-      postProcessor: (response) => {
+      postProcessor: (body) => {
         // Extract the recordings from the body
-        const newResponse = response;
-        newResponse.body = response.body.meetings;
-        return newResponse;
+        return Array.from(body.meetings);
       },
       errorMap: {
         404: {

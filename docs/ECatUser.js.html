@@ -132,13 +132,9 @@ var ECatUser = /** @class */ (function (_super) {
                                 1001: "We could not retrieve a token for Zoom user ".concat(opts.userId, " since this user does not exist"),
                             },
                         },
-                        postProcessor: function (response) {
+                        postProcessor: function (body) {
                             // extract zak token from the response object
-                            var token = response.body.token;
-                            var newResponse = response;
-                            // replace body of the response with just the token
-                            newResponse.body = token;
-                            return newResponse;
+                            return body.token;
                         },
                     })];
             });
