@@ -88,7 +88,11 @@ const sendRequest = async (
     // the status indicates an error or not.
     if (err.response) {
       // Resolve with response
-      return Promise.resolve(err.response);
+      return Promise.resolve({
+        body: err.response.data,
+        status: err.response.status,
+        headers: err.response.headers,
+      });
     }
     // Request failed! Check if we have more attempts
     if (numRetries > 0) {
