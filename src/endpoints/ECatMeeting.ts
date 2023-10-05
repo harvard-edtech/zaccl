@@ -230,6 +230,25 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
+   * List past poll occurrences
+   * @author Yuen Ler Chow
+   * @instance
+   * @memberof api.meeting
+   * @method listPastPolls
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom ID of the meeting
+   * @returns list of past poll occurrences {@link https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/listPastMeetingPolls}
+   */
+  async listPastPolls(
+    opts: {
+      meetingId: number,
+    },
+  ): Promise<???[]> {
+    // TODO: implement
+    // TODO: create a type for the return type (add type to /src/types)
+  }
+
+  /**
    * Add one alt-host if not already in the list. If another user in the alt-host
    *   list has been deactivated, all alt-hosts are removed and the requested
    *   user is added as the only alt-host. This is because Zoom doesn't give us
