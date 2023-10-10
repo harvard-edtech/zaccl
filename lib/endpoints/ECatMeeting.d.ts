@@ -94,6 +94,19 @@ declare class ECatMeeting extends EndpointCategory {
         meetingId: number;
     }): Promise<ZoomMeeting[]>;
     /**
+     * List past poll occurrences
+     * @author Yuen Ler Chow
+     * @instance
+     * @memberof api.meeting
+     * @method listPastPolls
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom ID of the meeting
+     * @returns list of past poll times and which polls they were
+     */
+    listPastPolls(opts: {
+        meetingId: number;
+    }): Promise<any[]>;
+    /**
      * Add one alt-host if not already in the list. If another user in the alt-host
      *   list has been deactivated, all alt-hosts are removed and the requested
      *   user is added as the only alt-host. This is because Zoom doesn't give us

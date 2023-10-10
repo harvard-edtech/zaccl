@@ -14,6 +14,7 @@ import ErrorCode from '../shared/types/ErrorCode';
 
 // Import shared types
 import ZoomMeeting from '../types/ZoomMeeting';
+import PollOccurrence from '../types/PollOccurrence';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -237,15 +238,30 @@ class ECatMeeting extends EndpointCategory {
    * @method listPastPolls
    * @param opts object containing all arguments
    * @param opts.meetingId the Zoom ID of the meeting
-   * @returns list of past poll occurrences {@link https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/listPastMeetingPolls}
+   * @returns list of past poll occurrences
    */
-  async listPastPolls(
+  async listPastPollOccurrences(
     opts: {
       meetingId: number,
     },
-  ): Promise<???[]> {
-    // TODO: implement
-    // TODO: create a type for the return type (add type to /src/types)
+  ): Promise<PollOccurrence[]> {
+    // Ask Zoom for unprocessed poll data
+    const response = await this.visitEndpoint({
+      path: `/past_meetings/${opts.meetingId}/polls`,
+      action: 'get the list of polls that occurred in a past meeting',
+      method: 'GET',
+      errorMap: {
+        // TODO: fill this in, create better messages for these error codes (see other functions in this file for examples)
+        /*
+        HTTP Status Code: 400 
+Bad Request
+Error Code: 12702 
+Can not access a meeting a year ago. 
+*/
+      },
+    });
+
+    // TODO: process and return poll occurrences
   }
 
   /**
