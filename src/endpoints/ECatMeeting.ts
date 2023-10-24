@@ -235,7 +235,7 @@ class ECatMeeting extends EndpointCategory {
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
-   * @method listPastPolls
+   * @method listPastPollOccurrences
    * @param opts object containing all arguments
    * @param opts.meetingId the Zoom ID of the meeting
    * @returns list of past poll occurrences
@@ -251,80 +251,88 @@ class ECatMeeting extends EndpointCategory {
       action: 'get the list of polls that occurred in a past meeting',
       method: 'GET',
       errorMap: {
-        400: "We could not access the poll data for this meeting.",
-        12702: "You are not allowed to access information about meetings that occurred more than 1 year ago.",
+        400: 'We could not access the poll data for this meeting.',
+        12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
       },
     });
 
-    // process and return poll occurrences
+    // Process and return poll occurrences
     const pollIdToOccurrenceMap: {
       [pollId: string]: PollOccurrence,
     } = {};
 
+    // Create data structures for collecting poll data
     const questions: string[] = []
     const questionToIndexMap: { [question: string]: number } = {};
 
+    // Process each poll response
     response.questions.forEach((user: any) => {
-      const { email, name, question_details } = user;
-      question_details.forEach((questionDetail: any) => {
-        const { answer, date_time, polling_id, question } = questionDetail;
-        const pollTime = new Date(date_time).getTime();
+      const {
+        email,
+        name,
+        question_details: questionDetails,
+      } = user;
 
-        if (!pollIdToOccurrenceMap[polling_id]) {
-          pollIdToOccurrenceMap[polling_id] = {
-            pollId: polling_id,
+      // Loop through each answer
+      questionDetails.forEach((questionDetail: any) => {
+        const {
+          answer,
+          date_time: dateTime,
+          polling_id: pollId,
+          question,
+        } = questionDetail;
+
+        // Parse date time as ms since epoch
+        const pollTime = new Date(`${dateTime} UTC`).getTime();
+
+        // Reformat as a response object
+        const response = {
+          userFullName: name,
+          userEmail: email,
+          answer,
+          timestamp: pollTime,
+        };
+
+        if (!pollIdToOccurrenceMap[pollId]) {
+          pollIdToOccurrenceMap[pollId] = {
+            pollId: pollId,
             timestamp: pollTime,
             questions: [
               {
                 prompt: question,
-                responses: [
-                  {
-                    userFullName: name,
-                    userEmail: email,
-                    answer,
-                    timestamp: pollTime,
-                  },
-                ],
+                responses: [response],
               },
             ]
           };
-        }
-        else {
+        } else {
           if (questions.includes(question)) {
-            pollIdToOccurrenceMap[polling_id].questions[questionToIndexMap[question]].responses.push({
-              userFullName: name,
-              userEmail: email,
-              answer,
-              timestamp: pollTime,
-            });
-          }
-          else {
-            pollIdToOccurrenceMap[polling_id].questions.push({
+            // Add response to existing question
+            pollIdToOccurrenceMap[pollId]
+              .questions[questionToIndexMap[question]]
+              .responses
+              .push(response);
+          } else {
+            // Poll is there but question is not. Add prompt and response
+            pollIdToOccurrenceMap[pollId].questions.push({
               prompt: question,
-              responses: [
-                {
-                  userFullName: name,
-                  userEmail: email,
-                  answer,
-                  timestamp: pollTime,
-                },
-              ],
+              responses: [response],
             });
           }
-          if (pollTime < pollIdToOccurrenceMap[polling_id].timestamp) {
-            pollIdToOccurrenceMap[polling_id].timestamp = date_time;
+
+          // Update timestamp if the new timestamp is earlier
+          if (pollTime < pollIdToOccurrenceMap[pollId].timestamp) {
+            pollIdToOccurrenceMap[pollId].timestamp = dateTime;
           }
-          questionToIndexMap[question] = pollIdToOccurrenceMap[polling_id].questions.length - 1;
+
+          // Store to the indexMap
+          questionToIndexMap[question] = pollIdToOccurrenceMap[pollId].questions.length - 1;
         }
-
       });
-
     });
 
+    // Flatten map into an array
     return Object.values(pollIdToOccurrenceMap);
   }
-
-
 
   /**
    * Add one alt-host if not already in the list. If another user in the alt-host
