@@ -251,18 +251,80 @@ class ECatMeeting extends EndpointCategory {
       action: 'get the list of polls that occurred in a past meeting',
       method: 'GET',
       errorMap: {
-        // TODO: fill this in, create better messages for these error codes (see other functions in this file for examples)
-        /*
-        HTTP Status Code: 400 
-Bad Request
-Error Code: 12702 
-Can not access a meeting a year ago. 
-*/
+        400: "We could not access the poll data for this meeting.",
+        12702: "You are not allowed to access information about meetings that occurred more than 1 year ago.",
       },
     });
 
-    // TODO: process and return poll occurrences
+    // process and return poll occurrences
+    const pollIdToOccurrenceMap: {
+      [pollId: string]: PollOccurrence,
+    } = {};
+
+    const questions: string[] = []
+    const questionToIndexMap: { [question: string]: number } = {};
+
+    response.questions.forEach((user: any) => {
+      const { email, name, question_details } = user;
+      question_details.forEach((questionDetail: any) => {
+        const { answer, date_time, polling_id, question } = questionDetail;
+        const pollTime = new Date(date_time).getTime();
+
+        if (!pollIdToOccurrenceMap[polling_id]) {
+          pollIdToOccurrenceMap[polling_id] = {
+            pollId: polling_id,
+            timestamp: pollTime,
+            questions: [
+              {
+                prompt: question,
+                responses: [
+                  {
+                    userFullName: name,
+                    userEmail: email,
+                    answer,
+                    timestamp: pollTime,
+                  },
+                ],
+              },
+            ]
+          };
+        }
+        else {
+          if (questions.includes(question)) {
+            pollIdToOccurrenceMap[polling_id].questions[questionToIndexMap[question]].responses.push({
+              userFullName: name,
+              userEmail: email,
+              answer,
+              timestamp: pollTime,
+            });
+          }
+          else {
+            pollIdToOccurrenceMap[polling_id].questions.push({
+              prompt: question,
+              responses: [
+                {
+                  userFullName: name,
+                  userEmail: email,
+                  answer,
+                  timestamp: pollTime,
+                },
+              ],
+            });
+          }
+          if (pollTime < pollIdToOccurrenceMap[polling_id].timestamp) {
+            pollIdToOccurrenceMap[polling_id].timestamp = date_time;
+          }
+          questionToIndexMap[question] = pollIdToOccurrenceMap[polling_id].questions.length - 1;
+        }
+
+      });
+
+    });
+
+    return Object.values(pollIdToOccurrenceMap);
   }
+
+
 
   /**
    * Add one alt-host if not already in the list. If another user in the alt-host
