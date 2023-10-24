@@ -14,6 +14,7 @@ import ErrorCode from '../shared/types/ErrorCode';
 
 // Import shared types
 import ZoomMeeting from '../types/ZoomMeeting';
+import PollOccurrence from '../types/PollOccurrence';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -227,6 +228,110 @@ class ECatMeeting extends EndpointCategory {
         404: `We could not find a meeting with the ID ${opts.meetingId}`,
       },
     });
+  }
+
+  /**
+   * List past poll occurrences
+   * @author Yuen Ler Chow
+   * @instance
+   * @memberof api.meeting
+   * @method listPastPollOccurrences
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom ID of the meeting
+   * @returns list of past poll occurrences
+   */
+  async listPastPollOccurrences(
+    opts: {
+      meetingId: number,
+    },
+  ): Promise<PollOccurrence[]> {
+    // Ask Zoom for unprocessed poll data
+    const response = await this.visitEndpoint({
+      path: `/past_meetings/${opts.meetingId}/polls`,
+      action: 'get the list of polls that occurred in a past meeting',
+      method: 'GET',
+      errorMap: {
+        400: 'We could not access the poll data for this meeting.',
+        12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+      },
+    });
+
+    // Process and return poll occurrences
+    const pollIdToOccurrenceMap: {
+      [pollId: string]: PollOccurrence,
+    } = {};
+
+    // Create data structures for collecting poll data
+    const questions: string[] = []
+    const questionToIndexMap: { [question: string]: number } = {};
+
+    // Process each poll response
+    response.questions.forEach((user: any) => {
+      const {
+        email,
+        name,
+        question_details: questionDetails,
+      } = user;
+
+      // Loop through each answer
+      questionDetails.forEach((questionDetail: any) => {
+        const {
+          answer,
+          date_time: dateTime,
+          polling_id: pollId,
+          question,
+        } = questionDetail;
+
+        // Parse date time as ms since epoch
+        const pollTime = new Date(`${dateTime} UTC`).getTime();
+
+        // Reformat as a response object
+        const response = {
+          userFullName: name,
+          userEmail: email,
+          answer,
+          timestamp: pollTime,
+        };
+
+        if (!pollIdToOccurrenceMap[pollId]) {
+          pollIdToOccurrenceMap[pollId] = {
+            pollId: pollId,
+            timestamp: pollTime,
+            questions: [
+              {
+                prompt: question,
+                responses: [response],
+              },
+            ]
+          };
+        } else {
+          if (questions.includes(question)) {
+            // Add response to existing question
+            pollIdToOccurrenceMap[pollId]
+              .questions[questionToIndexMap[question]]
+              .responses
+              .push(response);
+          } else {
+            // Poll is there but question is not. Add prompt and response
+            pollIdToOccurrenceMap[pollId].questions.push({
+              prompt: question,
+              responses: [response],
+            });
+          }
+
+          // Update timestamp if the new timestamp is earlier
+          if (pollTime < pollIdToOccurrenceMap[pollId].timestamp) {
+            pollIdToOccurrenceMap[pollId].timestamp = dateTime;
+          }
+
+          // Store to the indexMap
+          questionToIndexMap[question] = pollIdToOccurrenceMap[pollId].questions.length - 1;
+        }
+      });
+    });
+
+    // Flatten map into an array
+    return Object.values(pollIdToOccurrenceMap);
   }
 
   /**

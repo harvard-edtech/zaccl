@@ -6,6 +6,7 @@
  */
 import EndpointCategory from '../shared/interfaces/EndpointCategory';
 import ZoomMeeting from '../types/ZoomMeeting';
+import PollOccurrence from '../types/PollOccurrence';
 declare class ECatMeeting extends EndpointCategory {
     /**
      * Get info on a meeting
@@ -93,6 +94,19 @@ declare class ECatMeeting extends EndpointCategory {
     listPastInstances(opts: {
         meetingId: number;
     }): Promise<ZoomMeeting[]>;
+    /**
+     * List past poll occurrences
+     * @author Yuen Ler Chow
+     * @instance
+     * @memberof api.meeting
+     * @method listPastPollOccurrences
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom ID of the meeting
+     * @returns list of past poll occurrences
+     */
+    listPastPollOccurrences(opts: {
+        meetingId: number;
+    }): Promise<PollOccurrence[]>;
     /**
      * Add one alt-host if not already in the list. If another user in the alt-host
      *   list has been deactivated, all alt-hosts are removed and the requested
