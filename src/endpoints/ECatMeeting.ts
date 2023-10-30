@@ -15,6 +15,8 @@ import ErrorCode from '../shared/types/ErrorCode';
 // Import shared types
 import ZoomMeeting from '../types/ZoomMeeting';
 import PollOccurrence from '../types/PollOccurrence';
+import PollInfo from '../types/PollInfo';
+import QuestionAndAnswerType from '../types/QuestionAndAnswerType';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -333,6 +335,130 @@ class ECatMeeting extends EndpointCategory {
     // Flatten map into an array
     return Object.values(pollIdToOccurrenceMap);
   }
+
+
+  /**
+   * Get poll info
+   * @author Yuen Ler Chow
+   * @instance
+   * @memberof api.meeting
+   * @method getPollInfo
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom ID of the meeting
+   * @param opts.pollId the id of the poll
+   * @returns object with all info about the poll
+   */
+  async getPollInfo(
+    opts: {
+      meetingId: number,
+      pollId: string,
+    },
+  ): Promise<PollInfo> {
+    // Ask Zoom for unprocessed poll data
+    const response = await this.visitEndpoint({
+      path: `/meetings/${opts.meetingId}/polls/${opts.pollId}`,
+      action: 'get the poll info',
+      method: 'GET',
+      errorMap: {
+        4400: 'Meeting polls are disabled on your account.',
+        3161: 'Meeting hosting and scheduling capabilities are not allowed for your user account.',
+        404: 'We could not find the poll.',
+      },
+    });
+
+    const pollInfo: PollInfo = {
+      pollId: response.id,
+      pollStatus: response.status,
+      anonymous: response.anonymous,
+      pollType: response.type,
+      title: response.title,
+      questions: response.questions.map((question: any) => {
+        const {
+          answer_required: answerRequired,
+          answers,
+          name,
+          right_answers: rightAnswers,
+          question_type: questionType,
+          case_sensitive: caseSensitive,
+          answer_min_character: answerMinCharacter,
+          answer_max_character: answerMaxCharacter,
+          prompts,
+          rating_max_label: ratingMaxLabel,
+          rating_max_value: ratingMaxValue,
+          rating_min_label: ratingMinLabel,
+          rating_min_value: ratingMinValue,
+          show_as_dropdown: showAsDropdown,
+        } = question;
+
+        const commonFields: any = {
+          answerRequired,
+          answers,
+          name,
+          rightAnswers,
+        };
+
+        switch (questionType) {
+          case 'single':
+          case 'multiple':
+            return {
+              questionAnswerType: QuestionAndAnswerType.Multiple,
+              showAsDropdown: showAsDropdown,
+              ...commonFields,
+            };
+          case 'rank_order':
+          case 'matching':
+            return {
+              questionAnswerType: (
+                questionType === 'rank_order'
+                  ? QuestionAndAnswerType.RankOrder
+                  : QuestionAndAnswerType.Matching
+              ),
+              prompts: prompts.map((prompt: any) => {
+                const {
+                  prompt_question: promptQuestion,
+                  right_answers: promptRightAnswers,
+                } = prompt;
+
+                return {
+                  promptQuestion,
+                  promptRightAnswers,
+                };
+              }),
+              ...commonFields,
+            };
+          case 'short_answer':
+          case 'long_answer':
+            return {
+              questionAnswerType: (
+                questionType === 'short_answer'
+                  ? QuestionAndAnswerType.ShortAnswer
+                  : QuestionAndAnswerType.LongAnswer
+              ),
+              answerMinCharacter,
+              answerMaxCharacter,
+              ...commonFields,
+            };
+          case 'fill_in_the_blank':
+            return {
+              questionAnswerType: QuestionAndAnswerType.FillInTheBlank,
+              caseSensitive,
+              ...commonFields,
+            };
+          case 'rating_scale':
+            return {
+              questionAnswerType: QuestionAndAnswerType.RatingScale,
+              ratingMaxLabel,
+              ratingMaxValue,
+              ratingMinLabel,
+              ratingMinValue,
+              ...commonFields,
+            };
+        }
+      }),
+    };
+    return pollInfo;
+  }
+
 
   /**
    * Add one alt-host if not already in the list. If another user in the alt-host
