@@ -17,6 +17,8 @@ import ZoomMeeting from '../types/ZoomMeeting';
 import PollOccurrence from '../types/PollOccurrence';
 import PollInfo from '../types/PollInfo';
 import QuestionAndAnswerType from '../types/QuestionAndAnswerType';
+import PollType from '../types/PollType';
+import PollStatus from '../types/PollStatus';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -368,9 +370,15 @@ class ECatMeeting extends EndpointCategory {
 
     const pollInfo: PollInfo = {
       pollId: response.id,
-      pollStatus: response.status,
+      pollStatus: response.status === 'notstart' ? PollStatus.NotStart : (
+        response.status === 'started' ? PollStatus.Started : (
+          response.status === 'sharing' ? PollStatus.Sharing : PollStatus.Ended
+        )
+      ),
       anonymous: response.anonymous,
-      pollType: response.type,
+      pollType: response.type === 'poll' ? PollType.Poll : (
+        response.type === 'quiz' ? PollType.Quiz : PollType.AdvancedPoll
+      ),
       title: response.title,
       questions: response.questions.map((question: any) => {
         const {

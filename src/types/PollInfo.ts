@@ -1,17 +1,6 @@
 import QuestionAndAnswerType from './QuestionAndAnswerType';
-
-enum PollStatus {
-  NotStart = 'NotStart',
-  Started = 'Started',
-  Ended = 'Ended',
-  Sharing = 'Sharing'
-}
-
-enum PollType {
-  Poll = 'Poll',
-  AdvancedPoll = 'AdvancedPoll',
-  Quiz = 'Quiz',
-}
+import PollStatus from './PollStatus';
+import PollType from './PollType';
 
 type CommonQuestionFields = {
   answerRequired: boolean;
@@ -19,7 +8,6 @@ type CommonQuestionFields = {
   name: string;
   rightAnswers: string[];
 };
-
 
 /**
  * The information about a poll that happened in a Zoom meeting.
