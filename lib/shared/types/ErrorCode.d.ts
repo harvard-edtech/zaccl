@@ -5,6 +5,7 @@ declare enum ErrorCode {
     EndpointBindError = "ZAC4",
     DailyLimitError = "ZAC7",
     RateLimitError = "ZAC16",
+    PollInfoMalformed = "ZAC21",
     PostProcessingError = "ZAC5",
     DuplicateRuleError = "ZAC9",
     ThrottleRuleParamError = "ZAC12",

@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -61,6 +61,17 @@ var __extends = (this &amp;&amp; this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this &amp;&amp; this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i &lt; n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this &amp;&amp; this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -106,6 +117,9 @@ var EndpointCategory_1 = __importDefault(require("../shared/interfaces/EndpointC
 // Import shared classes
 var ZACCLError_1 = __importDefault(require("../shared/classes/ZACCLError"));
 var ErrorCode_1 = __importDefault(require("../shared/types/ErrorCode"));
+var ZoomPollQuestionAndAnswerType_1 = __importDefault(require("../types/ZoomPollQuestionAndAnswerType"));
+var ZoomPollType_1 = __importDefault(require("../types/ZoomPollType"));
+var ZoomPollStatus_1 = __importDefault(require("../types/ZoomPollStatus"));
 var ECatMeeting = /** @class */ (function (_super) {
     __extends(ECatMeeting, _super);
     function ECatMeeting() {
@@ -382,6 +396,103 @@ var ECatMeeting = /** @class */ (function (_super) {
                         });
                         // Flatten map into an array
                         return [2 /*return*/, Object.values(pollIdToOccurrenceMap)];
+                }
+            });
+        });
+    };
+    /**
+     * Get poll info
+     * @author Yuen Ler Chow
+     * @instance
+     * @memberof api.meeting
+     * @method getPollInfo
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom ID of the meeting
+     * @param opts.pollId the id of the poll
+     * @returns object with all info about the poll
+     */
+    ECatMeeting.prototype.getPollInfo = function (opts) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function () {
+            var response, pollInfo;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0: return [4 /*yield*/, this.visitEndpoint({
+                            path: "/meetings/".concat(opts.meetingId, "/polls/").concat(opts.pollId),
+                            action: 'get the poll info',
+                            method: 'GET',
+                            errorMap: {
+                                4400: 'Meeting polls are disabled on your account.',
+                                3161: 'Meeting hosting and scheduling capabilities are not allowed for your user account.',
+                                404: 'We could not find the poll.',
+                            },
+                        })];
+                    case 1:
+                        response = _d.sent();
+                        try {
+                            pollInfo = {
+                                // Add the poll id
+                                pollId: response.id,
+                                // Convert string status to enum
+                                pollStatus: ((_a = {
+                                    notstart: ZoomPollStatus_1.default.NotStart,
+                                    started: ZoomPollStatus_1.default.Started,
+                                    sharing: ZoomPollStatus_1.default.Sharing,
+                                    ended: ZoomPollStatus_1.default.Ended,
+                                }[response.status]) !== null &amp;&amp; _a !== void 0 ? _a : ZoomPollStatus_1.default.NotStart),
+                                // Check if poll is anonymous
+                                anonymous: !!response.anonymous,
+                                // Convert string type to enum
+                                pollType: ((_b = {
+                                    1: ZoomPollType_1.default.Poll,
+                                    2: ZoomPollType_1.default.AdvancedPoll,
+                                    3: ZoomPollType_1.default.Quiz,
+                                }[response.type]) !== null &amp;&amp; _b !== void 0 ? _b : ZoomPollType_1.default.Poll),
+                                // Add the title
+                                title: response.title,
+                                // Parse and format questions
+                                questions: response.questions.map(function (question) {
+                                    // Destructure and convert variables to camelCase
+                                    var answerRequired = question.answer_required, answers = question.answers, name = question.name, rightAnswers = question.right_answers, questionType = question.question_type, caseSensitive = question.case_sensitive, answerMinCharacters = question.answer_min_character, answerMaxCharacters = question.answer_max_character, ratingMaxLabel = question.rating_max_label, ratingMaxValue = question.rating_max_value, ratingMinLabel = question.rating_min_label, ratingMinValue = question.rating_min_value, showAsDropdown = question.show_as_dropdown;
+                                    // Set of fields that are common to all question types
+                                    var commonFields = {
+                                        answerRequired: !!answerRequired,
+                                        answers: answers,
+                                        name: name,
+                                        rightAnswers: rightAnswers,
+                                    };
+                                    // Add in question type-specific fields
+                                    if (questionType === 'single'
+                                        || questionType === 'multiple') {
+                                        return __assign({ questionAnswerType: (questionType === 'single'
+                                                ? ZoomPollQuestionAndAnswerType_1.default.SingleChoice
+                                                : ZoomPollQuestionAndAnswerType_1.default.MultipleChoice), showAsDropdown: !!showAsDropdown }, commonFields);
+                                    }
+                                    if (questionType === 'short_answer'
+                                        || questionType === 'long_answer') {
+                                        return __assign({ questionAnswerType: (questionType === 'short_answer'
+                                                ? ZoomPollQuestionAndAnswerType_1.default.ShortAnswer
+                                                : ZoomPollQuestionAndAnswerType_1.default.LongAnswer), answerMinCharacters: Number.parseInt(answerMinCharacters, 10), answerMaxCharacters: Number.parseInt(answerMaxCharacters, 10) }, commonFields);
+                                    }
+                                    if (questionType === 'fill_in_the_blank') {
+                                        return __assign({ questionAnswerType: ZoomPollQuestionAndAnswerType_1.default.FillInTheBlank, caseSensitive: caseSensitive }, commonFields);
+                                    }
+                                    if (questionType === 'rating_scale') {
+                                        return __assign({ questionAnswerType: ZoomPollQuestionAndAnswerType_1.default.RatingScale, ratingMaxLabel: ratingMaxLabel, ratingMaxValue: ratingMaxValue, ratingMinLabel: ratingMinLabel, ratingMinValue: ratingMinValue }, commonFields);
+                                    }
+                                    // None of the supported question types. Only return common fields
+                                    return __assign({ questionAnswerType: ZoomPollQuestionAndAnswerType_1.default.Unknown }, commonFields);
+                                }),
+                            };
+                            return [2 /*return*/, pollInfo];
+                        }
+                        catch (err) {
+                            throw new ZACCLError_1.default({
+                                message: "We encountered an error while parsing Zoom poll information: ".concat((_c = err.message) !== null &amp;&amp; _c !== void 0 ? _c : 'unknown error'),
+                                code: ErrorCode_1.default.PollInfoMalformed,
+                            });
+                        }
+                        return [2 /*return*/];
                 }
             });
         });

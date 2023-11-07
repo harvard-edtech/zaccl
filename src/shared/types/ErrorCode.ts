@@ -1,4 +1,4 @@
-// Highest error: ZAC20
+// Highest error: ZAC21
 
 enum ErrorCode {
   // Network errors
@@ -10,6 +10,7 @@ enum ErrorCode {
   EndpointBindError = 'ZAC4',
   DailyLimitError = 'ZAC7',
   RateLimitError = 'ZAC16',
+  PollInfoMalformed = 'ZAC21',
 
   // Processing errors
   PostProcessingError = 'ZAC5',
