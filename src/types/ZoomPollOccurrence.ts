@@ -3,7 +3,7 @@
  *   Zoom meeting
  * @author Gabe Abrams
  */
-type PollOccurrence = {
+type ZoomPollOccurrence = {
   // The poll id
   pollId: string,
   // Timestamp for when the poll occurred (ms since epoch for first response)
@@ -26,4 +26,4 @@ type PollOccurrence = {
   }[],
 };
 
-export default PollOccurrence;
+export default ZoomPollOccurrence;

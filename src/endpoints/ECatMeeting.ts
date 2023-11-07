@@ -14,11 +14,12 @@ import ErrorCode from '../shared/types/ErrorCode';
 
 // Import shared types
 import ZoomMeeting from '../types/ZoomMeeting';
-import PollOccurrence from '../types/PollOccurrence';
-import PollInfo from '../types/PollInfo';
-import QuestionAndAnswerType from '../types/QuestionAndAnswerType';
-import PollType from '../types/PollType';
-import PollStatus from '../types/PollStatus';
+import PollOccurrence from '../types/ZoomPollOccurrence';
+import PollInfo from '../types/ZoomPollInfo';
+import ZoomQuestionAndAnswerType from '../types/ZoomPollQuestionAndAnswerType';
+import ZoomPollType from '../types/ZoomPollType';
+import ZoomPollStatus from '../types/ZoomPollStatus';
+import ZoomPollQuestion from '../types/ZoomPollQuestion';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -338,7 +339,6 @@ class ECatMeeting extends EndpointCategory {
     return Object.values(pollIdToOccurrenceMap);
   }
 
-
   /**
    * Get poll info
    * @author Yuen Ler Chow
@@ -368,105 +368,124 @@ class ECatMeeting extends EndpointCategory {
       },
     });
 
-    const pollInfo: PollInfo = {
-      pollId: response.id,
-      pollStatus: response.status === 'notstart' ? PollStatus.NotStart : (
-        response.status === 'started' ? PollStatus.Started : (
-          response.status === 'sharing' ? PollStatus.Sharing : PollStatus.Ended
-        )
-      ),
-      anonymous: response.anonymous,
-      pollType: response.type === 'poll' ? PollType.Poll : (
-        response.type === 'quiz' ? PollType.Quiz : PollType.AdvancedPoll
-      ),
-      title: response.title,
-      questions: response.questions.map((question: any) => {
-        const {
-          answer_required: answerRequired,
-          answers,
-          name,
-          right_answers: rightAnswers,
-          question_type: questionType,
-          case_sensitive: caseSensitive,
-          answer_min_character: answerMinCharacter,
-          answer_max_character: answerMaxCharacter,
-          prompts,
-          rating_max_label: ratingMaxLabel,
-          rating_max_value: ratingMaxValue,
-          rating_min_label: ratingMinLabel,
-          rating_min_value: ratingMinValue,
-          show_as_dropdown: showAsDropdown,
-        } = question;
+    try {
+      // Parse and format poll info
+      const pollInfo: PollInfo = {
+        // Add the poll id
+        pollId: response.id,
+        // Convert string status to enum
+        pollStatus: (
+          {
+            notstart: ZoomPollStatus.NotStart,
+            started: ZoomPollStatus.Started,
+            sharing: ZoomPollStatus.Sharing,
+            ended: ZoomPollStatus.Ended,
+          }[response.status as string]
+          ?? ZoomPollStatus.NotStart
+        ),
+        // Check if poll is anonymous
+        anonymous: !!response.anonymous,
+        // Convert string type to enum
+        pollType: (
+          {
+            1: ZoomPollType.Poll,
+            2: ZoomPollType.AdvancedPoll,
+            3: ZoomPollType.Quiz,
+          }[response.type as string]
+          ?? ZoomPollType.Poll
+        ),
+        // Add the title
+        title: response.title,
+        // Parse and format questions
+        questions: response.questions.map((question: any): ZoomPollQuestion => {
+          // Destructure and convert variables to camelCase
+          const {
+            answer_required: answerRequired,
+            answers,
+            name,
+            right_answers: rightAnswers,
+            question_type: questionType,
+            case_sensitive: caseSensitive,
+            answer_min_character: answerMinCharacters,
+            answer_max_character: answerMaxCharacters,
+            rating_max_label: ratingMaxLabel,
+            rating_max_value: ratingMaxValue,
+            rating_min_label: ratingMinLabel,
+            rating_min_value: ratingMinValue,
+            show_as_dropdown: showAsDropdown,
+          } = question;
 
-        const commonFields: any = {
-          answerRequired,
-          answers,
-          name,
-          rightAnswers,
-        };
+          // Set of fields that are common to all question types
+          const commonFields = {
+            answerRequired: !!answerRequired,
+            answers,
+            name,
+            rightAnswers,
+          };
 
-        switch (questionType) {
-          case 'single':
-          case 'multiple':
-            return {
-              questionAnswerType: QuestionAndAnswerType.Multiple,
-              showAsDropdown: showAsDropdown,
-              ...commonFields,
-            };
-          case 'rank_order':
-          case 'matching':
+          // Add in question type-specific fields
+          if (
+            questionType === 'single'
+            || questionType === 'multiple'
+          ) {
             return {
               questionAnswerType: (
-                questionType === 'rank_order'
-                  ? QuestionAndAnswerType.RankOrder
-                  : QuestionAndAnswerType.Matching
+                questionType === 'single'
+                  ? ZoomQuestionAndAnswerType.SingleChoice
+                  : ZoomQuestionAndAnswerType.MultipleChoice
               ),
-              prompts: prompts.map((prompt: any) => {
-                const {
-                  prompt_question: promptQuestion,
-                  right_answers: promptRightAnswers,
-                } = prompt;
-
-                return {
-                  promptQuestion,
-                  promptRightAnswers,
-                };
-              }),
+              showAsDropdown: !!showAsDropdown,
               ...commonFields,
             };
-          case 'short_answer':
-          case 'long_answer':
+          }
+          if (
+            questionType === 'short_answer'
+            || questionType === 'long_answer'
+          ) {
             return {
               questionAnswerType: (
                 questionType === 'short_answer'
-                  ? QuestionAndAnswerType.ShortAnswer
-                  : QuestionAndAnswerType.LongAnswer
+                  ? ZoomQuestionAndAnswerType.ShortAnswer
+                  : ZoomQuestionAndAnswerType.LongAnswer
               ),
-              answerMinCharacter,
-              answerMaxCharacter,
+              answerMinCharacters: Number.parseInt(answerMinCharacters, 10),
+              answerMaxCharacters: Number.parseInt(answerMaxCharacters, 10),
               ...commonFields,
             };
-          case 'fill_in_the_blank':
+          }
+          if (questionType === 'fill_in_the_blank') {
             return {
-              questionAnswerType: QuestionAndAnswerType.FillInTheBlank,
+              questionAnswerType: ZoomQuestionAndAnswerType.FillInTheBlank,
               caseSensitive,
               ...commonFields,
             };
-          case 'rating_scale':
+          }
+          if (questionType === 'rating_scale') {
             return {
-              questionAnswerType: QuestionAndAnswerType.RatingScale,
+              questionAnswerType: ZoomQuestionAndAnswerType.RatingScale,
               ratingMaxLabel,
               ratingMaxValue,
               ratingMinLabel,
               ratingMinValue,
               ...commonFields,
             };
-        }
-      }),
-    };
-    return pollInfo;
-  }
+          }
 
+          // None of the supported question types. Only return common fields
+          return {
+            questionAnswerType: ZoomQuestionAndAnswerType.Unknown,
+            ...commonFields,
+          };
+        }),
+      };
+      return pollInfo;
+    } catch (err) {
+      throw new ZACCLError({
+        message: `We encountered an error while parsing Zoom poll information: ${err.message ?? 'unknown error'}`,
+        code: ErrorCode.PollInfoMalformed,
+      });
+    }
+  }
 
   /**
    * Add one alt-host if not already in the list. If another user in the alt-host
