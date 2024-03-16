@@ -1,5 +1,6 @@
 // Import shared types
 import QuestionAndAnswerType from './ZoomPollQuestionAndAnswerType';
+import ZoomUserAnswer from './ZoomUserAnswer';
 
 /**
  * One question in a Zoom poll
@@ -15,6 +16,8 @@ type ZoomPollQuestion = (
     name: string,
     // Correct answers
     rightAnswers: string[],
+    // answers from attendees
+    userAnswers: ZoomUserAnswer[],
   }
   & (
     // Text answer

@@ -20,6 +20,7 @@ import ZoomQuestionAndAnswerType from '../types/ZoomPollQuestionAndAnswerType';
 import ZoomPollType from '../types/ZoomPollType';
 import ZoomPollStatus from '../types/ZoomPollStatus';
 import ZoomPollQuestion from '../types/ZoomPollQuestion';
+import ZoomUserAnswer from '../types/ZoomUserAnswer';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -368,6 +369,41 @@ class ECatMeeting extends EndpointCategory {
       },
     });
 
+    // get the user answers for the poll
+    const pollResults = await this.visitEndpoint({
+      path: `/past_meetings/${opts.meetingId}/polls`,
+      action: 'get the poll results',
+      method: 'GET',
+      errorMap: {
+        404: 'We could not find the poll results.',
+        12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+      },
+    });
+
+    // reorganize the poll results so that it is indexable by polling_id
+    const pollResultsByPollId: {
+      [polling_id: string]:
+      { [question: string]: ZoomUserAnswer[] }
+    } = {};
+    pollResults.forEach((pollResult: any) => {
+      const { email, name, question_details } = pollResult;
+      question_details.forEach((questionDetail: any) => {
+        const { polling_id, answer, date_time, question } = questionDetail;
+        if (!pollResultsByPollId[polling_id]) {
+          pollResultsByPollId[polling_id] = {};
+        }
+        if (!pollResultsByPollId[polling_id][question]) {
+          pollResultsByPollId[polling_id][question] = [];
+        }
+        pollResultsByPollId[polling_id][question].push({
+          email,
+          name,
+          answer,
+          timeSubmitted: new Date(date_time).getTime(),
+        });
+      });
+    });
+
     try {
       // Parse and format poll info
       const pollInfo: PollInfo = {
@@ -415,12 +451,18 @@ class ECatMeeting extends EndpointCategory {
             show_as_dropdown: showAsDropdown,
           } = question;
 
+
+          // Get user answers for this question and poll
+          const userAnswers: ZoomUserAnswer[] = pollResultsByPollId[response.id][name] ?? [];
+
+
           // Set of fields that are common to all question types
           const commonFields = {
             answerRequired: !!answerRequired,
             answers,
             name,
             rightAnswers,
+            userAnswers,
           };
 
           // Add in question type-specific fields
