@@ -326,7 +326,7 @@ var ECatMeeting = /** @class */ (function (_super) {
      */
     ECatMeeting.prototype.listPastPollOccurrences = function (opts) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, pollIdToOccurrenceMap, questions, questionToIndexMap;
+            var response, pollIdToOccurrenceMap;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.visitEndpoint({
@@ -341,8 +341,6 @@ var ECatMeeting = /** @class */ (function (_super) {
                     case 1:
                         response = _a.sent();
                         pollIdToOccurrenceMap = {};
-                        questions = [];
-                        questionToIndexMap = {};
                         // Process each poll response
                         response.questions.forEach(function (user) {
                             var email = user.email, name = user.name, questionDetails = user.question_details;
@@ -371,10 +369,11 @@ var ECatMeeting = /** @class */ (function (_super) {
                                     };
                                 }
                                 else {
-                                    if (questions.includes(question)) {
-                                        // Add response to existing question
+                                    var questionIndex = pollIdToOccurrenceMap[pollId].questions.findIndex(function (q) { return q.prompt === question; });
+                                    if (questionIndex !== -1) {
+                                        // Poll and question exist. Add response to existing question
                                         pollIdToOccurrenceMap[pollId]
-                                            .questions[questionToIndexMap[question]]
+                                            .questions[questionIndex]
                                             .responses
                                             .push(response);
                                     }
@@ -387,10 +386,8 @@ var ECatMeeting = /** @class */ (function (_super) {
                                     }
                                     // Update timestamp if the new timestamp is earlier
                                     if (pollTime &lt; pollIdToOccurrenceMap[pollId].timestamp) {
-                                        pollIdToOccurrenceMap[pollId].timestamp = dateTime;
+                                        pollIdToOccurrenceMap[pollId].timestamp = pollTime;
                                     }
-                                    // Store to the indexMap
-                                    questionToIndexMap[question] = pollIdToOccurrenceMap[pollId].questions.length - 1;
                                 }
                             });
                         });
