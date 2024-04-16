@@ -265,11 +265,7 @@ class ECatMeeting extends EndpointCategory {
     const pollIdToOccurrenceMap: {
       [pollId: string]: PollOccurrence,
     } = {};
-
-    // Create data structures for collecting poll data
-    const questions: string[] = []
-    const questionToIndexMap: { [question: string]: number } = {};
-
+    
     // Process each poll response
     response.questions.forEach((user: any) => {
       const {
@@ -309,11 +305,13 @@ class ECatMeeting extends EndpointCategory {
               },
             ]
           };
+
         } else {
-          if (questions.includes(question)) {
-            // Add response to existing question
+          const questionIndex = pollIdToOccurrenceMap[pollId].questions.findIndex((q) => q.prompt === question);
+          if (questionIndex !== -1) {
+            // Poll and question exist. Add response to existing question
             pollIdToOccurrenceMap[pollId]
-              .questions[questionToIndexMap[question]]
+              .questions[questionIndex]
               .responses
               .push(response);
           } else {
@@ -326,12 +324,10 @@ class ECatMeeting extends EndpointCategory {
 
           // Update timestamp if the new timestamp is earlier
           if (pollTime < pollIdToOccurrenceMap[pollId].timestamp) {
-            pollIdToOccurrenceMap[pollId].timestamp = dateTime;
+            pollIdToOccurrenceMap[pollId].timestamp = pollTime;
           }
-
-          // Store to the indexMap
-          questionToIndexMap[question] = pollIdToOccurrenceMap[pollId].questions.length - 1;
         }
+
       });
     });
 
