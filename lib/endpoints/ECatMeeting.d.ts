@@ -103,10 +103,14 @@ declare class ECatMeeting extends EndpointCategory {
      * @method listPastPollOccurrences
      * @param opts object containing all arguments
      * @param opts.meetingId the Zoom ID of the meeting
+     * @param [opts.meetingTime] the timestamp for when the meeting started (can be
+     *   up to 1 hour off, will select nearest occurrence). If excluded,
+     *   gets the polls for the most recent occurrence
      * @returns list of past poll occurrences
      */
     listPastPollOccurrences(opts: {
         meetingId: number;
+        meetingTimestamp?: number;
     }): Promise<PollOccurrence[]>;
     /**
      * Get poll info

@@ -1,3 +1,4 @@
+import ZoomUsersAnswersToQuestion from "./ZoomUsersAnswersToQuestion";
 /**
  * One poll occurrence of a poll that happened in a past occurrence of a
  *   Zoom meeting
@@ -6,14 +7,6 @@
 type ZoomPollOccurrence = {
     pollId: string;
     timestamp: number;
-    questions: {
-        prompt: string;
-        responses: {
-            userFullName: string;
-            userEmail: string;
-            answer: string;
-            timestamp: number;
-        }[];
-    }[];
+    questions: ZoomUsersAnswersToQuestion[];
 };
 export default ZoomPollOccurrence;
