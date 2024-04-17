@@ -5,7 +5,7 @@
 type ZoomUserAnswer = {
     userFullName: string;
     userEmail: string;
-    answer: string;
+    answer: string[];
     timestamp: number;
 };
 export default ZoomUserAnswer;

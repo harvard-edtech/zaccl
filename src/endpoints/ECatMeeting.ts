@@ -243,21 +243,24 @@ class ECatMeeting extends EndpointCategory {
    * @method listPastPollOccurrences
    * @param opts object containing all arguments
    * @param opts.meetingId the Zoom ID of the meeting
+   * @param [opts.meetingTime] the timestamp for when the meeting started (can be
+   *   up to 1 hour off, will select nearest occurrence). If excluded,
+   *   gets the polls for the most recent occurrence
    * @returns list of past poll occurrences
    */
   async listPastPollOccurrences(
     opts: {
-      // Zoom ID of the meeting
       meetingId: number,
-      // time of the meeting in ms since epoch
-      meetingTime: number,
+      meetingTimestamp?: number,
     },
   ): Promise<PollOccurrence[]> {
+    /* --- Determine Closest Instance --- */
 
-    const pastMeetings: {
-      uuid: string,
-      start_time: string,
-    }[] = await this.visitEndpoint({
+    // Get the meeting timestamp
+    const meetingTimestamp = opts.meetingTimestamp ?? Date.now();
+
+    // Fetch past meeting instances
+    const pastMeetingResponse = await this.visitEndpoint({
       path: `/past_meetings/${opts.meetingId}/instances`,
       action: 'get the list of past meeting instances',
       method: 'GET',
@@ -266,23 +269,52 @@ class ECatMeeting extends EndpointCategory {
       },
     });
 
-    // find the meeting that is closest to the meeting time
-    let closestMeeting = pastMeetings[0];
-    let smallestTimeDiff = Math.abs(opts.meetingTime - new Date(closestMeeting.start_time).getTime());
+    // Extract past meetings
+    const pastMeetings: {
+      uuid: string,
+      start_time: string,
+    }[] = pastMeetingResponse?.meetings ?? [];
+
+    // If there are no past meetings, return an empty array
+    if (pastMeetings.length === 0) {
+      return [];
+    }
+
+    // Find the meeting that is closest to the meeting time
+    let closestMeeting: (
+      | {
+        uuid: string,
+        start_time: string,
+      }
+      | undefined
+    );
+    let smallestTimeDiff: number = Number.MAX_SAFE_INTEGER;
     pastMeetings.forEach((meeting) => {
-      const timeDiff = Math.abs(opts.meetingTime - new Date(meeting.start_time).getTime());
-      if (timeDiff < smallestTimeDiff) {
+      // meeting.start_time is an ISO 8601 string
+      const pastMeetingTimestamp = new Date(meeting.start_time).getTime();
+      const timeDiff = Math.abs(meetingTimestamp - pastMeetingTimestamp);
+      if (!closestMeeting || timeDiff < smallestTimeDiff) {
         closestMeeting = meeting;
         smallestTimeDiff = timeDiff;
       }
     });
 
-    const oneHour = 60 * 60 * 1000;
-    // If the closest meeting is more than an hour away from the meeting time, return an empty array
-    if (smallestTimeDiff > oneHour) {
+    // If no meeting is found, return an empty array
+    if (!closestMeeting) {
       return [];
     }
 
+    // If the closest meeting is more than an hour away from the meeting time,
+    // return an empty array (only applies if meeting time is provided as an
+    // argument)
+    const oneHour = 60 * 60 * 1000;
+    if (opts.meetingTimestamp && smallestTimeDiff > oneHour) {
+      return [];
+    }
+
+    /* ----------- Fetch Polls ---------- */
+
+    // Extract the UUID of the closest meeting
     const { uuid } = closestMeeting;
 
     // Ask Zoom for unprocessed poll data
@@ -312,13 +344,30 @@ class ECatMeeting extends EndpointCategory {
       // Loop through each answer
       questionDetails.forEach((questionDetail: any) => {
         const {
-          answer,
           date_time: dateTime,
           polling_id: pollId,
           question,
         } = questionDetail;
 
+        // Parse answer
+        const answer = (
+          (
+            !questionDetail.answer
+            || String(questionDetail.answer.trim()).length === 0
+          )
+            ? [] // no answer, return empty array
+            : (
+              String(questionDetail.answer)
+                .split(';')
+                .map((a: string) => {
+                  return a.trim();
+                })
+            )
+        );
+
         // Parse date time as ms since epoch
+        // dateTime is a YYYY-MM-DD HH:MM:SS string in UTC time, but not
+        // formatted correctly. Fix formatting before parsing:
         const pollTime = new Date(`${dateTime} UTC`).getTime();
 
         // Reformat as a response object
@@ -329,6 +378,7 @@ class ECatMeeting extends EndpointCategory {
           timestamp: pollTime,
         };
 
+        // If poll occurrence isn't in the map, add it.
         if (!pollIdToOccurrenceMap[pollId]) {
           pollIdToOccurrenceMap[pollId] = {
             pollId: pollId,
@@ -340,9 +390,17 @@ class ECatMeeting extends EndpointCategory {
               },
             ]
           };
-
         } else {
-          const questionIndex = pollIdToOccurrenceMap[pollId].questions.findIndex((q) => q.prompt === question);
+          // Poll occurrence is in the map
+          const questionIndex = (
+            pollIdToOccurrenceMap[pollId]
+              .questions
+              .findIndex((q) => {
+                return (q.prompt === question);
+              })
+          );
+
+          // Check if the question inside the poll is in the map
           if (questionIndex !== -1) {
             // Poll and question exist. Add response to existing question
             pollIdToOccurrenceMap[pollId]
@@ -362,7 +420,6 @@ class ECatMeeting extends EndpointCategory {
             pollIdToOccurrenceMap[pollId].timestamp = pollTime;
           }
         }
-
       });
     });
 
