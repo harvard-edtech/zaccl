@@ -492,7 +492,7 @@ class ECatMeeting extends EndpointCategory {
             answers,
             name,
             right_answers: rightAnswers,
-            question_type: questionType,
+            type: questionType,
             case_sensitive: caseSensitive,
             answer_min_character: answerMinCharacters,
             answer_max_character: answerMaxCharacters,
