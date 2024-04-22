@@ -508,7 +508,7 @@ class ECatMeeting extends EndpointCategory {
             answerRequired: !!answerRequired,
             answers,
             name,
-            rightAnswers: rightAnswers ?? [],
+            rightAnswers,
           };
 
           // Add in question type-specific fields

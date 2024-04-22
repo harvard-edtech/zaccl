@@ -14,7 +14,7 @@ type ZoomPollQuestion = (
     // Name of the question
     name: string,
     // Correct answers
-    rightAnswers: string[],
+    rightAnswers?: string[],
   }
   & (
     // Text answer
