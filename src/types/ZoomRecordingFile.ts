@@ -39,6 +39,12 @@ type ZoomRecordingFile = (
         | ZoomFileType.ClosedCaptions
         | ZoomFileType.Timeline
       ),
+      // Recording file info isn't included
+      file_size?: undefined,
+      status?: undefined,
+      id?: undefined,
+      recording_type?: undefined,
+      play_url?: undefined,
     }
     | {
       // Type of file
