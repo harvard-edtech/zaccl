@@ -7,7 +7,7 @@ type ZoomPollQuestion = ({
     answerRequired: boolean;
     answers: string[];
     name: string;
-    rightAnswers: string[];
+    rightAnswers?: string[];
 } & ({
     questionAnswerType: (QuestionAndAnswerType.LongAnswer | QuestionAndAnswerType.ShortAnswer);
     answerMaxCharacters: number;
