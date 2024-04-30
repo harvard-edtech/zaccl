@@ -14,7 +14,6 @@ import ErrorCode from '../shared/types/ErrorCode';
 
 // Import shared types
 import ZoomMeetingRecordings from '../types/ZoomMeetingRecordings';
-import ZoomUserRecordings from '../types/ZoomUserRecordings';
 
 // Import shared helper
 import {
@@ -96,7 +95,7 @@ class ECatCloudRecording extends EndpointCategory {
       startDate?: (string | Date),
       endDate?: (string | Date),
     },
-  ): Promise<ZoomUserRecordings> {
+  ): Promise<ZoomMeetingRecordings[]> {
     // Destructure arguments
     const {
       userId,

@@ -6,7 +6,6 @@
  */
 import EndpointCategory from '../shared/interfaces/EndpointCategory';
 import ZoomMeetingRecordings from '../types/ZoomMeetingRecordings';
-import ZoomUserRecordings from '../types/ZoomUserRecordings';
 declare class ECatCloudRecording extends EndpointCategory {
     /**
      * Get all recordings of a meeting
@@ -52,6 +51,6 @@ declare class ECatCloudRecording extends EndpointCategory {
         searchTrash?: boolean;
         startDate?: (string | Date);
         endDate?: (string | Date);
-    }): Promise<ZoomUserRecordings>;
+    }): Promise<ZoomMeetingRecordings[]>;
 }
 export default ECatCloudRecording;

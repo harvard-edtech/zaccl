@@ -16,6 +16,11 @@ type ZoomRecordingFile = ({
     recording_play_passcode?: string;
 } & ({
     file_type: (ZoomFileType.ClosedCaptions | ZoomFileType.Timeline);
+    file_size?: unknown;
+    status?: unknown;
+    id?: unknown;
+    recording_type?: unknown;
+    play_url?: unknown;
 } | {
     file_type: (ZoomFileType.VideoFile | ZoomFileType.AudioOnlyFile | ZoomFileType.Transcript | ZoomFileType.Chat | ZoomFileType.PollingData | ZoomFileType.RecordingSummary);
     file_size: number;
