@@ -1,6 +1,6 @@
 {
 	"name": "zaccl",
-	"version": "3.0.11",
+	"version": "3.0.12",
 	"description": "The Zoom App Complete Connection Library, a project that handles everything required to build a zoom-integrated app.",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
