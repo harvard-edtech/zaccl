@@ -507,11 +507,13 @@ class ECatMeeting extends EndpointCategory {
           const commonFields = {
             answerRequired: !!answerRequired,
             // trim each answer
-            answers: answers 
-              ? answers.map((answer: string) => {
-                return answer.trim();
-              }) 
-              : [],
+            answers: (
+              (answers && Array.isArray(answers) && answers.length > 0)
+                ? answers.map((answer: string) => {
+                  return answer.trim();
+                }) 
+                : []
+            ),
             name,
             rightAnswers,
           };
