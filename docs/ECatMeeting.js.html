@@ -512,7 +512,12 @@ var ECatMeeting = /** @class */ (function (_super) {
                                     // Set of fields that are common to all question types
                                     var commonFields = {
                                         answerRequired: !!answerRequired,
-                                        answers: answers,
+                                        // trim each answer
+                                        answers: ((answers &amp;&amp; Array.isArray(answers) &amp;&amp; answers.length > 0)
+                                            ? answers.map(function (answer) {
+                                                return answer.trim();
+                                            })
+                                            : []),
                                         name: name,
                                         rightAnswers: rightAnswers,
                                     };
