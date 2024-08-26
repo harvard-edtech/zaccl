@@ -506,7 +506,12 @@ class ECatMeeting extends EndpointCategory {
           // Set of fields that are common to all question types
           const commonFields = {
             answerRequired: !!answerRequired,
-            answers,
+            // trim each answer
+            answers: answers 
+              ? answers.map((answer: string) => {
+                return answer.trim();
+              }) 
+              : [],
             name,
             rightAnswers,
           };
