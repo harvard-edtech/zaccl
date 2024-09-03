@@ -1,6 +1,3 @@
-// Import shared types
-import ZoomLoginMethod from './ZoomLoginMethod';
-
 /**
  * Zoom user object {@link https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/pastMeetingDetails}
  * @author Yuen Ler Chow
@@ -22,13 +19,13 @@ type ZoomMeetingDetails = {
   dept: string;
   // The number of meeting participants.
   participants_count: number;
-  // Source of the meeting creation (Zoom, OAuth app name, JWT, etc.).
+  // Source of the meeting creation (Zoom, OAuth app name, or JWT).
   source: string;
   // The meeting's topic.
   topic: string;
   // Total number of minutes attended by the host and participants.
   total_minutes: number;
-  // The meeting type (0: Prescheduled, 1: Instant, etc.).
+  // The meeting type (0: Prescheduled, 1: Instant, 2: a scheduled meeting, 3: recurring meeting with no fixed time, 4: a personal meeting ID, 7: a personal audio conference, 8: recurring meeting with a fixed time).
   type: 0 | 1 | 2 | 3 | 4 | 7 | 8;
   // The user's email address (should follow email format).
   user_email: string;
