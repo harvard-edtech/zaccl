@@ -20,6 +20,7 @@ import ZoomQuestionAndAnswerType from '../types/ZoomPollQuestionAndAnswerType';
 import ZoomPollType from '../types/ZoomPollType';
 import ZoomPollStatus from '../types/ZoomPollStatus';
 import ZoomPollQuestion from '../types/ZoomPollQuestion';
+import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -236,90 +237,54 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
+   * Get details of a past meeting instance
+   * @author Yuen Ler Chow
+   * @instance
+   * @memberof api.meeting
+   * @method getPastMeetingDetails
+   * @param uuid the Zoom UUID of the meeting
+   * @returns details of a past meeting instance
+   */
+  async getPastMeetingDetails(
+    opts: {
+      uuid: string,
+    },
+  ): Promise<ZoomMeetingDetails> {
+    return this.visitEndpoint({
+      path: `/past_meetings/${opts.uuid}`,
+      action: 'get the details of a past meeting instance',
+      method: 'GET',
+      errorMap: {
+        400: {
+          1010: 'User does not exist or does not belong to this account',
+          300: 'We could not access the details of this past meeting.',
+          200: 'You need a paid account to access details of a past meeting.',
+          12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+        },
+        404: {
+          3001: 'The meeting ID is invalid or the meeting has not ended.',
+        }
+      },
+    });
+  }
+
+  /**
    * List past poll occurrences
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
    * @method listPastPollOccurrences
-   * @param opts object containing all arguments
-   * @param opts.meetingId the Zoom ID of the meeting
-   * @param [opts.meetingTime] the timestamp for when the meeting started (can be
-   *   up to 1 hour off, will select nearest occurrence). If excluded,
-   *   gets the polls for the most recent occurrence
+   * @param opts.uuid the Zoom UUID of the meeting
    * @returns list of past poll occurrences
    */
   async listPastPollOccurrences(
     opts: {
-      meetingId: number,
-      meetingTimestamp?: number,
-    },
-  ): Promise<PollOccurrence[]> {
-    /* --- Determine Closest Instance --- */
-
-    // Get the meeting timestamp
-    const meetingTimestamp = opts.meetingTimestamp ?? Date.now();
-
-    // Fetch past meeting instances
-    const pastMeetingResponse = await this.visitEndpoint({
-      path: `/past_meetings/${opts.meetingId}/instances`,
-      action: 'get the list of past meeting instances',
-      method: 'GET',
-      errorMap: {
-        404: `We could not find a meeting with the ID ${opts.meetingId}`,
-      },
-    });
-
-    // Extract past meetings
-    const pastMeetings: {
       uuid: string,
-      start_time: string,
-    }[] = pastMeetingResponse?.meetings ?? [];
-
-    // If there are no past meetings, return an empty array
-    if (pastMeetings.length === 0) {
-      return [];
     }
-
-    // Find the meeting that is closest to the meeting time
-    let closestMeeting: (
-      | {
-        uuid: string,
-        start_time: string,
-      }
-      | undefined
-    );
-    let smallestTimeDiff: number = Number.MAX_SAFE_INTEGER;
-    pastMeetings.forEach((meeting) => {
-      // meeting.start_time is an ISO 8601 string
-      const pastMeetingTimestamp = new Date(meeting.start_time).getTime();
-      const timeDiff = Math.abs(meetingTimestamp - pastMeetingTimestamp);
-      if (!closestMeeting || timeDiff < smallestTimeDiff) {
-        closestMeeting = meeting;
-        smallestTimeDiff = timeDiff;
-      }
-    });
-
-    // If no meeting is found, return an empty array
-    if (!closestMeeting) {
-      return [];
-    }
-
-    // If the closest meeting is more than an hour away from the meeting time,
-    // return an empty array (only applies if meeting time is provided as an
-    // argument)
-    const oneHour = 60 * 60 * 1000;
-    if (opts.meetingTimestamp && smallestTimeDiff > oneHour) {
-      return [];
-    }
-
-    /* ----------- Fetch Polls ---------- */
-
-    // Extract the UUID of the closest meeting
-    const { uuid } = closestMeeting;
-
+  ): Promise<PollOccurrence[]> {
     // Ask Zoom for unprocessed poll data
     const response = await this.visitEndpoint({
-      path: `/past_meetings/${uuid}/polls`,
+      path: `/past_meetings/${opts.uuid}/polls`,
       action: 'get the list of polls that occurred in a past meeting',
       method: 'GET',
       errorMap: {

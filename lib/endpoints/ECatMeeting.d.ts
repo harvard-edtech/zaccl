@@ -8,6 +8,7 @@ import EndpointCategory from '../shared/interfaces/EndpointCategory';
 import ZoomMeeting from '../types/ZoomMeeting';
 import PollOccurrence from '../types/ZoomPollOccurrence';
 import PollInfo from '../types/ZoomPollInfo';
+import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 declare class ECatMeeting extends EndpointCategory {
     /**
      * Get info on a meeting
@@ -96,21 +97,28 @@ declare class ECatMeeting extends EndpointCategory {
         meetingId: number;
     }): Promise<ZoomMeeting[]>;
     /**
+     * Get details of a past meeting instance
+     * @author Yuen Ler Chow
+     * @instance
+     * @memberof api.meeting
+     * @method getPastMeetingDetails
+     * @param uuid the Zoom UUID of the meeting
+     * @returns details of a past meeting instance
+     */
+    getPastMeetingDetails(opts: {
+        uuid: string;
+    }): Promise<ZoomMeetingDetails>;
+    /**
      * List past poll occurrences
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
      * @method listPastPollOccurrences
-     * @param opts object containing all arguments
-     * @param opts.meetingId the Zoom ID of the meeting
-     * @param [opts.meetingTime] the timestamp for when the meeting started (can be
-     *   up to 1 hour off, will select nearest occurrence). If excluded,
-     *   gets the polls for the most recent occurrence
+     * @param opts.uuid the Zoom UUID of the meeting
      * @returns list of past poll occurrences
      */
     listPastPollOccurrences(opts: {
-        meetingId: number;
-        meetingTimestamp?: number;
+        uuid: string;
     }): Promise<PollOccurrence[]>;
     /**
      * Get poll info
