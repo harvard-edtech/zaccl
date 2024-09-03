@@ -241,82 +241,12 @@ class ECatMeeting extends EndpointCategory {
    * @instance
    * @memberof api.meeting
    * @method listPastPollOccurrences
-   * @param opts object containing all arguments
-   * @param opts.meetingId the Zoom ID of the meeting
-   * @param [opts.meetingTime] the timestamp for when the meeting started (can be
-   *   up to 1 hour off, will select nearest occurrence). If excluded,
-   *   gets the polls for the most recent occurrence
+   * @param uuid the Zoom uuid of the meeting
    * @returns list of past poll occurrences
    */
   async listPastPollOccurrences(
-    opts: {
-      meetingId: number,
-      meetingTimestamp?: number,
-    },
+      uuid: string
   ): Promise<PollOccurrence[]> {
-    /* --- Determine Closest Instance --- */
-
-    // Get the meeting timestamp
-    const meetingTimestamp = opts.meetingTimestamp ?? Date.now();
-
-    // Fetch past meeting instances
-    const pastMeetingResponse = await this.visitEndpoint({
-      path: `/past_meetings/${opts.meetingId}/instances`,
-      action: 'get the list of past meeting instances',
-      method: 'GET',
-      errorMap: {
-        404: `We could not find a meeting with the ID ${opts.meetingId}`,
-      },
-    });
-
-    // Extract past meetings
-    const pastMeetings: {
-      uuid: string,
-      start_time: string,
-    }[] = pastMeetingResponse?.meetings ?? [];
-
-    // If there are no past meetings, return an empty array
-    if (pastMeetings.length === 0) {
-      return [];
-    }
-
-    // Find the meeting that is closest to the meeting time
-    let closestMeeting: (
-      | {
-        uuid: string,
-        start_time: string,
-      }
-      | undefined
-    );
-    let smallestTimeDiff: number = Number.MAX_SAFE_INTEGER;
-    pastMeetings.forEach((meeting) => {
-      // meeting.start_time is an ISO 8601 string
-      const pastMeetingTimestamp = new Date(meeting.start_time).getTime();
-      const timeDiff = Math.abs(meetingTimestamp - pastMeetingTimestamp);
-      if (!closestMeeting || timeDiff < smallestTimeDiff) {
-        closestMeeting = meeting;
-        smallestTimeDiff = timeDiff;
-      }
-    });
-
-    // If no meeting is found, return an empty array
-    if (!closestMeeting) {
-      return [];
-    }
-
-    // If the closest meeting is more than an hour away from the meeting time,
-    // return an empty array (only applies if meeting time is provided as an
-    // argument)
-    const oneHour = 60 * 60 * 1000;
-    if (opts.meetingTimestamp && smallestTimeDiff > oneHour) {
-      return [];
-    }
-
-    /* ----------- Fetch Polls ---------- */
-
-    // Extract the UUID of the closest meeting
-    const { uuid } = closestMeeting;
-
     // Ask Zoom for unprocessed poll data
     const response = await this.visitEndpoint({
       path: `/past_meetings/${uuid}/polls`,
