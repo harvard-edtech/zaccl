@@ -241,7 +241,7 @@ class ECatMeeting extends EndpointCategory {
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
-   * @method listPastInstances
+   * @method getPastMeetingDetails
    * @param uuid the Zoom UUID of the meeting
    * @returns details of a past meeting instance
    */
@@ -279,7 +279,7 @@ class ECatMeeting extends EndpointCategory {
    */
   async listPastPollOccurrences(
     opts: {
-      uuid: string
+      uuid: string,
     }
   ): Promise<PollOccurrence[]> {
     // Ask Zoom for unprocessed poll data
