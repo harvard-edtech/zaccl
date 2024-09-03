@@ -20,6 +20,7 @@ import ZoomQuestionAndAnswerType from '../types/ZoomPollQuestionAndAnswerType';
 import ZoomPollType from '../types/ZoomPollType';
 import ZoomPollStatus from '../types/ZoomPollStatus';
 import ZoomPollQuestion from '../types/ZoomPollQuestion';
+import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -236,20 +237,54 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
+   * Get details of a past meeting instance
+   * @author Yuen Ler Chow
+   * @instance
+   * @memberof api.meeting
+   * @method listPastInstances
+   * @param uuid the Zoom UUID of the meeting
+   * @returns details of a past meeting instance
+   */
+  async getPastMeetingDetails(
+    opts: {
+      uuid: string,
+    },
+  ): Promise<ZoomMeetingDetails> {
+    return this.visitEndpoint({
+      path: `/past_meetings/${opts.uuid}`,
+      action: 'get the details of a past meeting instance',
+      method: 'GET',
+      errorMap: {
+        400: {
+          1010: 'User does not exist or does not belong to this account',
+          300: 'We could not access the details of this past meeting.',
+          200: 'You need a paid account to access details of a past meeting.',
+          12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+        },
+        404: {
+          3001: 'The meeting ID is invalid or the meeting has not ended.',
+        }
+      },
+    });
+  }
+
+  /**
    * List past poll occurrences
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
    * @method listPastPollOccurrences
-   * @param uuid the Zoom uuid of the meeting
+   * @param opts.uuid the Zoom UUID of the meeting
    * @returns list of past poll occurrences
    */
   async listPastPollOccurrences(
+    opts: {
       uuid: string
+    }
   ): Promise<PollOccurrence[]> {
     // Ask Zoom for unprocessed poll data
     const response = await this.visitEndpoint({
-      path: `/past_meetings/${uuid}/polls`,
+      path: `/past_meetings/${opts.uuid}/polls`,
       action: 'get the list of polls that occurred in a past meeting',
       method: 'GET',
       errorMap: {
