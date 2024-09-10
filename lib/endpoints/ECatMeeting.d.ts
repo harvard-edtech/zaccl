@@ -9,6 +9,7 @@ import ZoomMeeting from '../types/ZoomMeeting';
 import PollOccurrence from '../types/ZoomPollOccurrence';
 import PollInfo from '../types/ZoomPollInfo';
 import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
+import ZoomMeetingIdAndStartTime from '../types/ZoomMeetingIdAndStartTime';
 declare class ECatMeeting extends EndpointCategory {
     /**
      * Get info on a meeting
@@ -95,7 +96,7 @@ declare class ECatMeeting extends EndpointCategory {
      */
     listPastInstances(opts: {
         meetingId: number;
-    }): Promise<ZoomMeeting[]>;
+    }): Promise<ZoomMeetingIdAndStartTime[]>;
     /**
      * Get details of a past meeting instance
      * @author Yuen Ler Chow
