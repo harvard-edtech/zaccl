@@ -21,6 +21,7 @@ import ZoomPollType from '../types/ZoomPollType';
 import ZoomPollStatus from '../types/ZoomPollStatus';
 import ZoomPollQuestion from '../types/ZoomPollQuestion';
 import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
+import ZoomMeetingIdAndStartTime from '../types/ZoomMeetingIdAndStartTime';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -225,7 +226,7 @@ class ECatMeeting extends EndpointCategory {
     opts: {
       meetingId: number,
     },
-  ): Promise<ZoomMeeting[]> {
+  ): Promise<ZoomMeetingIdAndStartTime[]> {
     return this.visitEndpoint({
       path: `/past_meetings/${opts.meetingId}/instances`,
       action: 'get the list of ended meeting instances',
