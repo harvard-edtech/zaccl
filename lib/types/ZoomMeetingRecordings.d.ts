@@ -16,5 +16,6 @@ type ZoomMeetingRecordings = {
     type: ZoomMeetingOrWebinarType;
     uuid: string;
     recording_files?: ZoomRecordingFile[];
+    download_access_token?: string;
 };
 export default ZoomMeetingRecordings;

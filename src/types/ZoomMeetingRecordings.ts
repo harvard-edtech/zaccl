@@ -32,6 +32,8 @@ type ZoomMeetingRecordings = {
   uuid: string,
   // Recording file List
   recording_files?: ZoomRecordingFile[],
+  // JWT download access token that can be used to download the recording files. Only included if requested
+  download_access_token?: string,
 };
 
 export default ZoomMeetingRecordings;

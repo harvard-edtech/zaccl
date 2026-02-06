@@ -14,11 +14,14 @@ declare class ECatCloudRecording extends EndpointCategory {
      * @memberof api.cloudRecording
      * @method listMeetingRecordings
      * @param opts object containing all arguments
-     * @param options.meetingId the Zoom meeting ID or UUID
+     * @param opts.meetingId the Zoom meeting ID or UUID
+     * @param opts.includeDownloadAccessToken if true, the response will include a download_access_token
+     *   that can be used to download the recording files
      * @returns list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
      */
     listMeetingRecordings(opts: {
         meetingId: string | number;
+        includeDownloadAccessToken?: boolean;
     }): Promise<ZoomMeetingRecordings>;
     /**
      * List all cloud recordings of a user

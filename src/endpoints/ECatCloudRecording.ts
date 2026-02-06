@@ -29,12 +29,15 @@ class ECatCloudRecording extends EndpointCategory {
    * @memberof api.cloudRecording
    * @method listMeetingRecordings
    * @param opts object containing all arguments
-   * @param options.meetingId the Zoom meeting ID or UUID
+   * @param opts.meetingId the Zoom meeting ID or UUID
+   * @param opts.includeDownloadAccessToken if true, the response will include a download_access_token
+   *   that can be used to download the recording files
    * @returns list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
    */
   async listMeetingRecordings(
     opts: {
       meetingId: string | number,
+      includeDownloadAccessToken?: boolean,
     },
   ): Promise<ZoomMeetingRecordings> {
     // Check if required param is present
@@ -45,11 +48,19 @@ class ECatCloudRecording extends EndpointCategory {
       });
     }
 
+    // Create params
+    const params: { [k: string]: any } = {};
+    if (opts.includeDownloadAccessToken) {
+      params.include_fields = 'download_access_token';
+      params.ttl = 604800; // Max TTL
+    }
+
     return this.visitEndpoint({
       // Call function on meetingId to handle double encoding if necessary
       path: `/meetings/${doubleEncode(String(opts.meetingId))}/recordings`,
       method: 'GET',
       action: 'get all recordings of a meeting',
+      params,
       errorMap: {
         400: {
           1010: 'We could not find the user on this account',
