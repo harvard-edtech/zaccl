@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPastMeetingDetails">getPastMeetingDetails</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listAccountRecordings">listAccountRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.group.html">api.group</a><ul class='methods'><li data-type='method'><a href="api.group.html#listGroupMembers">listGroupMembers</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPastMeetingDetails">getPastMeetingDetails</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#getTranscript">getTranscript</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastMeetingParticipants">listPastMeetingParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -126,7 +126,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         return _super !== null &amp;&amp; _super.apply(this, arguments) || this;
     }
     /**
-     * Get info on a meeting
+     * Get info on a meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -137,7 +137,7 @@ var ECatMeeting = /** @class */ (function (_super) {
      * @param [opts.occurrenceId] ID for the meeting occurrence
      * @param [opts.showAllOccurrences=false] if truthy,
      *   retrieves all past occurrences
-     * @returns Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
+     * @returns Zoom meeting object
      */
     ECatMeeting.prototype.get = function (opts) {
         return __awaiter(this, void 0, void 0, function () {
@@ -171,7 +171,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         });
     };
     /**
-     * Create a new meeting
+     * Create a new meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -201,7 +201,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         });
     };
     /**
-     * Update a meeting
+     * Update a meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -240,7 +240,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         });
     };
     /**
-     * Delete a meeting
+     * Delete a meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -290,7 +290,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         });
     };
     /**
-     * Get a list of ended meeting instances
+     * Get a list of ended meeting instances (Medium)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -310,12 +310,13 @@ var ECatMeeting = /** @class */ (function (_super) {
                         errorMap: {
                             404: "We could not find a meeting with the ID ".concat(opts.meetingId),
                         },
+                        itemKey: 'meetings',
                     })];
             });
         });
     };
     /**
-     * Get details of a past meeting instance
+     * Get details of a past meeting instance (Light)
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
@@ -346,7 +347,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         });
     };
     /**
-     * List past poll occurrences
+     * List past poll occurrences (Medium)
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
@@ -446,7 +447,7 @@ var ECatMeeting = /** @class */ (function (_super) {
         });
     };
     /**
-     * Get poll info
+     * Get poll info (Light)
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
@@ -553,7 +554,7 @@ var ECatMeeting = /** @class */ (function (_super) {
      *   user is added as the only alt-host. This is because Zoom doesn't give us
      *   enough information to determine which user is deactivated, and thus,
      *   the only way to resolve the issue is to remove all previously existing
-     *   alt-hosts.
+     *   alt-hosts. (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -622,6 +623,70 @@ var ECatMeeting = /** @class */ (function (_super) {
                     // return updated meeting object
                     return [2 /*return*/, meetingObj];
                 }
+            });
+        });
+    };
+    /**
+     * Get meeting transcript (Medium)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method getTranscript
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom ID of the meeting (or UUID of a past meeting instance)
+     * @returns meeting transcript
+     */
+    ECatMeeting.prototype.getTranscript = function (opts) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.visitEndpoint({
+                        path: "/meetings/".concat(opts.meetingId, "/transcript"),
+                        action: 'get the meeting transcript',
+                        method: 'GET',
+                        errorMap: {
+                            400: 'Invalid meeting ID',
+                            403: 'You do not have permission to access the transcript for this meeting',
+                            404: {
+                                3322: 'The meeting transcript does not exist',
+                            },
+                        },
+                    })];
+            });
+        });
+    };
+    /**
+     * Get list of participants in a past meeting (Medium)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method listPastMeetingParticipants
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom UUID of the past meeting instance
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * @returns list of past meeting participants
+     */
+    ECatMeeting.prototype.listPastMeetingParticipants = function (opts) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.visitEndpoint({
+                        path: "/past_meetings/".concat(opts.meetingId, "/participants"),
+                        action: 'get the list of participants in a past meeting',
+                        method: 'GET',
+                        params: {
+                            page_size: 300, // max allowed page size
+                        },
+                        itemKey: 'participants',
+                        onNewPage: opts.onNewPage,
+                        errorMap: {
+                            400: {
+                                200: 'You need a paid account to access the participant list of a past meeting.',
+                                12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+                            },
+                            404: {
+                                3001: 'The meeting ID is invalid or the meeting has not ended.',
+                            },
+                        },
+                    })];
             });
         });
     };

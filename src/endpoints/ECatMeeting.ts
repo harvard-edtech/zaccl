@@ -22,10 +22,13 @@ import ZoomPollStatus from '../types/ZoomPollStatus';
 import ZoomPollQuestion from '../types/ZoomPollQuestion';
 import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 import ZoomMeetingIdAndStartTime from '../types/ZoomMeetingIdAndStartTime';
+import ZoomMeetingTranscript from '../types/ZoomMeetingTranscript';
+import ZoomPastMeetingParticipant from '../types/ZoomPastMeetingParticipant';
+import ZoomPastMeetingDetails from '../types/ZoomPastMeetingDetails';
 
 class ECatMeeting extends EndpointCategory {
   /**
-   * Get info on a meeting
+   * Get info on a meeting (Light)
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -36,7 +39,7 @@ class ECatMeeting extends EndpointCategory {
    * @param [opts.occurrenceId] ID for the meeting occurrence
    * @param [opts.showAllOccurrences=false] if truthy,
    *   retrieves all past occurrences
-   * @returns Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
+   * @returns Zoom meeting object
    */
   async get(
     opts: {
@@ -78,7 +81,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Create a new meeting
+   * Create a new meeting (Light)
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -110,7 +113,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Update a meeting
+   * Update a meeting (Light)
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -154,7 +157,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Delete a meeting
+   * Delete a meeting (Light)
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -212,7 +215,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Get a list of ended meeting instances
+   * Get a list of ended meeting instances (Medium)
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -234,11 +237,12 @@ class ECatMeeting extends EndpointCategory {
       errorMap: {
         404: `We could not find a meeting with the ID ${opts.meetingId}`,
       },
+      itemKey: 'meetings',
     });
   }
 
   /**
-   * Get details of a past meeting instance
+   * Get details of a past meeting instance (Light)
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
@@ -270,7 +274,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * List past poll occurrences
+   * List past poll occurrences (Medium)
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
@@ -394,7 +398,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Get poll info
+   * Get poll info (Light)
    * @author Yuen Ler Chow
    * @instance
    * @memberof api.meeting
@@ -554,7 +558,7 @@ class ECatMeeting extends EndpointCategory {
    *   user is added as the only alt-host. This is because Zoom doesn't give us
    *   enough information to determine which user is deactivated, and thus,
    *   the only way to resolve the issue is to remove all previously existing
-   *   alt-hosts.
+   *   alt-hosts. (Light)
    * @author Gabe Abrams
    * @author Aryan Pandey
    * @instance
@@ -630,6 +634,73 @@ class ECatMeeting extends EndpointCategory {
 
     // return updated meeting object
     return meetingObj;
+  }
+
+  /**
+   * Get meeting transcript (Medium)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.meeting
+   * @method getTranscript
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom ID of the meeting (or UUID of a past meeting instance)
+   * @returns meeting transcript
+   */
+  async getTranscript(
+    opts: {
+      meetingId: number,
+    },
+  ): Promise<ZoomMeetingTranscript> {
+    return this.visitEndpoint({
+      path: `/meetings/${opts.meetingId}/transcript`,
+      action: 'get the meeting transcript',
+      method: 'GET',
+      errorMap: {
+        400: 'Invalid meeting ID',
+        403: 'You do not have permission to access the transcript for this meeting',
+        404: {
+          3322: 'The meeting transcript does not exist',
+        },
+      },
+    });
+  }
+
+  /**
+   * Get list of participants in a past meeting (Medium)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.meeting
+   * @method listPastMeetingParticipants
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom UUID of the past meeting instance
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @returns list of past meeting participants
+   */
+  async listPastMeetingParticipants(
+    opts: {
+      meetingId: string,
+      onNewPage?: (participants: ZoomPastMeetingParticipant[]) => void, 
+    },
+  ): Promise<ZoomPastMeetingParticipant[]> {
+    return this.visitEndpoint({
+      path: `/past_meetings/${opts.meetingId}/participants`,
+      action: 'get the list of participants in a past meeting',
+      method: 'GET',
+      params: {
+        page_size: 300, // max allowed page size
+      },
+      itemKey: 'participants',
+      onNewPage: opts.onNewPage,
+      errorMap: {
+        400: {
+          200: 'You need a paid account to access the participant list of a past meeting.',
+          12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+        },
+        404: {
+          3001: 'The meeting ID is invalid or the meeting has not ended.',
+        },
+      },
+    });
   }
 }
 

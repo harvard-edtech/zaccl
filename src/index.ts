@@ -9,6 +9,7 @@ import ECatCloudRecording from './endpoints/ECatCloudRecording';
 import ECatMeeting from './endpoints/ECatMeeting';
 import ECatUser from './endpoints/ECatUser';
 import ECatWebinar from './endpoints/ECatWebinar';
+import ECatGroup from './endpoints/ECatGroup';
 
 // Import shared types
 import ZoomAPIConfig from './types/ZoomAPIConfig';
@@ -16,6 +17,29 @@ import InitPack from './shared/types/InitPack';
 import ZACCLError from './shared/classes/ZACCLError';
 import ErrorCode from './shared/types/ErrorCode';
 import ZoomAPIConfigType from './types/ZoomAPIConfigType';
+
+// Import all Zoom types
+import ZoomPanelist from './types/ZoomPanelist';
+import ZoomPollInfo from './types/ZoomPollInfo';
+import ZoomPollOccurrence from './types/ZoomPollOccurrence';
+import ZoomFileType from './types/ZoomFileType';
+import ZoomPollQuestion from './types/ZoomPollQuestion';
+import ZoomPollQuestionAndAnswerType from './types/ZoomPollQuestionAndAnswerType';
+import ZoomPollStatus from './types/ZoomPollStatus';
+import ZoomLoginMethod from './types/ZoomLoginMethod';
+import ZoomPollType from './types/ZoomPollType';
+import ZoomRecordingFile from './types/ZoomRecordingFile';
+import ZoomRecordingType from './types/ZoomRecordingType';
+import ZoomMeetingIdAndStartTime from './types/ZoomMeetingIdAndStartTime';
+import ZoomRecurrenceInfo from './types/ZoomRecurrenceInfo';
+import ZoomMeetingOrWebinarType from './types/ZoomMeetingOrWebinarType';
+import ZoomMeetingRecordings from './types/ZoomMeetingRecordings';
+import ZoomUserAnswer from './types/ZoomUserAnswer';
+import ZoomMeetingTranscript from './types/ZoomMeetingTranscript';
+import ZoomUsersAnswersToQuestion from './types/ZoomUsersAnswersToQuestion';
+import ZoomMeetingType from './types/ZoomMeetingType';
+import ZoomWebinar from './types/ZoomWebinar';
+import ZoomPastMeetingParticipant from './types/ZoomPastMeetingParticipant';
 
 // Import shared constants
 import DEFAULT_ZOOM_HOSTNAME from './shared/constants/DEFAULT_ZOOM_HOSTNAME';
@@ -137,9 +161,38 @@ const initZoomAPI = (
   api.meeting = new ECatMeeting(initPack);
   api.user = new ECatUser(initPack);
   api.webinar = new ECatWebinar(initPack);
+  api.group = new ECatGroup(initPack);
 
   // Return api instance
   return api;  
 };
 
 export default initZoomAPI;
+
+/*----------------------------------------*/
+/* ---------------- Types --------------- */
+/*----------------------------------------*/
+
+export {
+  ZoomPanelist,
+  ZoomPollInfo,
+  ZoomPollOccurrence,
+  ZoomFileType,
+  ZoomPollQuestion,
+  ZoomPollQuestionAndAnswerType,
+  ZoomPollStatus,
+  ZoomLoginMethod,
+  ZoomPollType,
+  ZoomRecordingFile,
+  ZoomRecordingType,
+  ZoomMeetingIdAndStartTime,
+  ZoomRecurrenceInfo,
+  ZoomMeetingOrWebinarType,
+  ZoomMeetingRecordings,
+  ZoomUserAnswer,
+  ZoomMeetingTranscript,
+  ZoomUsersAnswersToQuestion,
+  ZoomMeetingType,
+  ZoomWebinar,
+  ZoomPastMeetingParticipant,
+};

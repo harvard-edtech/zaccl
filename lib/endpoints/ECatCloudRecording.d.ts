@@ -6,9 +6,33 @@
  */
 import EndpointCategory from '../shared/interfaces/EndpointCategory';
 import ZoomMeetingRecordings from '../types/ZoomMeetingRecordings';
+import ZoomRecordingInAccount from '../types/ZoomRecordingInAccount';
 declare class ECatCloudRecording extends EndpointCategory {
     /**
-     * Get all recordings of a meeting
+     * List recordings in the account (Medium)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.cloudRecording
+     * @method listAccountRecordings
+     * @param opts object containing all arguments
+     * @param opts.fromYear the start of the date range to list recordings for (e.g. 2026)
+     * @param opts.fromMonth the month of the date range to list recordings for (1-12)
+     * @param [opts.fromDay] the day of the month of the date range to list recordings for (1-31, defaults to 1)
+     * @param [opts.accountId] the account ID of the account of interest (defaults to the account
+     * associated with the current access)
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * The function is passed the new page of results as an argument.
+     * @returns the list of recordings in the account
+     */
+    listAccountRecordings(opts: {
+        fromYear: number;
+        fromMonth: number;
+        fromDay?: number;
+        accountId?: string;
+        onNewPage?: (recordings: ZoomRecordingInAccount[]) => void;
+    }): Promise<ZoomRecordingInAccount[]>;
+    /**
+     * Get all recordings of a meeting (Light)
      * @author Aryan Pandey
      * @instance
      * @memberof api.cloudRecording
@@ -24,17 +48,13 @@ declare class ECatCloudRecording extends EndpointCategory {
         includeDownloadAccessToken?: boolean;
     }): Promise<ZoomMeetingRecordings>;
     /**
-     * List all cloud recordings of a user
+     * List all cloud recordings of a user (Medium)
      * @author Aryan Pandey
      * @instance
      * @memberof api.cloudRecording
      * @method listUserRecordings
      * @param opts object containing all arguments
      * @param opts.userId the user ID or email address of the user
-     * @param [opts.pageSize=300] number of records
-     *   returned from a single API call
-     * @param [opts.nextPageToken] token used to pageinate
-     *   through large result sets
      * @param [opts.searchTrash=false] set to true to retrieve
      *   meeting recordings from the trash.
      * @param [opts.startDate=1 month before today]
@@ -45,15 +65,16 @@ declare class ECatCloudRecording extends EndpointCategory {
      *   constructor or instance of Date object.
      *   Date needs to be within past 6 months. Time data (hours and seconds)
      *   is discarded
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+    
      * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
      */
     listUserRecordings(opts: {
         userId: string;
-        pageSize?: number;
-        nextPageToken?: string;
         searchTrash?: boolean;
         startDate?: (string | Date);
         endDate?: (string | Date);
+        onNewPage?: (recordings: ZoomMeetingRecordings[]) => void;
     }): Promise<ZoomMeetingRecordings[]>;
 }
 export default ECatCloudRecording;

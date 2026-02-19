@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPastMeetingDetails">getPastMeetingDetails</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listAccountRecordings">listAccountRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.group.html">api.group</a><ul class='methods'><li data-type='method'><a href="api.group.html#listGroupMembers">listGroupMembers</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPastMeetingDetails">getPastMeetingDetails</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#getTranscript">getTranscript</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastMeetingParticipants">listPastMeetingParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -114,7 +114,62 @@ var ECatCloudRecording = /** @class */ (function (_super) {
         return _super !== null &amp;&amp; _super.apply(this, arguments) || this;
     }
     /**
-     * Get all recordings of a meeting
+     * List recordings in the account (Medium)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.cloudRecording
+     * @method listAccountRecordings
+     * @param opts object containing all arguments
+     * @param opts.fromYear the start of the date range to list recordings for (e.g. 2026)
+     * @param opts.fromMonth the month of the date range to list recordings for (1-12)
+     * @param [opts.fromDay] the day of the month of the date range to list recordings for (1-31, defaults to 1)
+     * @param [opts.accountId] the account ID of the account of interest (defaults to the account
+     * associated with the current access)
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * The function is passed the new page of results as an argument.
+     * @returns the list of recordings in the account
+     */
+    ECatCloudRecording.prototype.listAccountRecordings = function (opts) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function () {
+            var fromYear, fromMonth, fromMonthPadded, fromDay, fromDayPadded, fromDateString, toYear, toMonth, toMonthPadded, toDay, toDayPadded, toDateString;
+            return __generator(this, function (_c) {
+                fromYear = opts.fromYear, fromMonth = opts.fromMonth;
+                fromMonthPadded = fromMonth &lt; 10 ? "0".concat(fromMonth) : fromMonth;
+                fromDay = (_a = opts.fromDay) !== null &amp;&amp; _a !== void 0 ? _a : 1;
+                fromDayPadded = fromDay &lt; 10 ? "0".concat(fromDay) : fromDay;
+                fromDateString = "".concat(fromYear, "-").concat(fromMonthPadded, "-").concat(fromDayPadded);
+                toYear = fromYear;
+                toMonth = opts.fromMonth + 1;
+                if (toMonth > 12) {
+                    toMonth = 1;
+                    toYear += 1;
+                }
+                toMonthPadded = toMonth &lt; 10 ? "0".concat(toMonth) : toMonth;
+                toDay = fromDay;
+                toDayPadded = toDay &lt; 10 ? "0".concat(toDay) : toDay;
+                toDateString = "".concat(toYear, "-").concat(toMonthPadded, "-").concat(toDayPadded);
+                return [2 /*return*/, this.visitEndpoint({
+                        path: "/accounts/".concat((_b = opts.accountId) !== null &amp;&amp; _b !== void 0 ? _b : 'me', "/recordings"),
+                        action: 'list recordings in the account',
+                        method: 'GET',
+                        params: {
+                            page_size: 300,
+                            from: fromDateString,
+                            to: toDateString,
+                        },
+                        onNewPage: opts.onNewPage,
+                        itemKey: 'meetings',
+                        errorMap: {
+                            400: 'Bad request',
+                            404: 'No recordings found',
+                        },
+                    })];
+            });
+        });
+    };
+    /**
+     * Get all recordings of a meeting (Light)
      * @author Aryan Pandey
      * @instance
      * @memberof api.cloudRecording
@@ -161,17 +216,13 @@ var ECatCloudRecording = /** @class */ (function (_super) {
         });
     };
     /**
-     * List all cloud recordings of a user
+     * List all cloud recordings of a user (Medium)
      * @author Aryan Pandey
      * @instance
      * @memberof api.cloudRecording
      * @method listUserRecordings
      * @param opts object containing all arguments
      * @param opts.userId the user ID or email address of the user
-     * @param [opts.pageSize=300] number of records
-     *   returned from a single API call
-     * @param [opts.nextPageToken] token used to pageinate
-     *   through large result sets
      * @param [opts.searchTrash=false] set to true to retrieve
      *   meeting recordings from the trash.
      * @param [opts.startDate=1 month before today]
@@ -182,13 +233,15 @@ var ECatCloudRecording = /** @class */ (function (_super) {
      *   constructor or instance of Date object.
      *   Date needs to be within past 6 months. Time data (hours and seconds)
      *   is discarded
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+    
      * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
      */
     ECatCloudRecording.prototype.listUserRecordings = function (opts) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, searchTrash, nextPageToken, startDate, endDate, pageSize, defaultDate, params;
+            var userId, searchTrash, startDate, endDate, onNewPage, defaultDate, params;
             return __generator(this, function (_a) {
-                userId = opts.userId, searchTrash = opts.searchTrash, nextPageToken = opts.nextPageToken, startDate = opts.startDate, endDate = opts.endDate, pageSize = opts.pageSize;
+                userId = opts.userId, searchTrash = opts.searchTrash, startDate = opts.startDate, endDate = opts.endDate, onNewPage = opts.onNewPage;
                 defaultDate = new Date();
                 defaultDate.setMonth(defaultDate.getMonth() - 1);
                 params = {
@@ -196,34 +249,19 @@ var ECatCloudRecording = /** @class */ (function (_super) {
                     trash: !!searchTrash,
                     from: (0, utils_1.formatDate)(defaultDate, 'startDate'),
                 };
-                if (pageSize) {
-                    // Throw error if pageSize is over max val of 300
-                    if (pageSize > 300) {
-                        throw new ZACCLError_1.default({
-                            message: "We requested ".concat(pageSize, " recordings from Zoom but it can only give us 300 at a time"),
-                            code: ErrorCode_1.default.InvalidPageSize,
-                        });
-                    }
-                    params.page_size = pageSize;
-                }
                 if (startDate) {
                     params.from = (0, utils_1.formatDate)(startDate, 'startDate');
                 }
                 if (endDate) {
                     params.to = (0, utils_1.formatDate)(endDate, 'endDate');
                 }
-                if (nextPageToken) {
-                    params.next_page_token = nextPageToken;
-                }
                 return [2 /*return*/, this.visitEndpoint({
                         path: "/users/".concat(userId, "/recordings"),
                         action: 'list all cloud recordings of a user',
                         method: 'GET',
                         params: params,
-                        postProcessor: function (body) {
-                            // Extract the recordings from the body
-                            return Array.from(body.meetings);
-                        },
+                        onNewPage: opts.onNewPage,
+                        itemKey: 'meetings',
                         errorMap: {
                             404: {
                                 1001: "We could not find the Zoom user ".concat(userId, " on this account"),

@@ -10,9 +10,11 @@ import PollOccurrence from '../types/ZoomPollOccurrence';
 import PollInfo from '../types/ZoomPollInfo';
 import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 import ZoomMeetingIdAndStartTime from '../types/ZoomMeetingIdAndStartTime';
+import ZoomMeetingTranscript from '../types/ZoomMeetingTranscript';
+import ZoomPastMeetingParticipant from '../types/ZoomPastMeetingParticipant';
 declare class ECatMeeting extends EndpointCategory {
     /**
-     * Get info on a meeting
+     * Get info on a meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -23,7 +25,7 @@ declare class ECatMeeting extends EndpointCategory {
      * @param [opts.occurrenceId] ID for the meeting occurrence
      * @param [opts.showAllOccurrences=false] if truthy,
      *   retrieves all past occurrences
-     * @returns Zoom meeting object {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses}
+     * @returns Zoom meeting object
      */
     get(opts: {
         meetingId: number;
@@ -31,7 +33,7 @@ declare class ECatMeeting extends EndpointCategory {
         showAllOccurrences?: boolean;
     }): Promise<ZoomMeeting>;
     /**
-     * Create a new meeting
+     * Create a new meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -47,7 +49,7 @@ declare class ECatMeeting extends EndpointCategory {
         meetingObj: ZoomMeeting;
     }): Promise<ZoomMeeting>;
     /**
-     * Update a meeting
+     * Update a meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -65,7 +67,7 @@ declare class ECatMeeting extends EndpointCategory {
         occurrenceId?: string;
     }): Promise<ZoomMeeting>;
     /**
-     * Delete a meeting
+     * Delete a meeting (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -84,7 +86,7 @@ declare class ECatMeeting extends EndpointCategory {
         notifyHosts?: boolean;
     }): Promise<ZoomMeeting>;
     /**
-     * Get a list of ended meeting instances
+     * Get a list of ended meeting instances (Medium)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -98,7 +100,7 @@ declare class ECatMeeting extends EndpointCategory {
         meetingId: number;
     }): Promise<ZoomMeetingIdAndStartTime[]>;
     /**
-     * Get details of a past meeting instance
+     * Get details of a past meeting instance (Light)
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
@@ -110,7 +112,7 @@ declare class ECatMeeting extends EndpointCategory {
         uuid: string;
     }): Promise<ZoomMeetingDetails>;
     /**
-     * List past poll occurrences
+     * List past poll occurrences (Medium)
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
@@ -122,7 +124,7 @@ declare class ECatMeeting extends EndpointCategory {
         uuid: string;
     }): Promise<PollOccurrence[]>;
     /**
-     * Get poll info
+     * Get poll info (Light)
      * @author Yuen Ler Chow
      * @instance
      * @memberof api.meeting
@@ -142,7 +144,7 @@ declare class ECatMeeting extends EndpointCategory {
      *   user is added as the only alt-host. This is because Zoom doesn't give us
      *   enough information to determine which user is deactivated, and thus,
      *   the only way to resolve the issue is to remove all previously existing
-     *   alt-hosts.
+     *   alt-hosts. (Light)
      * @author Gabe Abrams
      * @author Aryan Pandey
      * @instance
@@ -161,5 +163,33 @@ declare class ECatMeeting extends EndpointCategory {
         altHost: string;
         meetingObj?: ZoomMeeting;
     }): Promise<ZoomMeeting>;
+    /**
+     * Get meeting transcript (Medium)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method getTranscript
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom ID of the meeting (or UUID of a past meeting instance)
+     * @returns meeting transcript
+     */
+    getTranscript(opts: {
+        meetingId: number;
+    }): Promise<ZoomMeetingTranscript>;
+    /**
+     * Get list of participants in a past meeting (Medium)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method listPastMeetingParticipants
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom UUID of the past meeting instance
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * @returns list of past meeting participants
+     */
+    listPastMeetingParticipants(opts: {
+        meetingId: string;
+        onNewPage?: (participants: ZoomPastMeetingParticipant[]) => void;
+    }): Promise<ZoomPastMeetingParticipant[]>;
 }
 export default ECatMeeting;

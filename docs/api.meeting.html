@@ -27,7 +27,7 @@
 
 <nav style="border-right: 2px solid #ccc; padding-bottom: 25px;" >
     
-    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPastMeetingDetails">getPastMeetingDetails</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
+    <h2><a style="font-size: 30px;" href="index.html">ZACCL API</a></h2><h3>Endpoint Functions</h3><ul><li><a href="api.cloudRecording.html">api.cloudRecording</a><ul class='methods'><li data-type='method'><a href="api.cloudRecording.html#listAccountRecordings">listAccountRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listMeetingRecordings">listMeetingRecordings</a></li><li data-type='method'><a href="api.cloudRecording.html#listUserRecordings">listUserRecordings</a></li></ul></li><li><a href="api.group.html">api.group</a><ul class='methods'><li data-type='method'><a href="api.group.html#listGroupMembers">listGroupMembers</a></li></ul></li><li><a href="api.meeting.html">api.meeting</a><ul class='methods'><li data-type='method'><a href="api.meeting.html#addAltHost">addAltHost</a></li><li data-type='method'><a href="api.meeting.html#create">create</a></li><li data-type='method'><a href="api.meeting.html#delete">delete</a></li><li data-type='method'><a href="api.meeting.html#get">get</a></li><li data-type='method'><a href="api.meeting.html#getPastMeetingDetails">getPastMeetingDetails</a></li><li data-type='method'><a href="api.meeting.html#getPollInfo">getPollInfo</a></li><li data-type='method'><a href="api.meeting.html#getTranscript">getTranscript</a></li><li data-type='method'><a href="api.meeting.html#listPastInstances">listPastInstances</a></li><li data-type='method'><a href="api.meeting.html#listPastMeetingParticipants">listPastMeetingParticipants</a></li><li data-type='method'><a href="api.meeting.html#listPastPollOccurrences">listPastPollOccurrences</a></li><li data-type='method'><a href="api.meeting.html#update">update</a></li></ul></li><li><a href="api.user.html">api.user</a><ul class='methods'><li data-type='method'><a href="api.user.html#activate">activate</a></li><li data-type='method'><a href="api.user.html#addWebinarLicense">addWebinarLicense</a></li><li data-type='method'><a href="api.user.html#get">get</a></li><li data-type='method'><a href="api.user.html#getZAKToken">getZAKToken</a></li><li data-type='method'><a href="api.user.html#promoteToLicensed">promoteToLicensed</a></li></ul></li><li><a href="api.webinar.html">api.webinar</a><ul class='methods'><li data-type='method'><a href="api.webinar.html#addPanelist">addPanelist</a></li><li data-type='method'><a href="api.webinar.html#create">create</a></li><li data-type='method'><a href="api.webinar.html#get">get</a></li><li data-type='method'><a href="api.webinar.html#listPanelists">listPanelists</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -149,7 +149,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line509">line 509</a>
+        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line510">line 510</a>
     </li></ul></dd>
     
 
@@ -203,7 +203,7 @@
   user is added as the only alt-host. This is because Zoom doesn't give us
   enough information to determine which user is deactivated, and thus,
   the only way to resolve the issue is to remove all previously existing
-  alt-hosts.
+  alt-hosts. (Light)
 </div>
 
 
@@ -463,7 +463,7 @@
 
 
 <div class="description usertext">
-    Create a new meeting
+    Create a new meeting (Light)
 </div>
 
 
@@ -675,7 +675,7 @@
 
 
 <div class="description usertext">
-    Delete a meeting
+    Delete a meeting (Light)
 </div>
 
 
@@ -952,7 +952,7 @@
 
 
 <div class="description usertext">
-    Get info on a meeting
+    Get info on a meeting (Light)
 </div>
 
 
@@ -1154,7 +1154,7 @@
 
         
 <div class="param-desc">
-    Zoom meeting object <a href="https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses">https://marketplace.zoom.us/docs/api-reference/zoom-api/meetings/meeting#responses</a>
+    Zoom meeting object
 </div>
 
 
@@ -1180,7 +1180,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line276">line 276</a>
+        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line277">line 277</a>
     </li></ul></dd>
     
 
@@ -1227,7 +1227,7 @@
 
 
 <div class="description usertext">
-    Get details of a past meeting instance
+    Get details of a past meeting instance (Light)
 </div>
 
 
@@ -1328,7 +1328,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line407">line 407</a>
+        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line408">line 408</a>
     </li></ul></dd>
     
 
@@ -1375,7 +1375,7 @@
 
 
 <div class="description usertext">
-    Get poll info
+    Get poll info (Light)
 </div>
 
 
@@ -1526,6 +1526,198 @@
 
     
 
+    <h4 class="name" id="getTranscript"><span class="type-signature"></span>getTranscript<span class="signature">(opts)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line588">line 588</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>Gabe Abrams</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    Get meeting transcript (Medium)
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object containing all arguments
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>meetingId</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the Zoom ID of the meeting (or UUID of a past meeting instance)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    meeting transcript
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="listPastInstances"><span class="type-signature"></span>listPastInstances<span class="signature">(opts)</span><span class="type-signature"></span></h4>
 
     
@@ -1587,7 +1779,7 @@
 
 
 <div class="description usertext">
-    Get a list of ended meeting instances
+    Get a list of ended meeting instances (Medium)
 </div>
 
 
@@ -1720,6 +1912,236 @@
 
     
 
+    <h4 class="name" id="listPastMeetingParticipants"><span class="type-signature"></span>listPastMeetingParticipants<span class="signature">(opts)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line616">line 616</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>Gabe Abrams</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    Get list of participants in a past meeting (Medium)
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object containing all arguments
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>meetingId</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">the Zoom UUID of the past meeting instance</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onNewPage</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">callback function that is called when a new page of results is received.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    list of past meeting participants
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="listPastPollOccurrences"><span class="type-signature"></span>listPastPollOccurrences<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
@@ -1732,7 +2154,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line307">line 307</a>
+        <a href="ECatMeeting.js.html">ECatMeeting.js</a>, <a href="ECatMeeting.js.html#line308">line 308</a>
     </li></ul></dd>
     
 
@@ -1779,7 +2201,7 @@
 
 
 <div class="description usertext">
-    List past poll occurrences
+    List past poll occurrences (Medium)
 </div>
 
 
@@ -1929,7 +2351,7 @@
 
 
 <div class="description usertext">
-    Update a meeting
+    Update a meeting (Light)
 </div>
 
 

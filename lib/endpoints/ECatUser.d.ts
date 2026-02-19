@@ -7,7 +7,7 @@ import EndpointCategory from '../shared/interfaces/EndpointCategory';
 import ZoomUser from '../types/ZoomUser';
 declare class ECatUser extends EndpointCategory {
     /**
-     * Retrieve a user's ZAK token
+     * Retrieve a user's ZAK token (Light)
      * @author Aryan Pandey
      * @instance
      * @memberof api.user
@@ -21,7 +21,7 @@ declare class ECatUser extends EndpointCategory {
     }): Promise<string>;
     /**
      * (Re)activate a user and promote them to a "licensed" user (unless
-     *   dontPromoteToLicensed is true)
+     *   dontPromoteToLicensed is true) (Light)
      * @author Gabe Abrams
      * @instance
      * @memberof api.user
@@ -36,7 +36,7 @@ declare class ECatUser extends EndpointCategory {
         dontPromoteToLicensed?: boolean;
     }): Promise<any>;
     /**
-     * Add a webinar license to the user of interest
+     * Add a webinar license to the user of interest (Medium)
      * @author Gabe Abrams
      * @instance
      * @memberof api.user
@@ -51,7 +51,7 @@ declare class ECatUser extends EndpointCategory {
         webinarCapacity?: (100 | 500 | 1000 | 3000 | 5000 | 10000);
     }): Promise<any>;
     /**
-     * Get a user
+     * Get a user (Light)
      * @author Gabe Abrams
      * @instance
      * @memberof api.user
@@ -64,7 +64,7 @@ declare class ECatUser extends EndpointCategory {
         userId: string;
     }): Promise<ZoomUser>;
     /**
-     * Promote a user to "licensed" type
+     * Promote a user to "licensed" type (Light)
      * @author Gabe Abrams
      * @instance
      * @memberof api.user

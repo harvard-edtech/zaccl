@@ -1,4 +1,25 @@
 import ZoomAPI from './types/ZoomAPI';
+import ZoomPanelist from './types/ZoomPanelist';
+import ZoomPollInfo from './types/ZoomPollInfo';
+import ZoomPollOccurrence from './types/ZoomPollOccurrence';
+import ZoomFileType from './types/ZoomFileType';
+import ZoomPollQuestion from './types/ZoomPollQuestion';
+import ZoomPollQuestionAndAnswerType from './types/ZoomPollQuestionAndAnswerType';
+import ZoomPollStatus from './types/ZoomPollStatus';
+import ZoomLoginMethod from './types/ZoomLoginMethod';
+import ZoomPollType from './types/ZoomPollType';
+import ZoomRecordingFile from './types/ZoomRecordingFile';
+import ZoomRecordingType from './types/ZoomRecordingType';
+import ZoomMeetingIdAndStartTime from './types/ZoomMeetingIdAndStartTime';
+import ZoomRecurrenceInfo from './types/ZoomRecurrenceInfo';
+import ZoomMeetingOrWebinarType from './types/ZoomMeetingOrWebinarType';
+import ZoomMeetingRecordings from './types/ZoomMeetingRecordings';
+import ZoomUserAnswer from './types/ZoomUserAnswer';
+import ZoomMeetingTranscript from './types/ZoomMeetingTranscript';
+import ZoomUsersAnswersToQuestion from './types/ZoomUsersAnswersToQuestion';
+import ZoomMeetingType from './types/ZoomMeetingType';
+import ZoomWebinar from './types/ZoomWebinar';
+import ZoomPastMeetingParticipant from './types/ZoomPastMeetingParticipant';
 /**
  * Initialize Zoom api
  * @author Gabe Abrams
@@ -33,3 +54,4 @@ declare const initZoomAPI: (config?: {
     accountId?: string;
 }) => ZoomAPI;
 export default initZoomAPI;
+export { ZoomPanelist, ZoomPollInfo, ZoomPollOccurrence, ZoomFileType, ZoomPollQuestion, ZoomPollQuestionAndAnswerType, ZoomPollStatus, ZoomLoginMethod, ZoomPollType, ZoomRecordingFile, ZoomRecordingType, ZoomMeetingIdAndStartTime, ZoomRecurrenceInfo, ZoomMeetingOrWebinarType, ZoomMeetingRecordings, ZoomUserAnswer, ZoomMeetingTranscript, ZoomUsersAnswersToQuestion, ZoomMeetingType, ZoomWebinar, ZoomPastMeetingParticipant, };

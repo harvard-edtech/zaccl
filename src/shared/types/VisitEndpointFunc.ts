@@ -22,8 +22,10 @@ type VisitEndpointFunc = (
       },
       // Parameters/args/body to send with request
       params?: { [k: string]: any },
-      // Function that processes the response before returning
-      postProcessor?: (response: any) => any,
+      // The key in the response body where the list of items can be found (for paginated endpoints)
+      itemKey?: string,
+      // Callback function that is called when a new page of results is received (for paginated endpoints)
+      onNewPage?: (items: any[]) => void,
     },
   ) => Promise<any>
 );

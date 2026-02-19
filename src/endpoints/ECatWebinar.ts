@@ -13,7 +13,7 @@ import ZoomWebinar from '../types/ZoomWebinar';
 
 class ECatWebinar extends EndpointCategory {
   /**
-   * Get info on a Webinar
+   * Get info on a Webinar (Light)
    * @author Gabe Abrams
    * @instance
    * @memberof api.webinar
@@ -64,7 +64,7 @@ class ECatWebinar extends EndpointCategory {
   }
 
   /**
-   * Create a webinar
+   * Create a webinar (Light)
    * @author Gabe Abrams
    * @instance
    * @memberof api.webinar
@@ -101,7 +101,7 @@ class ECatWebinar extends EndpointCategory {
   }
 
   /**
-   * Add one panelist if not already in the list
+   * Add one panelist if not already in the list (Medium)
    * @author Gabe Abrams
    * @instance
    * @memberof api.webinar
@@ -144,7 +144,7 @@ class ECatWebinar extends EndpointCategory {
   }
 
   /**
-   * Get a list of panelists for a webinar
+   * Get a list of panelists for a webinar (Medium)
    * @author Gabe Abrams
    * @instance
    * @memberof api.webinar
@@ -171,6 +171,7 @@ class ECatWebinar extends EndpointCategory {
           3001: `Webinar ${opts.webinarId} could not be found or has expired`,
         },
       },
+      itemKey: 'panelists',
     });
 
     // Just keep list of panelists

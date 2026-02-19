@@ -8,7 +8,7 @@ import ZoomPanelist from '../types/ZoomPanelist';
 import ZoomWebinar from '../types/ZoomWebinar';
 declare class ECatWebinar extends EndpointCategory {
     /**
-     * Get info on a Webinar
+     * Get info on a Webinar (Light)
      * @author Gabe Abrams
      * @instance
      * @memberof api.webinar
@@ -26,7 +26,7 @@ declare class ECatWebinar extends EndpointCategory {
         showAllOccurrences?: boolean;
     }): Promise<ZoomWebinar>;
     /**
-     * Create a webinar
+     * Create a webinar (Light)
      * @author Gabe Abrams
      * @instance
      * @memberof api.webinar
@@ -43,7 +43,7 @@ declare class ECatWebinar extends EndpointCategory {
         webinarObj: ZoomWebinar;
     }): Promise<ZoomWebinar>;
     /**
-     * Add one panelist if not already in the list
+     * Add one panelist if not already in the list (Medium)
      * @author Gabe Abrams
      * @instance
      * @memberof api.webinar
@@ -60,7 +60,7 @@ declare class ECatWebinar extends EndpointCategory {
         panelistId: string;
     }): Promise<any>;
     /**
-     * Get a list of panelists for a webinar
+     * Get a list of panelists for a webinar (Medium)
      * @author Gabe Abrams
      * @instance
      * @memberof api.webinar

@@ -14,6 +14,7 @@ type VisitEndpointFunc = ((opts: {
     params?: {
         [k: string]: any;
     };
-    postProcessor?: (response: any) => any;
+    itemKey?: string;
+    onNewPage?: (items: any[]) => void;
 }) => Promise<any>);
 export default VisitEndpointFunc;

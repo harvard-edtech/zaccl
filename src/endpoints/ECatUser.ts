@@ -12,7 +12,7 @@ import ZoomUser from '../types/ZoomUser';
 
 class ECatUser extends EndpointCategory {
   /**
-   * Retrieve a user's ZAK token
+   * Retrieve a user's ZAK token (Light)
    * @author Aryan Pandey
    * @instance
    * @memberof api.user
@@ -33,21 +33,18 @@ class ECatUser extends EndpointCategory {
       params: {
         type: 'zak',
       },
+      itemKey: 'token',
       errorMap: {
         404: {
           1001: `We could not retrieve a token for Zoom user ${opts.userId} since this user does not exist`,
         },
-      },
-      postProcessor: (body) => {
-        // extract zak token from the response object
-        return body.token;
       },
     });
   }
 
   /**
    * (Re)activate a user and promote them to a "licensed" user (unless
-   *   dontPromoteToLicensed is true)
+   *   dontPromoteToLicensed is true) (Light)
    * @author Gabe Abrams
    * @instance
    * @memberof api.user
@@ -98,7 +95,7 @@ class ECatUser extends EndpointCategory {
   }
 
   /**
-   * Add a webinar license to the user of interest
+   * Add a webinar license to the user of interest (Medium)
    * @author Gabe Abrams
    * @instance
    * @memberof api.user
@@ -136,7 +133,7 @@ class ECatUser extends EndpointCategory {
   }
 
   /**
-   * Get a user
+   * Get a user (Light)
    * @author Gabe Abrams
    * @instance
    * @memberof api.user
@@ -163,7 +160,7 @@ class ECatUser extends EndpointCategory {
   }
 
   /**
-   * Promote a user to "licensed" type
+   * Promote a user to "licensed" type (Light)
    * @author Gabe Abrams
    * @instance
    * @memberof api.user

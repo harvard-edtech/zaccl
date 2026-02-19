@@ -28,6 +28,10 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
    * @param [opts.postProcessor] function that processes the response before
    *   returning
    * @param [opts.params] Parameters/args/body to send with request
+   * @param [opts.onNewPage] callback function that is called when a
+   * new page of results is received
+   * @param [opts.itemKey] the key in the response body where the list of items can be found
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received
    * @returns response body
    */
   return async (
@@ -44,7 +48,8 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
         )
       },
       params?: { [k: string]: any },
-      postProcessor?: (response: any) => any,
+      itemKey?: string,
+      onNewPage?: (page: any) => void,
     },
   ): Promise<any> => {
     const {
@@ -52,101 +57,140 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
       params,
       action,
       errorMap,
-      postProcessor,
+      itemKey,
+      onNewPage,
     } = opts;
     const method = (opts.method ?? 'GET');
 
-    /* ---------- Send Request ---------- */
+    // Paging state
+    let nextPageToken: string | undefined = undefined;
+    let isFirstPage = true;
+    let isPaginated = false; // Inferred by responses, always starts false
+    const allItems: any[] = [];
 
-    const { status, headers, body } = await sendZoomRequest({
-      path,
-      method,
-      params,
-      zoomAPIConfig,
-    });
+    // Fetch page by page
+    while (nextPageToken || isFirstPage) {
+      // Don't fetch another page unless we get a token
+      isFirstPage = false;
 
-    /* ----------- Rate Error ----------- */
+      /* ---------- Send Request ---------- */
 
-    if (status === 429) {
-      // Case-insensitive header lookup
-      const [rateLimitTypeHeader] = Object.keys(headers).filter((header) => {
-        return (header.toLowerCase() === 'x-ratelimit-type');
+      const { status, headers, body } = await sendZoomRequest({
+        path,
+        method,
+        params: {
+          ...params,
+          next_page_token: nextPageToken,
+        },
+        zoomAPIConfig,
       });
 
-      // Case-insensitive limit type lookup
-      const rateLimitType = (
-        headers[rateLimitTypeHeader]
-        && headers[rateLimitTypeHeader].toLowerCase()
-      );
+      /* ----------- Rate Error ----------- */
 
-      if (rateLimitType === ThrottleHeader.DailyLimitHeader) {
-        // Daily limit
-        throw new ZACCLError({
-          message: 'Zoom is very busy today. Please try this operation again tomorrow.',
-          code: ErrorCode.DailyLimitError,
+      if (status === 429) {
+        // Case-insensitive header lookup
+        const [rateLimitTypeHeader] = Object.keys(headers).filter((header) => {
+          return (header.toLowerCase() === 'x-ratelimit-type');
         });
-      } else if (rateLimitType === ThrottleHeader.RateLimitHeader) {
-        // Rate limit
-        throw new ZACCLError({
-          message: 'Zoom is very busy right now. Please try this operation again later.',
-          code: ErrorCode.RateLimitError,
-        });
-      } else {
-        // Unknown rate limit
-        throw new ZACCLError({
-          message: 'Zoom is very busy right now. Please try this operation again.',
-          code: ErrorCode.UnknownLimitError,
-        });
+
+        // Case-insensitive limit type lookup
+        const rateLimitType = (
+          headers[rateLimitTypeHeader]
+          && headers[rateLimitTypeHeader].toLowerCase()
+        );
+
+        if (rateLimitType === ThrottleHeader.DailyLimitHeader) {
+          // Daily limit
+          throw new ZACCLError({
+            message: 'Zoom is very busy today. Please try this operation again tomorrow.',
+            code: ErrorCode.DailyLimitError,
+          });
+        } else if (rateLimitType === ThrottleHeader.RateLimitHeader) {
+          // Rate limit
+          throw new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again later.',
+            code: ErrorCode.RateLimitError,
+          });
+        } else {
+          // Unknown rate limit
+          throw new ZACCLError({
+            message: 'Zoom is very busy right now. Please try this operation again.',
+            code: ErrorCode.UnknownLimitError,
+          });
+        }
       }
-    }
 
-    /* -------- Custom Error Code ------- */
+      /* -------- Custom Error Code ------- */
 
-    if (status < 200 || status >= 300) {
-      // A Zoom error occurred
+      if (status < 200 || status >= 300) {
+        // A Zoom error occurred
 
-      // Check status to see if its in the error map
-      let zoomErrorMessage = 'An unknown Zoom error occurred.';
-      if (errorMap[status]) {
-        if (typeof errorMap[status] === 'string') {
-          // Found the error message
-          zoomErrorMessage = (errorMap[status] as string);
-        } else if (body.code) {
-          // Check for nested error message
-          if (typeof errorMap[status][body.code] === 'string') {
-            // Found nested error message
-            zoomErrorMessage = errorMap[status][body.code];
-          } else if (body.message) {
-            // errorMap[status][code] did not return err message
-            // so we check body
-            if (typeof body.message === 'string') {
-              zoomErrorMessage = body.message;
+        // Check status to see if its in the error map
+        let zoomErrorMessage = 'An unknown Zoom error occurred.';
+        if (errorMap[status]) {
+          if (typeof errorMap[status] === 'string') {
+            // Found the error message
+            zoomErrorMessage = (errorMap[status] as string);
+          } else if (body.code) {
+            // Check for nested error message
+            if (typeof errorMap[status][body.code] === 'string') {
+              // Found nested error message
+              zoomErrorMessage = errorMap[status][body.code];
+            } else if (body.message) {
+              // errorMap[status][code] did not return err message
+              // so we check body
+              if (typeof body.message === 'string') {
+                zoomErrorMessage = body.message;
+              }
             }
           }
+        } else if (body.message) {
+          // Error message not in the error map so check body
+          if (typeof body.message === 'string') {
+            zoomErrorMessage = body.message;
+          }
         }
-      } else if (body.message) {
-        // Error message not in the error map so check body
-        if (typeof body.message === 'string') {
-          zoomErrorMessage = body.message;
-        }
+
+        const errorMessage = `We couldn't ${action} because an error occurred: ${zoomErrorMessage}`;
+        const errorCode = `ZOOM${status}${body.code ? `-${body.code}` : ''}`;
+
+        throw new ZACCLError({
+          message: errorMessage,
+          code: errorCode,
+        });
       }
 
-      const errorMessage = `We couldn't ${action} because an error occurred: ${zoomErrorMessage}`;
-      const errorCode = `ZOOM${status}${body.code ? `-${body.code}` : ''}`;
+      /* ----------- Postprocess ---------- */
 
-      throw new ZACCLError({
-        message: errorMessage,
-        code: errorCode,
-      });
-    }
+      // Extract results
+      let results = itemKey ? body[itemKey] : body;
 
-    /* ----- Post-process and Return ---- */
+      // Update next page token
+      nextPageToken = body.next_page_token;
+      if (nextPageToken) {
+        isPaginated = true;
+      }
 
-    if (postProcessor) {
-      return postProcessor(body);
-    }
+      // End if not paginated
+      if (!isPaginated) {
+        return results;
+      }
 
-    return body;
+      /* --------- Paging Handling -------- */
+
+      // Add items to allItems if paginated
+      if (Array.isArray(results)) {
+        allItems.push(...results);
+      }
+
+      // Call onNewPage callback if it exists
+      if (onNewPage) {
+        onNewPage(results);
+      }
+    };
+
+    // Return all items (if we got here, response is paginated)
+    return allItems;
   };
 };
 

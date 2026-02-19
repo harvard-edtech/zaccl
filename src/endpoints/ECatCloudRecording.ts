@@ -14,6 +14,7 @@ import ErrorCode from '../shared/types/ErrorCode';
 
 // Import shared types
 import ZoomMeetingRecordings from '../types/ZoomMeetingRecordings';
+import ZoomRecordingInAccount from '../types/ZoomRecordingInAccount';
 
 // Import shared helper
 import {
@@ -23,7 +24,72 @@ import {
 
 class ECatCloudRecording extends EndpointCategory {
   /**
-   * Get all recordings of a meeting
+   * List recordings in the account (Medium)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.cloudRecording
+   * @method listAccountRecordings
+   * @param opts object containing all arguments
+   * @param opts.fromYear the start of the date range to list recordings for (e.g. 2026)
+   * @param opts.fromMonth the month of the date range to list recordings for (1-12)
+   * @param [opts.fromDay] the day of the month of the date range to list recordings for (1-31, defaults to 1)
+   * @param [opts.accountId] the account ID of the account of interest (defaults to the account
+   * associated with the current access)
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * The function is passed the new page of results as an argument.
+   * @returns the list of recordings in the account
+   */
+  async listAccountRecordings(
+    opts: {
+      fromYear: number,
+      fromMonth: number,
+      fromDay?: number,
+      accountId?: string,
+      onNewPage?: (recordings: ZoomRecordingInAccount[]) => void,
+    },
+  ): Promise<ZoomRecordingInAccount[]> {
+    // Generate from date
+    const {
+      fromYear,
+      fromMonth,
+    } = opts;
+    const fromMonthPadded = fromMonth < 10 ? `0${fromMonth}` : fromMonth;
+    const fromDay = opts.fromDay ?? 1;
+    const fromDayPadded = fromDay < 10 ? `0${fromDay}` : fromDay;
+    const fromDateString = `${fromYear}-${fromMonthPadded}-${fromDayPadded}`;
+
+    // Generate to date
+    let toYear = fromYear;
+    let toMonth = opts.fromMonth + 1;
+    if (toMonth > 12) {
+      toMonth = 1;
+      toYear += 1;
+    }
+    let toMonthPadded = toMonth < 10 ? `0${toMonth}` : toMonth;
+    let toDay = fromDay;
+    let toDayPadded = toDay < 10 ? `0${toDay}` : toDay;
+    const toDateString = `${toYear}-${toMonthPadded}-${toDayPadded}`;
+
+    return this.visitEndpoint({
+      path: `/accounts/${opts.accountId ?? 'me'}/recordings`,
+      action: 'list recordings in the account',
+      method: 'GET',
+      params: {
+        page_size: 300, // max allowed page size
+        from: fromDateString,
+        to: toDateString,
+      },
+      onNewPage: opts.onNewPage,
+      itemKey: 'meetings',
+      errorMap: {
+        400: 'Bad request',
+        404: 'No recordings found',
+      },
+    });
+  }
+
+  /**
+   * Get all recordings of a meeting (Light)
    * @author Aryan Pandey
    * @instance
    * @memberof api.cloudRecording
@@ -74,17 +140,13 @@ class ECatCloudRecording extends EndpointCategory {
   }
 
   /**
-   * List all cloud recordings of a user
+   * List all cloud recordings of a user (Medium)
    * @author Aryan Pandey
    * @instance
    * @memberof api.cloudRecording
    * @method listUserRecordings
    * @param opts object containing all arguments
    * @param opts.userId the user ID or email address of the user
-   * @param [opts.pageSize=300] number of records
-   *   returned from a single API call
-   * @param [opts.nextPageToken] token used to pageinate
-   *   through large result sets
    * @param [opts.searchTrash=false] set to true to retrieve
    *   meeting recordings from the trash.
    * @param [opts.startDate=1 month before today]
@@ -95,26 +157,26 @@ class ECatCloudRecording extends EndpointCategory {
    *   constructor or instance of Date object.
    *   Date needs to be within past 6 months. Time data (hours and seconds)
    *   is discarded
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+  
    * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
    */
   async listUserRecordings(
     opts: {
       userId: string,
-      pageSize?: number,
-      nextPageToken?: string,
       searchTrash?: boolean,
       startDate?: (string | Date),
       endDate?: (string | Date),
+      onNewPage?: (recordings: ZoomMeetingRecordings[]) => void,
     },
   ): Promise<ZoomMeetingRecordings[]> {
     // Destructure arguments
     const {
       userId,
       searchTrash,
-      nextPageToken,
       startDate,
       endDate,
-      pageSize,
+      onNewPage,
     } = opts;
 
     // Declare default start Date to 1 month before
@@ -135,17 +197,6 @@ class ECatCloudRecording extends EndpointCategory {
       from: formatDate(defaultDate, 'startDate'),
     };
 
-    if (pageSize) {
-      // Throw error if pageSize is over max val of 300
-      if (pageSize > 300) {
-        throw new ZACCLError({
-          message: `We requested ${pageSize} recordings from Zoom but it can only give us 300 at a time`,
-          code: ErrorCode.InvalidPageSize,
-        });
-      }
-      params.page_size = pageSize;
-    }
-
     if (startDate) {
       params.from = formatDate(startDate, 'startDate');
     }
@@ -154,19 +205,13 @@ class ECatCloudRecording extends EndpointCategory {
       params.to = formatDate(endDate, 'endDate');
     }
 
-    if (nextPageToken) {
-      params.next_page_token = nextPageToken;
-    }
-
     return this.visitEndpoint({
       path: `/users/${userId}/recordings`,
       action: 'list all cloud recordings of a user',
       method: 'GET',
       params,
-      postProcessor: (body) => {
-        // Extract the recordings from the body
-        return Array.from(body.meetings);
-      },
+      onNewPage: opts.onNewPage,
+      itemKey: 'meetings',
       errorMap: {
         404: {
           1001: `We could not find the Zoom user ${userId} on this account`,
