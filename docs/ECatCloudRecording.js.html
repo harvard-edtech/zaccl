@@ -127,14 +127,16 @@ var ECatCloudRecording = /** @class */ (function (_super) {
      * associated with the current access)
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
      * The function is passed the new page of results as an argument.
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
      * @returns the list of recordings in the account
      */
     ECatCloudRecording.prototype.listAccountRecordings = function (opts) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var fromYear, fromMonth, fromMonthPadded, fromDay, fromDayPadded, fromDateString, toYear, toMonth, toMonthPadded, toDay, toDayPadded, toDateString;
+            var fromYear, fromMonth, minMsBetweenPageRequests, fromMonthPadded, fromDay, fromDayPadded, fromDateString, toYear, toMonth, toMonthPadded, toDay, toDayPadded, toDateString;
             return __generator(this, function (_c) {
-                fromYear = opts.fromYear, fromMonth = opts.fromMonth;
+                fromYear = opts.fromYear, fromMonth = opts.fromMonth, minMsBetweenPageRequests = opts.minMsBetweenPageRequests;
                 fromMonthPadded = fromMonth &lt; 10 ? "0".concat(fromMonth) : fromMonth;
                 fromDay = (_a = opts.fromDay) !== null &amp;&amp; _a !== void 0 ? _a : 1;
                 fromDayPadded = fromDay &lt; 10 ? "0".concat(fromDay) : fromDay;
@@ -159,6 +161,7 @@ var ECatCloudRecording = /** @class */ (function (_super) {
                             to: toDateString,
                         },
                         onNewPage: opts.onNewPage,
+                        minMsBetweenPageRequests: minMsBetweenPageRequests,
                         itemKey: 'meetings',
                         errorMap: {
                             400: 'Bad request',
@@ -234,14 +237,15 @@ var ECatCloudRecording = /** @class */ (function (_super) {
      *   Date needs to be within past 6 months. Time data (hours and seconds)
      *   is discarded
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
-    
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
      * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
      */
     ECatCloudRecording.prototype.listUserRecordings = function (opts) {
         return __awaiter(this, void 0, void 0, function () {
-            var userId, searchTrash, startDate, endDate, onNewPage, defaultDate, params;
+            var userId, searchTrash, startDate, endDate, onNewPage, minMsBetweenPageRequests, defaultDate, params;
             return __generator(this, function (_a) {
-                userId = opts.userId, searchTrash = opts.searchTrash, startDate = opts.startDate, endDate = opts.endDate, onNewPage = opts.onNewPage;
+                userId = opts.userId, searchTrash = opts.searchTrash, startDate = opts.startDate, endDate = opts.endDate, onNewPage = opts.onNewPage, minMsBetweenPageRequests = opts.minMsBetweenPageRequests;
                 defaultDate = new Date();
                 defaultDate.setMonth(defaultDate.getMonth() - 1);
                 params = {
@@ -261,6 +265,7 @@ var ECatCloudRecording = /** @class */ (function (_super) {
                         method: 'GET',
                         params: params,
                         onNewPage: opts.onNewPage,
+                        minMsBetweenPageRequests: minMsBetweenPageRequests,
                         itemKey: 'meetings',
                         errorMap: {
                             404: {

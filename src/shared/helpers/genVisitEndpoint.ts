@@ -31,7 +31,8 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
    * @param [opts.onNewPage] callback function that is called when a
    * new page of results is received
    * @param [opts.itemKey] the key in the response body where the list of items can be found
-   * @param [opts.onNewPage] callback function that is called when a new page of results is received
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between
+   * paginated requests, for custom throttle control
    * @returns response body
    */
   return async (
@@ -50,6 +51,7 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
       params?: { [k: string]: any },
       itemKey?: string,
       onNewPage?: (page: any) => void,
+      minMsBetweenPageRequests?: number,
     },
   ): Promise<any> => {
     const {
@@ -59,6 +61,7 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
       errorMap,
       itemKey,
       onNewPage,
+      minMsBetweenPageRequests
     } = opts;
     const method = (opts.method ?? 'GET');
 
@@ -67,6 +70,7 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
     let isFirstPage = true;
     let isPaginated = false; // Inferred by responses, always starts false
     const allItems: any[] = [];
+    let lastPageRequestTimestamp = 0;
 
     // Fetch page by page
     while (nextPageToken || isFirstPage) {
@@ -75,6 +79,24 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
 
       /* ---------- Send Request ---------- */
 
+      // If minMsBetweenPageRequests is set, ensure we wait at least that long between requests
+      if (minMsBetweenPageRequests) {
+        // Check how long since the last request
+        const now = Date.now();
+        const timeSinceLastRequest = now - lastPageRequestTimestamp;
+
+        // Wait extra time if we haven't waited long enough yet
+        if (timeSinceLastRequest < minMsBetweenPageRequests) {
+          await new Promise((resolve) => {
+            setTimeout(resolve, minMsBetweenPageRequests - timeSinceLastRequest);
+          });
+        }
+
+        // Update timestamp of last page request
+        lastPageRequestTimestamp = Date.now();
+      }
+
+      // Send the request
       const { status, headers, body } = await sendZoomRequest({
         path,
         method,

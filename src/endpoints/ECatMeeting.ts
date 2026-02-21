@@ -674,12 +674,15 @@ class ECatMeeting extends EndpointCategory {
    * @param opts object containing all arguments
    * @param opts.meetingId the Zoom UUID of the past meeting instance
    * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
    * @returns list of past meeting participants
    */
   async listPastMeetingParticipants(
     opts: {
       meetingId: string,
       onNewPage?: (participants: ZoomPastMeetingParticipant[]) => void, 
+      minMsBetweenPageRequests?: number,
     },
   ): Promise<ZoomPastMeetingParticipant[]> {
     return this.visitEndpoint({
@@ -691,6 +694,7 @@ class ECatMeeting extends EndpointCategory {
       },
       itemKey: 'participants',
       onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests: opts.minMsBetweenPageRequests,
       errorMap: {
         400: {
           200: 'You need a paid account to access the participant list of a past meeting.',

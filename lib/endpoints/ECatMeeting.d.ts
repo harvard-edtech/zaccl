@@ -185,11 +185,14 @@ declare class ECatMeeting extends EndpointCategory {
      * @param opts object containing all arguments
      * @param opts.meetingId the Zoom UUID of the past meeting instance
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
      * @returns list of past meeting participants
      */
     listPastMeetingParticipants(opts: {
         meetingId: string;
         onNewPage?: (participants: ZoomPastMeetingParticipant[]) => void;
+        minMsBetweenPageRequests?: number;
     }): Promise<ZoomPastMeetingParticipant[]>;
 }
 export default ECatMeeting;

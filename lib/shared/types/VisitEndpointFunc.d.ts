@@ -16,5 +16,6 @@ type VisitEndpointFunc = ((opts: {
     };
     itemKey?: string;
     onNewPage?: (items: any[]) => void;
+    minMsBetweenPageRequests?: number;
 }) => Promise<any>);
 export default VisitEndpointFunc;

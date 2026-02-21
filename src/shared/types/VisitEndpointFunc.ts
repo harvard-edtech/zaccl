@@ -26,6 +26,8 @@ type VisitEndpointFunc = (
       itemKey?: string,
       // Callback function that is called when a new page of results is received (for paginated endpoints)
       onNewPage?: (items: any[]) => void,
+      // Minimum time (in ms) to wait between paginated requests, for custom throttle control (for paginated endpoints)
+      minMsBetweenPageRequests?: number,
     },
   ) => Promise<any>
 );

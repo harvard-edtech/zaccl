@@ -37,6 +37,8 @@ class ECatCloudRecording extends EndpointCategory {
    * associated with the current access)
    * @param [opts.onNewPage] callback function that is called when a new page of results is received.
    * The function is passed the new page of results as an argument.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
    * @returns the list of recordings in the account
    */
   async listAccountRecordings(
@@ -46,12 +48,14 @@ class ECatCloudRecording extends EndpointCategory {
       fromDay?: number,
       accountId?: string,
       onNewPage?: (recordings: ZoomRecordingInAccount[]) => void,
+      minMsBetweenPageRequests?: number,
     },
   ): Promise<ZoomRecordingInAccount[]> {
     // Generate from date
     const {
       fromYear,
       fromMonth,
+      minMsBetweenPageRequests,
     } = opts;
     const fromMonthPadded = fromMonth < 10 ? `0${fromMonth}` : fromMonth;
     const fromDay = opts.fromDay ?? 1;
@@ -80,6 +84,7 @@ class ECatCloudRecording extends EndpointCategory {
         to: toDateString,
       },
       onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests,
       itemKey: 'meetings',
       errorMap: {
         400: 'Bad request',
@@ -158,7 +163,8 @@ class ECatCloudRecording extends EndpointCategory {
    *   Date needs to be within past 6 months. Time data (hours and seconds)
    *   is discarded
    * @param [opts.onNewPage] callback function that is called when a new page of results is received.
-  
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
    * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
    */
   async listUserRecordings(
@@ -168,6 +174,7 @@ class ECatCloudRecording extends EndpointCategory {
       startDate?: (string | Date),
       endDate?: (string | Date),
       onNewPage?: (recordings: ZoomMeetingRecordings[]) => void,
+      minMsBetweenPageRequests?: number,
     },
   ): Promise<ZoomMeetingRecordings[]> {
     // Destructure arguments
@@ -177,6 +184,7 @@ class ECatCloudRecording extends EndpointCategory {
       startDate,
       endDate,
       onNewPage,
+      minMsBetweenPageRequests,
     } = opts;
 
     // Declare default start Date to 1 month before
@@ -211,6 +219,7 @@ class ECatCloudRecording extends EndpointCategory {
       method: 'GET',
       params,
       onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests,
       itemKey: 'meetings',
       errorMap: {
         404: {

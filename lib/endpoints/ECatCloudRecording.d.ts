@@ -22,6 +22,8 @@ declare class ECatCloudRecording extends EndpointCategory {
      * associated with the current access)
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
      * The function is passed the new page of results as an argument.
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
      * @returns the list of recordings in the account
      */
     listAccountRecordings(opts: {
@@ -30,6 +32,7 @@ declare class ECatCloudRecording extends EndpointCategory {
         fromDay?: number;
         accountId?: string;
         onNewPage?: (recordings: ZoomRecordingInAccount[]) => void;
+        minMsBetweenPageRequests?: number;
     }): Promise<ZoomRecordingInAccount[]>;
     /**
      * Get all recordings of a meeting (Light)
@@ -66,7 +69,8 @@ declare class ECatCloudRecording extends EndpointCategory {
      *   Date needs to be within past 6 months. Time data (hours and seconds)
      *   is discarded
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
-    
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
      * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
      */
     listUserRecordings(opts: {
@@ -75,6 +79,7 @@ declare class ECatCloudRecording extends EndpointCategory {
         startDate?: (string | Date);
         endDate?: (string | Date);
         onNewPage?: (recordings: ZoomMeetingRecordings[]) => void;
+        minMsBetweenPageRequests?: number;
     }): Promise<ZoomMeetingRecordings[]>;
 }
 export default ECatCloudRecording;

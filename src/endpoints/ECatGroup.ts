@@ -20,11 +20,14 @@ class ECatGroup extends EndpointCategory {
    * @method listGroups
    * @param [opts] object containing all arguments
    * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
    * @returns the list of groups in the account
    */
   async listGroups(
     opts: {
       onNewPage?: (groups: ZoomGroup[]) => void,
+      minMsBetweenPageRequests?: number,
     } = {},
   ): Promise<ZoomGroup[]> {
     return this.visitEndpoint({
@@ -43,6 +46,7 @@ class ECatGroup extends EndpointCategory {
       },
       itemKey: 'groups',
       onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests: opts.minMsBetweenPageRequests,
     });
   }
 
@@ -55,12 +59,15 @@ class ECatGroup extends EndpointCategory {
    * @param opts object containing all arguments
    * @params opts.groupId the group ID of the group of interest
    * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
    * @returns the list of members in the group
    */
   async listGroupMembers(
     opts: {
       groupId: string,
       onNewPage?: (groupMembers: ZoomGroupMember[]) => void,
+      minMsBetweenPageRequests?: number,
     },): Promise<ZoomGroupMember[]> {
     return this.visitEndpoint({
       path: `/groups/${opts.groupId}/members`,
@@ -77,6 +84,7 @@ class ECatGroup extends EndpointCategory {
         },
       },
       onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests: opts.minMsBetweenPageRequests,
     });
   }
 }
