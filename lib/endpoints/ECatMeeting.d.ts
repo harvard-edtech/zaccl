@@ -248,7 +248,7 @@ declare class ECatMeeting extends EndpointCategory {
      * @param opts.meetingId the Zoom UUID of the meeting
      * @returns list of questions and answers from the meeting
      */
-    getMeetingQAReport(opts: {
+    getQAReport(opts: {
         meetingId: string;
     }): Promise<ZoomMeetingQAReportItem[]>;
 }

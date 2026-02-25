@@ -832,7 +832,7 @@ class ECatMeeting extends EndpointCategory {
    * @param opts.meetingId the Zoom UUID of the meeting
    * @returns list of questions and answers from the meeting
    */
-  async getMeetingQAReport(
+  async getQAReport(
     opts: {
       meetingId: string,
     },
