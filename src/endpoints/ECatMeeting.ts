@@ -710,7 +710,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Get a meeting activities report
+   * Get a meeting activities report (Heavy)
    * @author Gabe Abrams
    * @instance
    * @memberof api.meeting
@@ -780,7 +780,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Get a participant report for a meeting
+   * Get a participant report for a meeting (Heavy)
    * @author Gabe Abrams
    * @instance
    * @memberof api.meeting
@@ -823,7 +823,7 @@ class ECatMeeting extends EndpointCategory {
   }
 
   /**
-   * Get a question and answer report for a meeting
+   * Get a question and answer report for a meeting (Heavy)
    * @author Gabe Abrams
    * @instance
    * @memberof api.meeting
