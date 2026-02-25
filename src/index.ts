@@ -40,6 +40,9 @@ import ZoomUsersAnswersToQuestion from './types/ZoomUsersAnswersToQuestion';
 import ZoomMeetingType from './types/ZoomMeetingType';
 import ZoomWebinar from './types/ZoomWebinar';
 import ZoomPastMeetingParticipant from './types/ZoomPastMeetingParticipant';
+import ZoomMeetingActivitiesReportItem from './types/ZoomMeetingActivitiesReportItem';
+import ZoomParticipantInReport from './types/ZoomParticipantInReport';
+import ZoomMeetingQAReportItem from './types/ZoomMeetingQAReportItem';
 
 // Import shared constants
 import DEFAULT_ZOOM_HOSTNAME from './shared/constants/DEFAULT_ZOOM_HOSTNAME';
@@ -195,4 +198,7 @@ export {
   ZoomMeetingType,
   ZoomWebinar,
   ZoomPastMeetingParticipant,
+  ZoomMeetingActivitiesReportItem,
+  ZoomParticipantInReport,
+  ZoomMeetingQAReportItem,
 };

@@ -20,6 +20,9 @@ import ZoomUsersAnswersToQuestion from './types/ZoomUsersAnswersToQuestion';
 import ZoomMeetingType from './types/ZoomMeetingType';
 import ZoomWebinar from './types/ZoomWebinar';
 import ZoomPastMeetingParticipant from './types/ZoomPastMeetingParticipant';
+import ZoomMeetingActivitiesReportItem from './types/ZoomMeetingActivitiesReportItem';
+import ZoomParticipantInReport from './types/ZoomParticipantInReport';
+import ZoomMeetingQAReportItem from './types/ZoomMeetingQAReportItem';
 /**
  * Initialize Zoom api
  * @author Gabe Abrams
@@ -54,4 +57,4 @@ declare const initZoomAPI: (config?: {
     accountId?: string;
 }) => ZoomAPI;
 export default initZoomAPI;
-export { ZoomPanelist, ZoomPollInfo, ZoomPollOccurrence, ZoomFileType, ZoomPollQuestion, ZoomPollQuestionAndAnswerType, ZoomPollStatus, ZoomLoginMethod, ZoomPollType, ZoomRecordingFile, ZoomRecordingType, ZoomMeetingIdAndStartTime, ZoomRecurrenceInfo, ZoomMeetingOrWebinarType, ZoomMeetingRecordings, ZoomUserAnswer, ZoomMeetingTranscript, ZoomUsersAnswersToQuestion, ZoomMeetingType, ZoomWebinar, ZoomPastMeetingParticipant, };
+export { ZoomPanelist, ZoomPollInfo, ZoomPollOccurrence, ZoomFileType, ZoomPollQuestion, ZoomPollQuestionAndAnswerType, ZoomPollStatus, ZoomLoginMethod, ZoomPollType, ZoomRecordingFile, ZoomRecordingType, ZoomMeetingIdAndStartTime, ZoomRecurrenceInfo, ZoomMeetingOrWebinarType, ZoomMeetingRecordings, ZoomUserAnswer, ZoomMeetingTranscript, ZoomUsersAnswersToQuestion, ZoomMeetingType, ZoomWebinar, ZoomPastMeetingParticipant, ZoomMeetingActivitiesReportItem, ZoomParticipantInReport, ZoomMeetingQAReportItem, };

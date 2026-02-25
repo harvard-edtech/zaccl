@@ -9,7 +9,10 @@ import EndpointCategory from '../shared/interfaces/EndpointCategory';
 
 // Import shared types
 import ZoomPanelist from '../types/ZoomPanelist';
+import ZoomParticipantInReport from '../types/ZoomParticipantInReport';
 import ZoomWebinar from '../types/ZoomWebinar';
+import ZoomWebinarPollReport from '../types/ZoomWebinarPollReport';
+import ZoomWebinarQAReport from '../types/ZoomWebinarQAReport';
 
 class ECatWebinar extends EndpointCategory {
   /**
@@ -27,7 +30,7 @@ class ECatWebinar extends EndpointCategory {
    */
   async get(
     opts: {
-      webinarId: number,
+      webinarId: number | string,
       occurrenceId?: string,
       showAllOccurrences?: boolean,
     },
@@ -114,7 +117,7 @@ class ECatWebinar extends EndpointCategory {
    */
   async addPanelist(
     opts: {
-      webinarId: number,
+      webinarId: number | string,
       panelistName: string,
       panelistId: string,
     },
@@ -155,7 +158,7 @@ class ECatWebinar extends EndpointCategory {
    */
   async listPanelists(
     opts: {
-      webinarId: number,
+      webinarId: string | number,
     },
   ): Promise<ZoomPanelist[]> {
     const response = await this.visitEndpoint({
@@ -176,6 +179,112 @@ class ECatWebinar extends EndpointCategory {
 
     // Just keep list of panelists
     return response.panelists;
+  }
+
+  /**
+   * Get a list of participants for a webinar (Heavy)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.webinar
+   * @method getWebinarParticipantReport
+   * @param opts object containing all arguments
+   * @param opts.webinarId the id for the webinar to query
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
+   * @returns list of participants
+   */
+  async getWebinarParticipantReport(
+    opts: {
+      webinarId: number | string,
+      onNewPage?: (participants: ZoomParticipantInReport[]) => void,
+      minMsBetweenPageRequests?: number,
+    },
+  ): Promise<ZoomParticipantInReport[]> {
+    return this.visitEndpoint({
+      path: `/report/webinars/${opts.webinarId}/participants`,
+      action: 'get participant report for a webinar',
+      method: 'GET',
+      params: {
+        page_size: 300, // Max page size
+      },
+      onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests: opts.minMsBetweenPageRequests,
+      errorMap: {
+        400: {
+          1010: 'The Zoom user could not be found on this account',
+          12702: 'Cannot access a webinar from more than a year ago',
+          200: 'No permission to access this webinar',
+        },
+        404: {
+          3001: `Webinar ${opts.webinarId} could not be found or has expired`,
+        },
+      },
+    });
+  }
+
+  /**
+   * Get a poll report for a webinar (Heavy)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.webinar
+   * @method getPollReport
+   * @param opts object containing all arguments
+   * @param opts.webinarId the id for the webinar to query
+   * @returns list of polls
+   */
+  async getPollReport(
+    opts: {
+      webinarId: number | string,
+    },
+  ): Promise<ZoomWebinarPollReport> {
+    return this.visitEndpoint({
+      path: `/report/webinars/${opts.webinarId}/polls`,
+      action: 'get poll report for a webinar',
+      method: 'GET',
+      errorMap: {
+        400: {
+          1010: 'The Zoom user could not be found on this account',
+          12702: 'Cannot access a webinar from more than a year ago',
+          200: 'No permission to access this webinar',
+        },
+        404: {
+          3001: `Webinar ${opts.webinarId} could not be found or has expired`,
+        },
+      },
+    });
+  }
+
+  /**
+   * Get a Q&A report for a webinar (Heavy)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.webinar
+   * @method getQAReport
+   * @param opts object containing all arguments
+   * @param opts.webinarId the id for the webinar to query
+   * @returns Q&A report for the webinar
+   */
+  async getQAReport(
+    opts: {
+      webinarId: number | string,
+    },
+  ): Promise<ZoomWebinarQAReport> {
+    return this.visitEndpoint({
+      path: `/report/webinars/${opts.webinarId}/qa`,
+      action: 'get Q&A report for a webinar',
+      method: 'GET',
+      errorMap: {
+        400: {
+          1010: 'The Zoom user could not be found on this account',
+          12702: 'Cannot access a webinar from more than a year ago',
+          200: 'No permission to access this webinar',
+        },
+        404: {
+          3001: `Webinar ${opts.webinarId} could not be found or has expired`,
+        },
+      },
+    });
   }
 }
 

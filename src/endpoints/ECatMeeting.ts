@@ -24,7 +24,9 @@ import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 import ZoomMeetingIdAndStartTime from '../types/ZoomMeetingIdAndStartTime';
 import ZoomMeetingTranscript from '../types/ZoomMeetingTranscript';
 import ZoomPastMeetingParticipant from '../types/ZoomPastMeetingParticipant';
-import ZoomPastMeetingDetails from '../types/ZoomPastMeetingDetails';
+import ZoomMeetingActivitiesReportItem from '../types/ZoomMeetingActivitiesReportItem';
+import ZoomParticipantInReport from '../types/ZoomParticipantInReport';
+import ZoomMeetingQAReportItem from '../types/ZoomMeetingQAReportItem';
 
 class ECatMeeting extends EndpointCategory {
   /**
@@ -699,6 +701,150 @@ class ECatMeeting extends EndpointCategory {
         400: {
           200: 'You need a paid account to access the participant list of a past meeting.',
           12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+        },
+        404: {
+          3001: 'The meeting ID is invalid or the meeting has not ended.',
+        },
+      },
+    });
+  }
+
+  /**
+   * Get a meeting activities report
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.meeting
+   * @method getActivitiesReport
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom UUID of the meeting
+   * @param opts.startTimestamp the start of the time range to get activities for, in ms since epoch
+   * @param [opts.endTimestamp] the end of the time range to get activities for, in ms since epoch.
+   * If not provided, defaults to startTimestamp + 24 hours
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
+   * @returns list of past meeting participants
+   */
+  async getActivitiesReport(
+    opts: {
+      meetingId: string,
+      startTimestamp: number,
+      endTimestamp?: number,
+      onNewPage?: (activityItems: ZoomMeetingActivitiesReportItem[]) => void, 
+      minMsBetweenPageRequests?: number,
+    },
+  ): Promise<ZoomMeetingActivitiesReportItem[]> {
+    // Destructure opts
+    const {
+      meetingId,
+      startTimestamp,
+    } = opts;
+
+    // Determine end timestamp
+    const endTimestamp = (
+      opts.endTimestamp
+      || (startTimestamp + 24 * 60 * 60 * 1000) // default to 24 hours after start time
+    );
+
+    // Convert timestamps to yyyy-MM-dd format
+    const startYear = new Date(startTimestamp).getUTCFullYear();
+    const startMonth = String(new Date(startTimestamp).getUTCMonth() + 1).padStart(2, '0');
+    const startDay = String(new Date(startTimestamp).getUTCDate()).padStart(2, '0');
+    const endYear = new Date(endTimestamp).getUTCFullYear();
+    const endMonth = String(new Date(endTimestamp).getUTCMonth() + 1).padStart(2, '0');
+    const endDay = String(new Date(endTimestamp).getUTCDate()).padStart(2, '0');
+    const from = `${startYear}-${startMonth}-${startDay}`;
+    const to = `${endYear}-${endMonth}-${endDay}`;
+
+    // Call endpoint
+    return this.visitEndpoint({
+      path: '/report/meeting_activities',
+      action: 'get a meeting activities report',
+      method: 'GET',
+      params: {
+        page_size: 300, // max allowed page size
+        meeting_number: meetingId,
+        from,
+        to, 
+        activity_type: -1, // All Activities
+      },
+      itemKey: 'meeting_activity_logs',
+      onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests: opts.minMsBetweenPageRequests,
+      errorMap: {
+        400: 'Bad request',
+        403: 'Not allowed',
+        404: 'Meeting not found',
+      },
+    });
+  }
+
+  /**
+   * Get a participant report for a meeting
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.meeting
+   * @method getParticipantReport
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom UUID of the meeting
+   * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+   * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+   * for custom throttle control
+   * @returns list of meeting participants with report details
+   */
+  async getParticipantReport(
+    opts: {
+      meetingId: string,
+      onNewPage?: (participants: ZoomParticipantInReport[]) => void,
+      minMsBetweenPageRequests?: number,
+    },
+  ): Promise<ZoomParticipantInReport[]> {
+    return this.visitEndpoint({
+      path: `/report/meetings/${opts.meetingId}/participants`,
+      action: 'get a participant report for a meeting',
+      method: 'GET',
+      params: {
+        page_size: 300, // max allowed page size
+      },
+      itemKey: 'participants',
+      onNewPage: opts.onNewPage,
+      minMsBetweenPageRequests: opts.minMsBetweenPageRequests,
+      errorMap: {
+        400: {
+          1010: 'User does not exist or does not belong to this account',
+          12702: 'You are not allowed to access information about meetings that occurred more than 1 year ago.',
+          200: 'You do not have the permission create a meeting participants report',
+        },
+        404: {
+          3001: 'The meeting ID is invalid or the meeting has not ended.',
+        },
+      },
+    });
+  }
+
+  /**
+   * Get a question and answer report for a meeting
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.meeting
+   * @method getMeetingQAReport
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom UUID of the meeting
+   * @returns list of questions and answers from the meeting
+   */
+  async getMeetingQAReport(
+    opts: {
+      meetingId: string,
+    },
+  ): Promise<ZoomMeetingQAReportItem[]> {
+    return this.visitEndpoint({
+      path: `/report/meetings/${opts.meetingId}/qa`,
+      action: 'get a question and answer report for a meeting',
+      method: 'GET',
+      itemKey: 'questions',
+      errorMap: {
+        400: {
+          200: 'You are not allowed to create a meeting question and answer report',
         },
         404: {
           3001: 'The meeting ID is invalid or the meeting has not ended.',

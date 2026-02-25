@@ -12,6 +12,9 @@ import ZoomMeetingDetails from '../types/ZoomMeetingDetails';
 import ZoomMeetingIdAndStartTime from '../types/ZoomMeetingIdAndStartTime';
 import ZoomMeetingTranscript from '../types/ZoomMeetingTranscript';
 import ZoomPastMeetingParticipant from '../types/ZoomPastMeetingParticipant';
+import ZoomMeetingActivitiesReportItem from '../types/ZoomMeetingActivitiesReportItem';
+import ZoomParticipantInReport from '../types/ZoomParticipantInReport';
+import ZoomMeetingQAReportItem from '../types/ZoomMeetingQAReportItem';
 declare class ECatMeeting extends EndpointCategory {
     /**
      * Get info on a meeting (Light)
@@ -194,5 +197,59 @@ declare class ECatMeeting extends EndpointCategory {
         onNewPage?: (participants: ZoomPastMeetingParticipant[]) => void;
         minMsBetweenPageRequests?: number;
     }): Promise<ZoomPastMeetingParticipant[]>;
+    /**
+     * Get a meeting activities report
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method getActivitiesReport
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom UUID of the meeting
+     * @param opts.startTimestamp the start of the time range to get activities for, in ms since epoch
+     * @param [opts.endTimestamp] the end of the time range to get activities for, in ms since epoch.
+     * If not provided, defaults to startTimestamp + 24 hours
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
+     * @returns list of past meeting participants
+     */
+    getActivitiesReport(opts: {
+        meetingId: string;
+        startTimestamp: number;
+        endTimestamp?: number;
+        onNewPage?: (activityItems: ZoomMeetingActivitiesReportItem[]) => void;
+        minMsBetweenPageRequests?: number;
+    }): Promise<ZoomMeetingActivitiesReportItem[]>;
+    /**
+     * Get a participant report for a meeting
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method getParticipantReport
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom UUID of the meeting
+     * @param [opts.onNewPage] callback function that is called when a new page of results is received.
+     * @param [opts.minMsBetweenPageRequests] minimum time (in ms) to wait between paginated requests,
+     * for custom throttle control
+     * @returns list of meeting participants with report details
+     */
+    getParticipantReport(opts: {
+        meetingId: string;
+        onNewPage?: (participants: ZoomParticipantInReport[]) => void;
+        minMsBetweenPageRequests?: number;
+    }): Promise<ZoomParticipantInReport[]>;
+    /**
+     * Get a question and answer report for a meeting
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.meeting
+     * @method getMeetingQAReport
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom UUID of the meeting
+     * @returns list of questions and answers from the meeting
+     */
+    getMeetingQAReport(opts: {
+        meetingId: string;
+    }): Promise<ZoomMeetingQAReportItem[]>;
 }
 export default ECatMeeting;
