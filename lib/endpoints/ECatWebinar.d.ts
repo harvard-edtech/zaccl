@@ -80,7 +80,7 @@ declare class ECatWebinar extends EndpointCategory {
      * @author Gabe Abrams
      * @instance
      * @memberof api.webinar
-     * @method getWebinarParticipantReport
+     * @method getParticipantReport
      * @param opts object containing all arguments
      * @param opts.webinarId the id for the webinar to query
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
@@ -88,7 +88,7 @@ declare class ECatWebinar extends EndpointCategory {
      * for custom throttle control
      * @returns list of participants
      */
-    getWebinarParticipantReport(opts: {
+    getParticipantReport(opts: {
         webinarId: number | string;
         onNewPage?: (participants: ZoomParticipantInReport[]) => void;
         minMsBetweenPageRequests?: number;

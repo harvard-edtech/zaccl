@@ -243,7 +243,7 @@ declare class ECatMeeting extends EndpointCategory {
      * @author Gabe Abrams
      * @instance
      * @memberof api.meeting
-     * @method getMeetingQAReport
+     * @method getQAReport
      * @param opts object containing all arguments
      * @param opts.meetingId the Zoom UUID of the meeting
      * @returns list of questions and answers from the meeting
