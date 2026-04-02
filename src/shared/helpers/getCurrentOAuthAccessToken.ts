@@ -1,6 +1,3 @@
-// Import axios
-import axios from 'axios';
-
 // Import shared classes
 import Mutex from '../classes/Mutex';
 import ZACCLError from '../classes/ZACCLError';
@@ -63,20 +60,29 @@ const getCurrentOAuthAccessToken = async (zoomAPIConfig: ZoomAPIConfig) => {
       || (Date.now() + BUFFER_TIME_MS > expiryTimestamp)
     ) {
       // Token is expired, refresh it
-      const res = await axios({
-        method: 'POST',
-        url: `https://${zoomAPIConfig.zoomHost}/oauth/token?grant_type=account_credentials&account_id=${zoomAPIConfig.accountId}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from(`${zoomAPIConfig.clientId}:${zoomAPIConfig.clientSecret}`).toString('base64')}`,
+      const res = await fetch(
+        `https://${zoomAPIConfig.zoomHost}/oauth/token?grant_type=account_credentials&account_id=${zoomAPIConfig.accountId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(`${zoomAPIConfig.clientId}:${zoomAPIConfig.clientSecret}`).toString('base64')}`,
+          },
         },
-      });
-      accessToken = res.data.access_token;
+      );
+
+      // Throw if the request failed
+      if (!res.ok) {
+        throw new Error(`OAuth token request failed with status ${res.status}`);
+      }
+
+      const data = await res.json();
+      accessToken = data.access_token;
       expiryTimestamp = (
         // Current timestamp
         Date.now()
         // + lifespan
-        + (res.data.expires_in * 1000)
+        + (data.expires_in * 1000)
         // - five minutes of buffer time
         - (5 * 60 * 1000)
       );
