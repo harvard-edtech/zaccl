@@ -43,6 +43,7 @@ import ZoomPastMeetingParticipant from './types/ZoomPastMeetingParticipant';
 import ZoomMeetingActivitiesReportItem from './types/ZoomMeetingActivitiesReportItem';
 import ZoomParticipantInReport from './types/ZoomParticipantInReport';
 import ZoomMeetingQAReportItem from './types/ZoomMeetingQAReportItem';
+import ZoomRecordingInAccount from './types/ZoomRecordingInAccount';
 
 // Import shared constants
 import DEFAULT_ZOOM_HOSTNAME from './shared/constants/DEFAULT_ZOOM_HOSTNAME';
@@ -98,50 +99,104 @@ const initZoomAPI = (
     (config.key || process.env.ZOOM_KEY)
     && (config.secret || process.env.ZOOM_SECRET)
   ) {
+    // Find key
+    const key = (
+      config.key
+      ?? process.env.ZOOM_KEY
+    );
+    if (!key) {
+      throw new ZACCLError({
+        message: 'Zoom API key not included',
+        code: ErrorCode.CredentialsNotIncluded,
+      }); 
+    }
+
+    // Find secret
+    const secret = (
+      config.secret
+      ?? process.env.ZOOM_SECRET
+    );
+    if (!secret) {
+      throw new ZACCLError({
+        message: 'Zoom API secret not included',
+        code: ErrorCode.CredentialsNotIncluded,
+      }); 
+    }
+
     // Key and secret provided
     zoomAPIConfig = {
       type: ZoomAPIConfigType.JWT,
       zoomHost,
-      key: (
-        config.key
-        ?? process.env.ZOOM_KEY
-      ),
-      secret: (
-        config.secret
-        ?? process.env.ZOOM_SECRET
-      ),
+      key,
+      secret,
     };
   } else if (config.token || process.env.ZOOM_TOKEN) {
+    // Find token
+    const token = (
+      config.token
+      ?? process.env.ZOOM_TOKEN
+    );
+    if (!token) {
+      throw new ZACCLError({
+        message: 'Zoom API token not included',
+        code: ErrorCode.CredentialsNotIncluded,
+      }); 
+    }
+
     // Token provided
     zoomAPIConfig = {
       type: ZoomAPIConfigType.Token,
       zoomHost,
-      token: (
-        config.token
-        ?? process.env.ZOOM_TOKEN
-      ),
+      token,
     };
   } else if (
     (config.clientId || process.env.ZOOM_CLIENT_ID)
     && (config.clientSecret || process.env.ZOOM_CLIENT_SECRET)
     && (config.accountId || process.env.ZOOM_ACCOUNT_ID)
   ) {
+    // Find clientId
+    const clientId = (
+      config.clientId
+      ?? process.env.ZOOM_CLIENT_ID
+    );
+    if (!clientId) {
+      throw new ZACCLError({
+        message: 'Zoom OAuth Client ID not included',
+        code: ErrorCode.CredentialsNotIncluded,
+      }); 
+    }
+    
+    // Find clientSecret
+    const clientSecret = (
+      config.clientSecret
+      ?? process.env.ZOOM_CLIENT_SECRET
+    );
+    if (!clientSecret) {
+      throw new ZACCLError({
+        message: 'Zoom OAuth Client Secret not included',
+        code: ErrorCode.CredentialsNotIncluded,
+      }); 
+    }
+
+    // Find accountId
+    const accountId = (
+      config.accountId
+      ?? process.env.ZOOM_ACCOUNT_ID
+    );
+    if (!accountId) {
+      throw new ZACCLError({
+        message: 'Zoom OAuth Account ID not included',
+        code: ErrorCode.CredentialsNotIncluded,
+      }); 
+    }
+
     // OAuth credentials provided
     zoomAPIConfig = {
       type: ZoomAPIConfigType.OAuth,
       zoomHost,
-      clientId: (
-        config.clientId
-        ?? process.env.ZOOM_CLIENT_ID
-      ),
-      clientSecret: (
-        config.clientSecret
-        ?? process.env.ZOOM_CLIENT_SECRET
-      ),
-      accountId: (
-        config.accountId
-        ?? process.env.ZOOM_ACCOUNT_ID
-      ),
+      clientId,
+      clientSecret,
+      accountId,
     };
   } else {
     throw new ZACCLError({
@@ -201,4 +256,5 @@ export {
   ZoomMeetingActivitiesReportItem,
   ZoomParticipantInReport,
   ZoomMeetingQAReportItem,
+  ZoomRecordingInAccount,
 };
