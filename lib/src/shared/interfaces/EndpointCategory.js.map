@@ -1,0 +1,1 @@
+{"version":3,"file":"EndpointCategory.js","sourceRoot":"","sources":["../../../../src/shared/interfaces/EndpointCategory.ts"],"names":[],"mappings":";;AAKA,wEAAwE;AACxE,mEAAmE;AAEnE;;;GAGG;AACH,MAAM,gBAAgB;IAIpB;;;;OAIG;IACH,YAAY,QAAkB;QAC5B,IAAI,CAAC,aAAa,GAAG,QAAQ,CAAC,aAAa,CAAC;QAC5C,IAAI,CAAC,GAAG,GAAG,QAAQ,CAAC,GAAG,CAAC;IAC1B,CAAC;CACF;AAED,kBAAe,gBAAgB,CAAC"}
