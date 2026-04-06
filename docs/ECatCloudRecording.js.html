@@ -46,21 +46,6 @@
  * @author Aryan Pandey
  * @namespace api.cloudRecording
  */
-var __extends = (this &amp;&amp; this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array &amp;&amp; function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" &amp;&amp; b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this &amp;&amp; this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -70,49 +55,18 @@ var __awaiter = (this &amp;&amp; this.__awaiter) || function (thisArg, _argument
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this &amp;&amp; this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] &amp; 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" &amp;&amp; (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g &amp;&amp; (g = 0, op[0] &amp;&amp; (_ = 0)), _) try {
-            if (f = 1, y &amp;&amp; (t = op[0] &amp; 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) &amp;&amp; t.call(y), 0) : y.next) &amp;&amp; !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] &amp; 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 &amp;&amp; t[t.length - 1]) &amp;&amp; (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 &amp;&amp; (!t || (op[1] > t[0] &amp;&amp; op[1] &lt; t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 &amp;&amp; _.label &lt; t[1]) { _.label = t[1]; t = op; break; }
-                    if (t &amp;&amp; _.label &lt; t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] &amp; 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var __importDefault = (this &amp;&amp; this.__importDefault) || function (mod) {
     return (mod &amp;&amp; mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Import shared interfaces
-var EndpointCategory_1 = __importDefault(require("../shared/interfaces/EndpointCategory"));
+const EndpointCategory_1 = __importDefault(require("../shared/interfaces/EndpointCategory"));
 // Import shared classes
-var ZACCLError_1 = __importDefault(require("../shared/classes/ZACCLError"));
-var ErrorCode_1 = __importDefault(require("../shared/types/ErrorCode"));
+const ZACCLError_1 = __importDefault(require("../shared/classes/ZACCLError"));
+const ErrorCode_1 = __importDefault(require("../shared/types/ErrorCode"));
 // Import shared helper
-var utils_1 = require("../shared/helpers/utils");
-var ECatCloudRecording = /** @class */ (function (_super) {
-    __extends(ECatCloudRecording, _super);
-    function ECatCloudRecording() {
-        return _super !== null &amp;&amp; _super.apply(this, arguments) || this;
-    }
+const utils_1 = require("../shared/helpers/utils");
+class ECatCloudRecording extends EndpointCategory_1.default {
     /**
      * List recordings in the account (Medium)
      * @author Gabe Abrams
@@ -131,46 +85,45 @@ var ECatCloudRecording = /** @class */ (function (_super) {
      * for custom throttle control
      * @returns the list of recordings in the account
      */
-    ECatCloudRecording.prototype.listAccountRecordings = function (opts) {
+    listAccountRecordings(opts) {
         var _a, _b;
-        return __awaiter(this, void 0, void 0, function () {
-            var fromYear, fromMonth, minMsBetweenPageRequests, fromMonthPadded, fromDay, fromDayPadded, fromDateString, toYear, toMonth, toMonthPadded, toDay, toDayPadded, toDateString;
-            return __generator(this, function (_c) {
-                fromYear = opts.fromYear, fromMonth = opts.fromMonth, minMsBetweenPageRequests = opts.minMsBetweenPageRequests;
-                fromMonthPadded = fromMonth &lt; 10 ? "0".concat(fromMonth) : fromMonth;
-                fromDay = (_a = opts.fromDay) !== null &amp;&amp; _a !== void 0 ? _a : 1;
-                fromDayPadded = fromDay &lt; 10 ? "0".concat(fromDay) : fromDay;
-                fromDateString = "".concat(fromYear, "-").concat(fromMonthPadded, "-").concat(fromDayPadded);
-                toYear = fromYear;
-                toMonth = opts.fromMonth + 1;
-                if (toMonth > 12) {
-                    toMonth = 1;
-                    toYear += 1;
-                }
-                toMonthPadded = toMonth &lt; 10 ? "0".concat(toMonth) : toMonth;
-                toDay = fromDay;
-                toDayPadded = toDay &lt; 10 ? "0".concat(toDay) : toDay;
-                toDateString = "".concat(toYear, "-").concat(toMonthPadded, "-").concat(toDayPadded);
-                return [2 /*return*/, this.visitEndpoint({
-                        path: "/accounts/".concat((_b = opts.accountId) !== null &amp;&amp; _b !== void 0 ? _b : 'me', "/recordings"),
-                        action: 'list recordings in the account',
-                        method: 'GET',
-                        params: {
-                            page_size: 300,
-                            from: fromDateString,
-                            to: toDateString,
-                        },
-                        onNewPage: opts.onNewPage,
-                        minMsBetweenPageRequests: minMsBetweenPageRequests,
-                        itemKey: 'meetings',
-                        errorMap: {
-                            400: 'Bad request',
-                            404: 'No recordings found',
-                        },
-                    })];
+        return __awaiter(this, void 0, void 0, function* () {
+            // Generate from date
+            const { fromYear, fromMonth, minMsBetweenPageRequests, } = opts;
+            const fromMonthPadded = fromMonth &lt; 10 ? `0${fromMonth}` : fromMonth;
+            const fromDay = (_a = opts.fromDay) !== null &amp;&amp; _a !== void 0 ? _a : 1;
+            const fromDayPadded = fromDay &lt; 10 ? `0${fromDay}` : fromDay;
+            const fromDateString = `${fromYear}-${fromMonthPadded}-${fromDayPadded}`;
+            // Generate to date
+            let toYear = fromYear;
+            let toMonth = opts.fromMonth + 1;
+            if (toMonth > 12) {
+                toMonth = 1;
+                toYear += 1;
+            }
+            let toMonthPadded = toMonth &lt; 10 ? `0${toMonth}` : toMonth;
+            let toDay = fromDay;
+            let toDayPadded = toDay &lt; 10 ? `0${toDay}` : toDay;
+            const toDateString = `${toYear}-${toMonthPadded}-${toDayPadded}`;
+            return this.visitEndpoint({
+                path: `/accounts/${(_b = opts.accountId) !== null &amp;&amp; _b !== void 0 ? _b : 'me'}/recordings`,
+                action: 'list recordings in the account',
+                method: 'GET',
+                params: {
+                    page_size: 300,
+                    from: fromDateString,
+                    to: toDateString,
+                },
+                onNewPage: opts.onNewPage,
+                minMsBetweenPageRequests,
+                itemKey: 'meetings',
+                errorMap: {
+                    400: 'Bad request',
+                    404: 'No recordings found',
+                },
             });
         });
-    };
+    }
     /**
      * Get all recordings of a meeting (Light)
      * @author Aryan Pandey
@@ -183,41 +136,39 @@ var ECatCloudRecording = /** @class */ (function (_super) {
      *   that can be used to download the recording files
      * @returns list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
      */
-    ECatCloudRecording.prototype.listMeetingRecordings = function (opts) {
-        return __awaiter(this, void 0, void 0, function () {
-            var params;
-            return __generator(this, function (_a) {
-                // Check if required param is present
-                if (!opts.meetingId) {
-                    throw new ZACCLError_1.default({
-                        message: 'Meeting ID is a required parameter',
-                        code: ErrorCode_1.default.InvalidMeetingId,
-                    });
-                }
-                params = {};
-                if (opts.includeDownloadAccessToken) {
-                    params.include_fields = 'download_access_token';
-                    params.ttl = 604800; // Max TTL
-                }
-                return [2 /*return*/, this.visitEndpoint({
-                        // Call function on meetingId to handle double encoding if necessary
-                        path: "/meetings/".concat((0, utils_1.doubleEncode)(String(opts.meetingId)), "/recordings"),
-                        method: 'GET',
-                        action: 'get all recordings of a meeting',
-                        params: params,
-                        errorMap: {
-                            400: {
-                                1010: 'We could not find the user on this account',
-                            },
-                            404: {
-                                1001: 'We could not find that user',
-                                3301: "There are no recordings for the meeting ".concat(opts.meetingId),
-                            },
-                        },
-                    })];
+    listMeetingRecordings(opts) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Check if required param is present
+            if (!opts.meetingId) {
+                throw new ZACCLError_1.default({
+                    message: 'Meeting ID is a required parameter',
+                    code: ErrorCode_1.default.InvalidMeetingId,
+                });
+            }
+            // Create params
+            const params = {};
+            if (opts.includeDownloadAccessToken) {
+                params.include_fields = 'download_access_token';
+                params.ttl = 604800; // Max TTL
+            }
+            return this.visitEndpoint({
+                // Call function on meetingId to handle double encoding if necessary
+                path: `/meetings/${(0, utils_1.doubleEncode)(String(opts.meetingId))}/recordings`,
+                method: 'GET',
+                action: 'get all recordings of a meeting',
+                params,
+                errorMap: {
+                    400: {
+                        1010: 'We could not find the user on this account',
+                    },
+                    404: {
+                        1001: 'We could not find that user',
+                        3301: `There are no recordings for the meeting ${opts.meetingId}`,
+                    },
+                },
             });
         });
-    };
+    }
     /**
      * List all cloud recordings of a user (Medium)
      * @author Aryan Pandey
@@ -241,44 +192,44 @@ var ECatCloudRecording = /** @class */ (function (_super) {
      * for custom throttle control
      * @returns List of Zoom Recordings {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingslist#responses}
      */
-    ECatCloudRecording.prototype.listUserRecordings = function (opts) {
-        return __awaiter(this, void 0, void 0, function () {
-            var userId, searchTrash, startDate, endDate, onNewPage, minMsBetweenPageRequests, defaultDate, params;
-            return __generator(this, function (_a) {
-                userId = opts.userId, searchTrash = opts.searchTrash, startDate = opts.startDate, endDate = opts.endDate, onNewPage = opts.onNewPage, minMsBetweenPageRequests = opts.minMsBetweenPageRequests;
-                defaultDate = new Date();
-                defaultDate.setMonth(defaultDate.getMonth() - 1);
-                params = {
-                    page_size: 300,
-                    trash: !!searchTrash,
-                    from: (0, utils_1.formatDate)(defaultDate, 'startDate'),
-                };
-                if (startDate) {
-                    params.from = (0, utils_1.formatDate)(startDate, 'startDate');
-                }
-                if (endDate) {
-                    params.to = (0, utils_1.formatDate)(endDate, 'endDate');
-                }
-                return [2 /*return*/, this.visitEndpoint({
-                        path: "/users/".concat(userId, "/recordings"),
-                        action: 'list all cloud recordings of a user',
-                        method: 'GET',
-                        params: params,
-                        onNewPage: opts.onNewPage,
-                        minMsBetweenPageRequests: minMsBetweenPageRequests,
-                        itemKey: 'meetings',
-                        errorMap: {
-                            404: {
-                                1001: "We could not find the Zoom user ".concat(userId, " on this account"),
-                            },
-                        },
-                    })];
+    listUserRecordings(opts) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Destructure arguments
+            const { userId, searchTrash, startDate, endDate, onNewPage, minMsBetweenPageRequests, } = opts;
+            // Declare default start Date to 1 month before
+            const defaultDate = new Date();
+            defaultDate.setMonth(defaultDate.getMonth() - 1);
+            // Initialize params object with default values and only add
+            // optional params if they are defined
+            const params = {
+                page_size: 300,
+                trash: !!searchTrash,
+                from: (0, utils_1.formatDate)(defaultDate, 'startDate'),
+            };
+            if (startDate) {
+                params.from = (0, utils_1.formatDate)(startDate, 'startDate');
+            }
+            if (endDate) {
+                params.to = (0, utils_1.formatDate)(endDate, 'endDate');
+            }
+            return this.visitEndpoint({
+                path: `/users/${userId}/recordings`,
+                action: 'list all cloud recordings of a user',
+                method: 'GET',
+                params,
+                onNewPage: opts.onNewPage,
+                minMsBetweenPageRequests,
+                itemKey: 'meetings',
+                errorMap: {
+                    404: {
+                        1001: `We could not find the Zoom user ${userId} on this account`,
+                    },
+                },
             });
         });
-    };
+    }
     ;
-    return ECatCloudRecording;
-}(EndpointCategory_1.default));
+}
 /*------------------------------------------------------------------------*/
 /*                                 Export                                 */
 /*------------------------------------------------------------------------*/

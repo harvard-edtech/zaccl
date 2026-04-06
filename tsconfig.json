@@ -14,7 +14,7 @@
       "dom.iterable"
     ],
     "types": ["node"],
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "./lib"
   },
   "include": [
