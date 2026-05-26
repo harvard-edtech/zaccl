@@ -77,6 +77,9 @@ class ECatCloudRecording extends EndpointCategory_1.default {
      * @param opts.fromYear the start of the date range to list recordings for (e.g. 2026)
      * @param opts.fromMonth the month of the date range to list recordings for (1-12)
      * @param [opts.fromDay] the day of the month of the date range to list recordings for (1-31, defaults to 1)
+     * @param [opts.toYear] the end of the date range to list recordings for (e.g. 2026, defaults to 1 month later)
+     * @param [opts.toMonth] the month of the end of the date range to list recordings for (1-12, defaults to 1 month later)
+     * @param [opts.toDay] the day of the month of the end of the date range to list recordings for (1-31, defaults to 1 month later)
      * @param [opts.accountId] the account ID of the account of interest (defaults to the account
      * associated with the current access)
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
@@ -86,7 +89,7 @@ class ECatCloudRecording extends EndpointCategory_1.default {
      * @returns the list of recordings in the account
      */
     listAccountRecordings(opts) {
-        var _a, _b;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             // Generate from date
             const { fromYear, fromMonth, minMsBetweenPageRequests, } = opts;
@@ -95,18 +98,27 @@ class ECatCloudRecording extends EndpointCategory_1.default {
             const fromDayPadded = fromDay &lt; 10 ? `0${fromDay}` : fromDay;
             const fromDateString = `${fromYear}-${fromMonthPadded}-${fromDayPadded}`;
             // Generate to date
-            let toYear = fromYear;
-            let toMonth = opts.fromMonth + 1;
-            if (toMonth > 12) {
-                toMonth = 1;
-                toYear += 1;
+            let toYear;
+            let toMonth;
+            let toDay;
+            if (opts.toYear &amp;&amp; opts.toMonth) {
+                toYear = opts.toYear;
+                toMonth = opts.toMonth;
+                toDay = (_b = opts.toDay) !== null &amp;&amp; _b !== void 0 ? _b : 1;
             }
-            let toMonthPadded = toMonth &lt; 10 ? `0${toMonth}` : toMonth;
-            let toDay = fromDay;
-            let toDayPadded = toDay &lt; 10 ? `0${toDay}` : toDay;
+            else {
+                // Generate to date
+                const fromDate = new Date(fromYear, fromMonth - 1, fromDay);
+                fromDate.setMonth(fromDate.getMonth() + 1);
+                toYear = fromDate.getFullYear();
+                toMonth = fromDate.getMonth() + 1;
+                toDay = fromDate.getDate();
+            }
+            const toMonthPadded = toMonth &lt; 10 ? `0${toMonth}` : toMonth;
+            const toDayPadded = toDay &lt; 10 ? `0${toDay}` : toDay;
             const toDateString = `${toYear}-${toMonthPadded}-${toDayPadded}`;
             return this.visitEndpoint({
-                path: `/accounts/${(_b = opts.accountId) !== null &amp;&amp; _b !== void 0 ? _b : 'me'}/recordings`,
+                path: `/accounts/${(_c = opts.accountId) !== null &amp;&amp; _c !== void 0 ? _c : 'me'}/recordings`,
                 action: 'list recordings in the account',
                 method: 'GET',
                 params: {

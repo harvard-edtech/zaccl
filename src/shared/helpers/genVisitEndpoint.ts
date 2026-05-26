@@ -195,6 +195,11 @@ const genVisitEndpoint = (zoomAPIConfig: ZoomAPIConfig): VisitEndpointFunc => {
 
       // End if not paginated
       if (!isPaginated) {
+        // Still call for the first page
+        if (onNewPage) {
+          onNewPage(results);
+        }
+
         return results;
       }
 
