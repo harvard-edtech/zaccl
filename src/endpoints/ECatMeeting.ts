@@ -766,7 +766,7 @@ class ECatMeeting extends EndpointCategory {
         meeting_number: meetingId,
         from,
         to, 
-        activity_type: -1, // All Activities
+        activity_type: 'All Activities',
       },
       itemKey: 'meeting_activity_logs',
       onNewPage: opts.onNewPage,

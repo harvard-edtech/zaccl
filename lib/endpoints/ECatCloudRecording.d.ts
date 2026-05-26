@@ -18,6 +18,9 @@ declare class ECatCloudRecording extends EndpointCategory {
      * @param opts.fromYear the start of the date range to list recordings for (e.g. 2026)
      * @param opts.fromMonth the month of the date range to list recordings for (1-12)
      * @param [opts.fromDay] the day of the month of the date range to list recordings for (1-31, defaults to 1)
+     * @param [opts.toYear] the end of the date range to list recordings for (e.g. 2026, defaults to 1 month later)
+     * @param [opts.toMonth] the month of the end of the date range to list recordings for (1-12, defaults to 1 month later)
+     * @param [opts.toDay] the day of the month of the end of the date range to list recordings for (1-31, defaults to 1 month later)
      * @param [opts.accountId] the account ID of the account of interest (defaults to the account
      * associated with the current access)
      * @param [opts.onNewPage] callback function that is called when a new page of results is received.
@@ -30,6 +33,9 @@ declare class ECatCloudRecording extends EndpointCategory {
         fromYear: number;
         fromMonth: number;
         fromDay?: number;
+        toYear?: number;
+        toMonth?: number;
+        toDay?: number;
         accountId?: string;
         onNewPage?: (recordings: ZoomRecordingInAccount[]) => void;
         minMsBetweenPageRequests?: number;

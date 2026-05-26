@@ -1,5 +1,4 @@
-// Import libs
-import axios from 'axios';
+// Import qs
 import qs from 'qs';
 
 // Import ZACCLError
@@ -69,31 +68,37 @@ const sendRequest = async (
 
   // Send request
   try {
-    const response = await axios({
+    const response = await fetch(url, {
       method,
-      url,
       headers,
-      data: opts.params,
+      body: method !== 'GET' ? JSON.stringify(opts.params) : undefined,
     });
 
-    // Only return part of the axios response
+    // Parse response body (try JSON first, fall back to text)
+    let body: any;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      body = await response.json();
+    } else {
+      body = await response.text();
+    }
+
+    // Convert Headers to a plain object
+    const responseHeaders: { [k: string]: string } = {};
+    response.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+
+    // Return response (fetch does not throw on non-2xx statuses, so all
+    // HTTP responses resolve here, matching the original behavior where
+    // both success and error-with-response resolved)
     return {
-      body: response.data,
+      body,
       status: response.status,
-      headers: response.headers,
+      headers: responseHeaders,
     };
   } catch (err) {
-    // Axios throws an error if the request status indicates an error
-    // sendRequest is supposed to resolve if the request went through, whether
-    // the status indicates an error or not.
-    if (err.response) {
-      // Resolve with response
-      return Promise.resolve({
-        body: err.response.data,
-        status: err.response.status,
-        headers: err.response.headers,
-      });
-    }
+    // Fetch only throws on network failures (not HTTP error statuses)
     // Request failed! Check if we have more attempts
     if (numRetries > 0) {
       // Update options with one less retry
