@@ -108,6 +108,48 @@ class ECatCloudRecording extends EndpointCategory {
   }
 
   /**
+   * Recover recordings for a meeting (Light)
+   * @author Gabe Abrams
+   * @instance
+   * @memberof api.cloudRecording
+   * @method recoverMeetingRecordings
+   * @param opts object containing all arguments
+   * @param opts.meetingId the Zoom meeting ID or UUID
+   */
+  async recoverMeetingRecordings(
+    opts: {
+      meetingId: string | number,
+    },
+  ): Promise<void> {
+    // Check if required param is present
+    if (!opts.meetingId) {
+      throw new ZACCLError({
+        message: 'Meeting ID is a required parameter',
+        code: ErrorCode.InvalidMeetingId,
+      });
+    }
+
+    return this.visitEndpoint({
+      path: `/meetings/${doubleEncode(String(opts.meetingId))}/recordings/status`,
+      method: 'PUT',
+      params: {
+        action: 'recover',
+      },
+      action: 'recover recordings of a meeting',
+      errorMap: {
+        400: {
+          1010: 'We could not find the user on this account',
+          3309: 'Not enough cloud storage available. Either purchase additional storage or delete cloud recordings to free up storage.',
+        },
+        404: {
+          1001: 'We could not find that user',
+          3301: `There are no recordings for the meeting ${opts.meetingId}`,
+        },
+      },
+    });
+  }
+
+  /**
    * Get all recordings of a meeting (Light)
    * @author Aryan Pandey
    * @instance
@@ -117,12 +159,15 @@ class ECatCloudRecording extends EndpointCategory {
    * @param opts.meetingId the Zoom meeting ID or UUID
    * @param opts.includeDownloadAccessToken if true, the response will include a download_access_token
    *   that can be used to download the recording files
+   * @param opts.attemptRecoverOnNotFound if true, when Zoom returns a "not found" error,
+   *   attempt to recover the recording and then fetch the recording info again
    * @returns list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
    */
   async listMeetingRecordings(
     opts: {
       meetingId: string | number,
       includeDownloadAccessToken?: boolean,
+      attemptRecoverOnNotFound?: boolean,
     },
   ): Promise<ZoomMeetingRecordings> {
     // Check if required param is present
@@ -140,22 +185,60 @@ class ECatCloudRecording extends EndpointCategory {
       params.ttl = 604800; // Max TTL
     }
 
-    return this.visitEndpoint({
-      // Call function on meetingId to handle double encoding if necessary
-      path: `/meetings/${doubleEncode(String(opts.meetingId))}/recordings`,
-      method: 'GET',
-      action: 'get all recordings of a meeting',
-      params,
-      errorMap: {
-        400: {
-          1010: 'We could not find the user on this account',
-        },
-        404: {
-          1001: 'We could not find that user',
-          3301: `There are no recordings for the meeting ${opts.meetingId}`,
-        },
+    // Create full visitEndpoint opts
+    const path = `/meetings/${doubleEncode(String(opts.meetingId))}/recordings`;
+    const method = 'GET';
+    const action = 'get all recordings of a meeting';
+    const errorMap = {
+      400: {
+        1010: 'We could not find the user on this account',
       },
-    });
+      404: {
+        1001: 'We could not find that user',
+        3301: `There are no recordings for the meeting ${opts.meetingId}`,
+      },
+    };
+    try {
+      const output = await this.visitEndpoint({
+        path,
+        method,
+        action,
+        errorMap,
+        params,
+      });
+      return output;
+    } catch (err) {
+      if (
+        // Attempt recovery
+        opts.attemptRecoverOnNotFound
+        // Recording not found
+        && (err as any || {}).code === 'ZOOM404-3301'
+      ) {
+        try {
+          // Try recovering the recording
+          await this.recoverMeetingRecordings({ meetingId: opts.meetingId });
+
+          // Recovered! Try fetching again
+          const output = await this.visitEndpoint({
+            path,
+            method,
+            action,
+            errorMap,
+            params,
+          });
+          return output;
+        } catch (err2) {
+          // Failed to recover
+          throw new ZACCLError({
+            message: `The recording for meeting ${opts.meetingId} could not be found, and we were unable to recover it. Error: ${(err2 as any)?.message || 'unknown recovery error'}`,
+            code: ErrorCode.NotFoundAndUnrecoverable,
+          });
+        }
+      }
+
+      // Not an error we handle. Rethrow it.
+      throw err;
+    }
   }
 
   /**

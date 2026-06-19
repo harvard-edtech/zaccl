@@ -1,4 +1,4 @@
-// Highest error: ZAC21
+// Highest error: ZAC22
 
 enum ErrorCode {
   // Network errors
@@ -27,6 +27,9 @@ enum ErrorCode {
   UnknownError = 'ZAC6',
   ProgrammerError = 'ZAC13',
   InvalidPageSize = 'ZAC17',
+
+  // Meeting errors
+  NotFoundAndUnrecoverable = 'ZAC22',
 
   // Account errors
   NotAddedBecauseDeactivated = 'ZAC14',

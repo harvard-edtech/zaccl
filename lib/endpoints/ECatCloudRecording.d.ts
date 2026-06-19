@@ -41,6 +41,18 @@ declare class ECatCloudRecording extends EndpointCategory {
         minMsBetweenPageRequests?: number;
     }): Promise<ZoomRecordingInAccount[]>;
     /**
+     * Recover recordings for a meeting (Light)
+     * @author Gabe Abrams
+     * @instance
+     * @memberof api.cloudRecording
+     * @method recoverMeetingRecordings
+     * @param opts object containing all arguments
+     * @param opts.meetingId the Zoom meeting ID or UUID
+     */
+    recoverMeetingRecordings(opts: {
+        meetingId: string | number;
+    }): Promise<void>;
+    /**
      * Get all recordings of a meeting (Light)
      * @author Aryan Pandey
      * @instance
@@ -50,11 +62,14 @@ declare class ECatCloudRecording extends EndpointCategory {
      * @param opts.meetingId the Zoom meeting ID or UUID
      * @param opts.includeDownloadAccessToken if true, the response will include a download_access_token
      *   that can be used to download the recording files
+     * @param opts.attemptRecoverOnNotFound if true, when Zoom returns a "not found" error,
+     *   attempt to recover the recording and then fetch the recording info again
      * @returns list of Zoom meeting recording objects {@link https://marketplace.zoom.us/docs/api-reference/zoom-api/cloud-recording/recordingget#responses}
      */
     listMeetingRecordings(opts: {
         meetingId: string | number;
         includeDownloadAccessToken?: boolean;
+        attemptRecoverOnNotFound?: boolean;
     }): Promise<ZoomMeetingRecordings>;
     /**
      * List all cloud recordings of a user (Medium)

@@ -16,6 +16,7 @@ declare enum ErrorCode {
     UnknownError = "ZAC6",
     ProgrammerError = "ZAC13",
     InvalidPageSize = "ZAC17",
+    NotFoundAndUnrecoverable = "ZAC22",
     NotAddedBecauseDeactivated = "ZAC14",
     CredentialsNotIncluded = "ZAC18",
     FailedToGetAccessToken = "ZAC19",
